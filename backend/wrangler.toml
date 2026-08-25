@@ -1,4 +1,4 @@
-name = "ppi-backend"
+name = "mts-garut"
 main = "src/index.ts"
 compatibility_date = "2025-07-01"
 compatibility_flags = ["nodejs_compat"]
@@ -9,7 +9,7 @@ binding = "DB"
 database_name = "ppi-db-prod"
 database_id = "f4f8e08d-1d77-4cd4-8021-225e88ae233c"
 
-# Variables (dev default)
+# Variables (production)
 # ⚠️ JWT_SECRET dan JWT_REFRESH_SECRET di-set via Cloudflare Secrets, bukan di sini!
 # Set dengan perintah:
 #   npx wrangler secret put JWT_SECRET
@@ -20,7 +20,7 @@ database_id = "f4f8e08d-1d77-4cd4-8021-225e88ae233c"
 #   echo "JWT_REFRESH_SECRET=ppi-madrasah-refresh-secret-key-2026" >> .env
 [vars]
 JWT_EXPIRES_IN = "8h"
-CORS_ORIGIN = "*"
+CORS_ORIGIN = "https://mts-garut.pages.dev,https://ppi-bo8.pages.dev,https://f1198d05.ppi-bo8.pages.dev"
 
 # Dev environment
 [env.dev]
@@ -38,16 +38,6 @@ vars = { JWT_EXPIRES_IN = "8h", CORS_ORIGIN = "*" }
 binding = "DB"
 database_name = "ppi-db-staging"
 database_id = ""  # ← ISI: jalankan 'npx wrangler d1 create ppi-db-staging', copy ID nya ke sini
-
-# Production environment
-[env.production]
-vars = { JWT_EXPIRES_IN = "8h", CORS_ORIGIN = "https://ppi-bo8.pages.dev,https://f1198d05.ppi-bo8.pages.dev" }
-
-# D1 Database (Production)
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "ppi-db-prod"
-database_id = "f4f8e08d-1d77-4cd4-8021-225e88ae233c"
 
 # D1 migrations
 [[migrations]]
