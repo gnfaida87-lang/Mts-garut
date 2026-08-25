@@ -1,7 +1,7 @@
 -- ============================================================
 -- SEED DATA — MTs Garut
--- Jalankan dengan: wrangler d1 execute ppi-db --file=src/db/seed.sql
--- Atau: wrangler d1 execute ppi-db-prod --env production --file=src/db/seed.sql
+-- Jalankan dengan: wrangler d1 execute mts-garut-db --file=src/db/seed.sql
+-- Atau: wrangler d1 execute mts-garut-db --env production --file=src/db/seed.sql
 -- ============================================================
 -- PERINGATAN: Ganti password default setelah login pertama!
 -- ============================================================
@@ -44,9 +44,9 @@ INSERT OR IGNORE INTO tingkat (id, nama, jenjang) VALUES
   (1, 'VII',   'MTs'),
   (2, 'VIII',  'MTs'),
   (3, 'IX',    'MTs'),
-  (4, 'X',     'MA'),
-  (5, 'XI',    'MA'),
-  (6, 'XII',   'MA');
+  (4, 'X',     'MA/MLN'),
+  (5, 'XI',    'MA/MLN'),
+  (6, 'XII',   'MA/MLN');
 
 -- Ruangan
 INSERT OR IGNORE INTO ruangan (id, nama, kapasitas) VALUES

@@ -6,8 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 # D1 Database (Production)
 [[d1_databases]]
 binding = "DB"
-database_name = "ppi-db-prod"
-database_id = "f4f8e08d-1d77-4cd4-8021-225e88ae233c"
+database_name = "mts-garut-db"
+database_id = "5c4fccfa-f9fb-4858-98e2-8bedf9c63240"
 
 # Variables (production)
 # ⚠️ JWT_SECRET dan JWT_REFRESH_SECRET di-set via Cloudflare Secrets, bukan di sini!
