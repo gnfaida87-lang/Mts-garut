@@ -450,7 +450,7 @@ class _InputAbsensiPageState extends State<_InputAbsensiPage> {
                               children: [
                                 const Text('Status Cepat: ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                                 const SizedBox(width: 6),
-                                _quickChip('Hadir Semua', 'hadir', Colors.green),
+                                _quickChip('Hadir Semua', 'hadir', const Color(0xFF9C6644)),
                                 const SizedBox(width: 6),
                                 _quickChip('Izin', 'izin', Colors.orange),
                                 const SizedBox(width: 6),
@@ -487,7 +487,7 @@ class _InputAbsensiPageState extends State<_InputAbsensiPage> {
                                         DataCell(Text('${i + 1}', style: const TextStyle(fontSize: 13))),
                                         DataCell(Text(s['nis']?.toString() ?? '', style: const TextStyle(fontSize: 13))),
                                         DataCell(SizedBox(width: 170, child: Text(s['nama']?.toString() ?? '', overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)))),
-                                        DataCell(_radioChip(id, 'hadir', Colors.green)),
+                                        DataCell(_radioChip(id, 'hadir', const Color(0xFF9C6644))),
                                         DataCell(_radioChip(id, 'izin', Colors.orange)),
                                         DataCell(_radioChip(id, 'sakit', Colors.blue)),
                                         DataCell(_radioChip(id, 'alpa', Colors.red)),
@@ -545,7 +545,7 @@ class _InputAbsensiPageState extends State<_InputAbsensiPage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              _mobileStatusBtn(id, 'hadir', 'Hadir', Colors.green),
+                                              _mobileStatusBtn(id, 'hadir', 'Hadir', const Color(0xFF9C6644)),
                                               _mobileStatusBtn(id, 'izin', 'Izin', Colors.orange),
                                               _mobileStatusBtn(id, 'sakit', 'Sakit', Colors.blue),
                                               _mobileStatusBtn(id, 'alpa', 'Alpa', Colors.red),
@@ -786,19 +786,19 @@ class _RiwayatAbsensiPageState extends State<_RiwayatAbsensiPage> {
                               alignment: WrapAlignment.start,
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
-                                _SesiBadge(label: 'Hadir', value: hadir, color: Colors.green),
+                                _SesiBadge(label: 'Hadir', value: hadir, color: const Color(0xFF9C6644)),
                                 _SesiBadge(label: 'Izin', value: izin, color: Colors.orange),
                                 _SesiBadge(label: 'Sakit', value: sakit, color: Colors.blue),
                                 _SesiBadge(label: 'Alpa', value: alpa, color: Colors.red),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: sudah == (totalSiswa as int) ? Colors.green.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+                                    color: sudah == (totalSiswa as int) ? const Color(0xFF9C6644).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(isNarrow ? '$sudah/$totalSiswa' : 'Tercatat $sudah/$totalSiswa', style: TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.w600,
-                                    color: sudah == totalSiswa ? Colors.green : Colors.orange[700],
+                                    color: sudah == totalSiswa ? const Color(0xFF9C6644) : Colors.orange[700],
                                   )),
                                 ),
                               ],
@@ -961,7 +961,7 @@ class _DetailSesiPageState extends State<_DetailSesiPage> {
 
   Color _statusColor(String status) {
     switch (status) {
-      case 'hadir': return Colors.green;
+      case 'hadir': return const Color(0xFF9C6644);
       case 'izin': return Colors.orange;
       case 'sakit': return Colors.blue;
       case 'alpa': return Colors.red;

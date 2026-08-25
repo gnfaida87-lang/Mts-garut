@@ -6,25 +6,25 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="MA PERSIS GARUT - Absensi, Jadwal, Nilai, dan Lainnya">
+  <meta name="description" content="MTs PERSIS GARUT - Absensi, Jadwal, Nilai, dan Lainnya">
   
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#1B5E20">
+  <meta name="theme-color" content="#6F4E37">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MA Persis">
+  <meta name="apple-mobile-web-app-title" content="MTs Persis">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- SEO Meta Tags -->
-  <meta name="application-name" content="MA Persis">
-  <meta name="msapplication-TileColor" content="#1B5E20">
+  <meta name="application-name" content="MTs Persis">
+  <meta name="msapplication-TileColor" content="#6F4E37">
   <meta name="msapplication-TileImage" content="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>MA PERSIS GARUT</title>
+  <title>MTs PERSIS GARUT</title>
   <link rel="manifest" href="manifest.json">
   
   <style>
@@ -34,7 +34,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #2E7D32;
+      background: #9C6644;
       color: white;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
@@ -65,7 +65,7 @@
       width: calc(100% - 32px);
       max-width: 420px;
       background: #FFFFFF;
-      color: #1B5E20;
+      color: #6F4E37;
       padding: 14px 16px;
       border-radius: 12px;
       display: none;
@@ -102,7 +102,7 @@
       flex-shrink: 0;
     }
     .install-banner button {
-      background: #1B5E20;
+      background: #6F4E37;
       color: white;
       border: none;
       padding: 10px 16px;
@@ -113,7 +113,7 @@
       font-size: 13px;
     }
     .install-banner button:hover {
-      background: #2E7D32;
+      background: #9C6644;
     }
     .install-banner-close {
       background: transparent !important;
@@ -148,7 +148,7 @@
           + '<div style="font-size:48px;margin-bottom:16px;">⚠️</div>'
           + '<div style="font-size:16px;font-weight:600;margin-bottom:8px;">Gagal memuat aplikasi</div>'
           + '<div style="font-size:13px;opacity:0.7;margin-bottom:16px;">Periksa koneksi internet dan coba lagi</div>'
-          + '<button onclick="window.location.reload()" style="background:white;color:#2E7D32;border:none;padding:10px 24px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">Muat Ulang</button>'
+          + '<button onclick="window.location.reload()" style="background:white;color:#9C6644;border:none;padding:10px 24px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">Muat Ulang</button>'
           + '</div>';
       }
     }, 8000);
@@ -183,7 +183,7 @@
       installBanner.className = 'install-banner visible';
       installBanner.innerHTML =
         '<span class="install-banner-icon">📲</span>' +
-        '<div class="install-banner-text"><strong>Instal Aplikasi MA Persis</strong>Akses lebih cepat dari layar utama</div>' +
+        '<div class="install-banner-text"><strong>Instal Aplikasi MTs Persis</strong>Akses lebih cepat dari layar utama</div>' +
         '<div class="install-banner-actions">' +
         '<button onclick="installApp()">Instal</button>' +
         '<button class="install-banner-close" onclick="dismissInstallBanner()" title="Tutup">✕</button>' +
@@ -214,11 +214,11 @@
 
     // Handle offline/online status
     window.addEventListener('online', function() {
-      document.title = 'MA PERSIS GARUT';
+      document.title = 'MTs PERSIS GARUT';
     });
     
     window.addEventListener('offline', function() {
-      document.title = '[Offline] MA Persis';
+      document.title = '[Offline] MTs Persis';
     });
   </script>
   <script src="flutter_bootstrap.js" async></script>
@@ -300,7 +300,7 @@
         banner.id = 'sw-update-banner';
         banner.style.cssText = 
           'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);' +
-          'width:calc(100% - 32px);max-width:420px;background:#fff;color:#1B5E20;' +
+          'width:calc(100% - 32px);max-width:420px;background:#fff;color:#6F4E37;' +
           'padding:14px 16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);' +
           'z-index:9999;display:flex;align-items:center;gap:12px;' +
           'animation:slideUp 0.3s ease;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;';
@@ -312,7 +312,7 @@
             'Versi baru aplikasi siap digunakan.' +
           '</div>' +
           '<div style="display:flex;gap:8px;">' +
-            '<button id="sw-refresh-btn" style="background:#1B5E20;color:#fff;border:none;' +
+            '<button id="sw-refresh-btn" style="background:#6F4E37;color:#fff;border:none;' +
             'padding:10px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;">Refresh Sekarang</button>' +
             '<button id="sw-later-btn" style="background:transparent;color:#666;border:none;' +
             'padding:10px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;">Nanti</button>' +

@@ -482,12 +482,12 @@ class _KonselingPageState extends State<KonselingPage>
                     ? Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.1),
+                          color: const Color(0xFF9C6644).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '${s['jadwal_tanggal'] ?? ''} ${s['jadwal_jam'] ?? ''}',
-                          style: const TextStyle(fontSize: 10, color: Colors.green),
+                          style: const TextStyle(fontSize: 10, color: Color(0xFF9C6644)),
                         ),
                       )
                     : SizedBox(
@@ -545,7 +545,7 @@ class _KonselingPageState extends State<KonselingPage>
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
                               'Jadwal: ${s['jadwal_tanggal']} ${s['jadwal_jam'] ?? ''}',
-                              style: const TextStyle(fontSize: 11, color: Colors.green),
+                              style: const TextStyle(fontSize: 11, color: Color(0xFF9C6644)),
                             ),
                           ),
                       ],
@@ -654,7 +654,7 @@ class _KonselingPageState extends State<KonselingPage>
         rows: _history.map((h) {
           final status = h['status']?.toString() ?? 'dijadwalkan';
           final catatan = h['catatan']?.toString() ?? h['konseling_tindak_lanjut']?.toString() ?? '-';
-          final statusColor = status == 'selesai' ? Colors.green : status == 'dibatalkan' ? Colors.red : Colors.orange;
+          final statusColor = status == 'selesai' ? const Color(0xFF9C6644) : status == 'dibatalkan' ? Colors.red : Colors.orange;
           final jadwalInfo = [h['hari'], h['tanggal'], h['jam']]
               .where((v) => v != null && v.toString().isNotEmpty)
               .map((v) => v.toString())
@@ -713,7 +713,7 @@ class _KonselingPageState extends State<KonselingPage>
         final h = _history[i];
         final status = h['status']?.toString() ?? 'dijadwalkan';
         final catatan = h['catatan']?.toString() ?? h['konseling_tindak_lanjut']?.toString() ?? '-';
-        final statusColor = status == 'selesai' ? Colors.green : status == 'dibatalkan' ? Colors.red : Colors.orange;
+        final statusColor = status == 'selesai' ? const Color(0xFF9C6644) : status == 'dibatalkan' ? Colors.red : Colors.orange;
         final jadwalInfo = [h['hari'], h['tanggal'], h['jam']]
             .where((v) => v != null && v.toString().isNotEmpty)
             .map((v) => v.toString())

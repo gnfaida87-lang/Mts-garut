@@ -51,7 +51,7 @@ class _DashboardPageGuruState extends State<DashboardPageGuru> {
       roleDisplay: UserModel.jabatanGuru(isWaliKelas: _isWaliKelas),
       stats: [
         StatItem(Icons.calendar_today, 'Jadwal Hari Ini', '${_stats?['jadwal_hari_ini'] ?? 0}', Colors.blue),
-        StatItem(Icons.checklist, 'Total Absensi', '${_stats?['total_absensi'] ?? 0}', Colors.green),
+        StatItem(Icons.checklist, 'Total Absensi', '${_stats?['total_absensi'] ?? 0}', const Color(0xFF9C6644)),
         StatItem(Icons.grading, 'Total Nilai', '${_stats?['total_nilai'] ?? 0}', Colors.orange),
         StatItem(Icons.warning_amber, 'Pengaduan Aktif', '${_stats?['pengaduan_aktif'] ?? 0}', Colors.red),
       ],

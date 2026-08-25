@@ -82,8 +82,8 @@ class _ProfilPageGuruState extends State<ProfilPageGuru> {
             children: [
               const CircleAvatar(
                 radius: 48,
-                backgroundColor: Color(0xFFE8F5E9),
-                child: Icon(Icons.person, color: Color(0xFF2E7D32), size: 48),
+                backgroundColor: Color(0xFFF5EBE0),
+                child: Icon(Icons.person, color: Color(0xFF9C6644), size: 48),
               ),
               const SizedBox(height: 16),
               Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
@@ -91,10 +91,10 @@ class _ProfilPageGuruState extends State<ProfilPageGuru> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                  color: const Color(0xFF9C6644).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(jabatanDisplay, style: const TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.w500)),
+                child: Text(jabatanDisplay, style: const TextStyle(color: Color(0xFF9C6644), fontWeight: FontWeight.w500)),
               ),
               const SizedBox(height: 16),
 

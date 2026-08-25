@@ -59,7 +59,7 @@ class _RaporPageGuruState extends State<RaporPageGuru> with SingleTickerProvider
                 onPressed: () { setState(() => _loading = true); _loadDataWali(); },
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Coba Lagi', style: TextStyle(fontWeight: FontWeight.w600)),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E7D32), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9C6644), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               ),
             ],
           ),
@@ -99,7 +99,7 @@ class _RaporPageGuruState extends State<RaporPageGuru> with SingleTickerProvider
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF2E7D32), Color(0xFF388E3C), Color(0xFF4CAF50)],
+              colors: [Color(0xFF9C6644), Color(0xFFA9764F), Color(0xFF9C6644)],
             ),
           ),
           child: Column(
@@ -145,9 +145,9 @@ class _RaporPageGuruState extends State<RaporPageGuru> with SingleTickerProvider
           color: Colors.white,
           child: TabBar(
             controller: _tabController,
-            labelColor: const Color(0xFF2E7D32),
+            labelColor: const Color(0xFF9C6644),
             unselectedLabelColor: Colors.grey[600],
-            indicatorColor: const Color(0xFF2E7D32),
+            indicatorColor: const Color(0xFF9C6644),
             indicatorWeight: 3,
             labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             tabs: const [
@@ -329,7 +329,7 @@ class _LihatRaporState extends State<_LihatRapor> {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 18), SizedBox(width: 8), Text('PDF berhasil diunduh')]),
-          backgroundColor: const Color(0xFF2E7D32), behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF9C6644), behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), margin: const EdgeInsets.all(16),
         ));
       }
@@ -372,8 +372,8 @@ class _LihatRaporState extends State<_LihatRapor> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white, borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.1)),
-            boxShadow: [BoxShadow(color: const Color(0xFF2E7D32).withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
+            border: Border.all(color: const Color(0xFF9C6644).withValues(alpha: 0.1)),
+            boxShadow: [BoxShadow(color: const Color(0xFF9C6644).withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,7 +400,7 @@ class _LihatRaporState extends State<_LihatRapor> {
                       : const Icon(Icons.search_rounded),
                   label: Text(_loadingRapor ? 'Memuat...' : 'Tampilkan', style: const TextStyle(fontWeight: FontWeight.w600)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32), foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF9C6644), foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                   ),
@@ -417,9 +417,9 @@ class _LihatRaporState extends State<_LihatRapor> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: Row(children: [
-              const Icon(Icons.picture_as_pdf, size: 18, color: Color(0xFF2E7D32)),
+              const Icon(Icons.picture_as_pdf, size: 18, color: Color(0xFF9C6644)),
               const SizedBox(width: 6),
-              const Text('F4', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF2E7D32))),
+              const Text('F4', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF9C6644))),
               const Spacer(),
               _actionBtn(icon: Icons.download_rounded, label: 'Download PDF', color: const Color(0xFF1565C0), onTap: _downloadPdf),
               const SizedBox(width: 10),
@@ -432,13 +432,13 @@ class _LihatRaporState extends State<_LihatRapor> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
-              color: const Color(0xFF2E7D32).withValues(alpha: 0.06),
+              color: const Color(0xFF9C6644).withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.12)),
+              border: Border.all(color: const Color(0xFF9C6644).withValues(alpha: 0.12)),
             ),
             child: Text(
               'NILAI HASIL BELAJAR ${(_raporData!['semester']?['nama'] as String?)?.toUpperCase() ?? ''}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2E7D32), letterSpacing: 0.5),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF9C6644), letterSpacing: 0.5),
             ),
           ),
           const SizedBox(height: 14),
@@ -490,12 +490,12 @@ class _LihatRaporState extends State<_LihatRapor> {
     final s = _raporData!['siswa'] as Map<String, dynamic>? ?? {};
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.08)), boxShadow: [BoxShadow(color: const Color(0xFF2E7D32).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFF9C6644).withValues(alpha: 0.08)), boxShadow: [BoxShadow(color: const Color(0xFF9C6644).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))]),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(width: 48, height: 48, decoration: BoxDecoration(color: const Color(0xFF2E7D32).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.person_rounded, color: Color(0xFF2E7D32), size: 26)),
+        Container(width: 48, height: 48, decoration: BoxDecoration(color: const Color(0xFF9C6644).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.person_rounded, color: Color(0xFF9C6644), size: 26)),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(s['nama']?.toString() ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF2E7D32))),
+          Text(s['nama']?.toString() ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF9C6644))),
           const SizedBox(height: 4),
           Wrap(spacing: 20, runSpacing: 4, children: [
             _infoChip(Icons.badge_rounded, 'NIS/NISN: ${s['nis'] ?? '-'} / ${s['nisn'] ?? '-'}'),
@@ -520,22 +520,22 @@ class _LihatRaporState extends State<_LihatRapor> {
     final rataRata = mapel.isNotEmpty ? (totalAkhir / mapel.length).toStringAsFixed(1) : '0.0';
 
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.08)), boxShadow: [BoxShadow(color: const Color(0xFF2E7D32).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFF9C6644).withValues(alpha: 0.08)), boxShadow: [BoxShadow(color: const Color(0xFF9C6644).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(width: double.infinity, padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: const Color(0xFF2E7D32).withValues(alpha: 0.06), borderRadius: const BorderRadius.vertical(top: Radius.circular(14))),
+        Container(width: double.infinity, padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: const Color(0xFF9C6644).withValues(alpha: 0.06), borderRadius: const BorderRadius.vertical(top: Radius.circular(14))),
           child: Row(children: [
-            const Icon(Icons.menu_book_rounded, size: 18, color: Color(0xFF2E7D32)),
+            const Icon(Icons.menu_book_rounded, size: 18, color: Color(0xFF9C6644)),
             const SizedBox(width: 8),
-            const Text('Daftar Nilai', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF2E7D32))),
+            const Text('Daftar Nilai', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF9C6644))),
             const Spacer(),
-            Text('Rata-rata: $rataRata', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF2E7D32))),
+            Text('Rata-rata: $rataRata', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF9C6644))),
           ]),
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            headingRowColor: WidgetStatePropertyAll(const Color(0xFF2E7D32).withValues(alpha: 0.04)),
-            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF2E7D32)),
+            headingRowColor: WidgetStatePropertyAll(const Color(0xFF9C6644).withValues(alpha: 0.04)),
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF9C6644)),
             columnSpacing: 20, horizontalMargin: 16, dataRowMinHeight: 40, dataRowMaxHeight: 48,
             columns: const [DataColumn(label: Text('No')), DataColumn(label: Text('Mata Pelajaran')), DataColumn(label: Text('Nilai Ujian'), numeric: true), DataColumn(label: Text('Rata Harian'), numeric: true), DataColumn(label: Text('Nilai Akhir'), numeric: true), DataColumn(label: Text('Predikat'))],
             rows: List.generate(mapel.length, (i) {
@@ -548,7 +548,7 @@ class _LihatRaporState extends State<_LihatRapor> {
                 DataCell(SizedBox(width: 170, child: Text(m['nama']?.toString() ?? '', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)))),
                 DataCell(Text(m['nilai_ujian']?.toString() ?? '-', style: const TextStyle(fontSize: 13))),
                 DataCell(Text(m['rata_harian']?.toString() ?? '-', style: const TextStyle(fontSize: 13))),
-                DataCell(Text(nilaiAkhir?.toString() ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: nilaiAkhir != null ? const Color(0xFF2E7D32) : Colors.grey))),
+                DataCell(Text(nilaiAkhir?.toString() ?? '-', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: nilaiAkhir != null ? const Color(0xFF9C6644) : Colors.grey))),
                 DataCell(Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withValues(alpha: 0.3))), child: Text(predikat, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: color)))),
               ]);
             }),
@@ -559,7 +559,7 @@ class _LihatRaporState extends State<_LihatRapor> {
   }
 
   Color _predikatColor(String p) {
-    switch (p) { case 'A': return const Color(0xFF2E7D32); case 'B': return const Color(0xFF1565C0); case 'C': return const Color(0xFFE65100); case 'D': return const Color(0xFFC62828); default: return Colors.grey; }
+    switch (p) { case 'A': return const Color(0xFF9C6644); case 'B': return const Color(0xFF1565C0); case 'C': return const Color(0xFFE65100); case 'D': return const Color(0xFFC62828); default: return Colors.grey; }
   }
 
   Widget _buildCatatanCard() {
@@ -619,7 +619,7 @@ class _LihatRaporState extends State<_LihatRapor> {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 18), SizedBox(width: 8), Text('Catatan tersimpan')]),
-        backgroundColor: Color(0xFF2E7D32), behavior: SnackBarBehavior.floating,
+        backgroundColor: Color(0xFF9C6644), behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))), margin: EdgeInsets.all(16),
       ));
       await _loadRapor();
@@ -688,7 +688,7 @@ class _StatusPengirimanState extends State<_StatusPengiriman> {
         // Filter
         Container(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.1)), boxShadow: [BoxShadow(color: const Color(0xFF2E7D32).withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))]),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF9C6644).withValues(alpha: 0.1)), boxShadow: [BoxShadow(color: const Color(0xFF9C6644).withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))]),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const _SectionTitle(title: 'Pilih Semester'),
             const SizedBox(height: 12),
@@ -703,7 +703,7 @@ class _StatusPengirimanState extends State<_StatusPengiriman> {
                 onPressed: (_semesterId != null && !_loadingData) ? _loadStatus : null,
                 icon: _loadingData ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.search_rounded),
                 label: Text(_loadingData ? 'Memuat...' : 'Tampilkan', style: const TextStyle(fontWeight: FontWeight.w600)),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E7D32), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(horizontal: 24)),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9C6644), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(horizontal: 24)),
               )),
             ]),
           ]),
@@ -740,11 +740,11 @@ class _StatusPengirimanState extends State<_StatusPengiriman> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white, borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.08)),
-        boxShadow: [BoxShadow(color: const Color(0xFF2E7D32).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: const Color(0xFF9C6644).withValues(alpha: 0.08)),
+        boxShadow: [BoxShadow(color: const Color(0xFF9C6644).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(children: [
-        Expanded(child: _summaryItem(Icons.check_circle_rounded, 'Sudah Input', '$sudah', const Color(0xFF2E7D32))),
+        Expanded(child: _summaryItem(Icons.check_circle_rounded, 'Sudah Input', '$sudah', const Color(0xFF9C6644))),
         Container(height: 40, width: 1, color: Colors.grey[200]),
         Expanded(child: _summaryItem(Icons.pending_rounded, 'Belum Input', '$belum', Colors.orange[700]!)),
         Container(height: 40, width: 1, color: Colors.grey[200]),
@@ -772,18 +772,18 @@ class _StatusPengirimanState extends State<_StatusPengiriman> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white, borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: sudahInput ? const Color(0xFF2E7D32).withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15)),
-        boxShadow: [BoxShadow(color: (sudahInput ? const Color(0xFF2E7D32) : Colors.orange).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: sudahInput ? const Color(0xFF9C6644).withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15)),
+        boxShadow: [BoxShadow(color: (sudahInput ? const Color(0xFF9C6644) : Colors.orange).withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: sudahInput ? const Color(0xFF2E7D32).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+            color: sudahInput ? const Color(0xFF9C6644).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(sudahInput ? Icons.check_circle : Icons.hourglass_empty_rounded,
-              color: sudahInput ? const Color(0xFF2E7D32) : Colors.orange[700], size: 22),
+              color: sudahInput ? const Color(0xFF9C6644) : Colors.orange[700], size: 22),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -803,14 +803,14 @@ class _StatusPengirimanState extends State<_StatusPengiriman> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: sudahInput ? const Color(0xFF2E7D32).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+              color: sudahInput ? const Color(0xFF9C6644).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: sudahInput ? const Color(0xFF2E7D32).withValues(alpha: 0.3) : Colors.orange.withValues(alpha: 0.3)),
+              border: Border.all(color: sudahInput ? const Color(0xFF9C6644).withValues(alpha: 0.3) : Colors.orange.withValues(alpha: 0.3)),
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(sudahInput ? Icons.check : Icons.close, size: 14, color: sudahInput ? const Color(0xFF2E7D32) : Colors.orange[700]),
+              Icon(sudahInput ? Icons.check : Icons.close, size: 14, color: sudahInput ? const Color(0xFF9C6644) : Colors.orange[700]),
               const SizedBox(width: 4),
-              Text(sudahInput ? 'Sudah' : 'Belum', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: sudahInput ? const Color(0xFF2E7D32) : Colors.orange[700])),
+              Text(sudahInput ? 'Sudah' : 'Belum', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: sudahInput ? const Color(0xFF9C6644) : Colors.orange[700])),
             ]),
           ),
           if (sudahInput && tglInput != null) ...[
@@ -836,7 +836,7 @@ class _SectionTitle extends StatelessWidget {
     return Row(children: [
       Container(width: 4, height: 20, decoration: BoxDecoration(color: const Color(0xFFF9A825), borderRadius: BorderRadius.circular(2))),
       const SizedBox(width: 10),
-      Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
+      Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF9C6644))),
     ]);
   }
 }

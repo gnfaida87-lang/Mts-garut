@@ -59,7 +59,7 @@ class _AbsensiSantriPageState extends State<AbsensiSantriPage> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              _buildStatCard('Hadir', _getStat('hadir'), Colors.green),
+              _buildStatCard('Hadir', _getStat('hadir'), const Color(0xFF9C6644)),
               const SizedBox(width: 8),
               _buildStatCard('Izin', _getStat('izin'), Colors.orange),
               const SizedBox(width: 8),
@@ -144,7 +144,7 @@ class _AbsensiSantriPageState extends State<AbsensiSantriPage> {
                       itemBuilder: (_, i) {
                         final a = _data[i];
                         final status = a['status'] ?? '';
-                        final color = status == 'hadir' ? Colors.green
+                        final color = status == 'hadir' ? const Color(0xFF9C6644)
                             : status == 'izin' ? Colors.orange
                             : status == 'sakit' ? Colors.red
                             : Colors.grey;

@@ -286,7 +286,7 @@ class _NilaiMonitoringPageState extends State<NilaiMonitoringPage> {
                 statusColor = AppTheme.primary;
                 break;
               case 'selesai':
-                statusColor = Colors.green;
+                statusColor = const Color(0xFF9C6644);
                 break;
               default:
                 statusColor = AppTheme.grey500;

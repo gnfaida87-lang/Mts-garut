@@ -265,7 +265,7 @@ class _WaliKelasPageGuruState extends State<WaliKelasPageGuru>
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF004D40), Color(0xFF00897B)],
+          colors: [Color(0xFF5D4037), Color(0xFF8D6E63)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -348,7 +348,7 @@ class _WaliKelasPageGuruState extends State<WaliKelasPageGuru>
               _infoChip(
                 Icons.check_circle_outline,
                 '${_siswa.where((s) => s['status'] == 'baik').length} Baik',
-                color: Colors.greenAccent,
+                color: const Color(0xFFB08968),
               ),
             ],
           ),
@@ -397,7 +397,7 @@ class _WaliKelasPageGuruState extends State<WaliKelasPageGuru>
 
     return Row(
       children: [
-        _summaryCard('Total Hadir', '$totalHadir', Icons.check_circle, Colors.green),
+        _summaryCard('Total Hadir', '$totalHadir', Icons.check_circle, const Color(0xFF9C6644)),
         const SizedBox(width: 8),
         _summaryCard('Izin', '$totalIzin', Icons.info, Colors.orange),
         const SizedBox(width: 8),
@@ -600,7 +600,7 @@ class _WaliKelasPageGuruState extends State<WaliKelasPageGuru>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _miniStat(Icons.check_circle, Colors.green, '${s['hadir'] ?? 0}'),
+                    _miniStat(Icons.check_circle, const Color(0xFF9C6644), '${s['hadir'] ?? 0}'),
                     _miniStat(Icons.info, Colors.orange, '${s['izin'] ?? 0}'),
                     _miniStat(Icons.local_hospital, Colors.blue, '${s['sakit'] ?? 0}'),
                     _miniStat(Icons.cancel, Colors.red, '${s['alpa'] ?? 0}'),
@@ -627,7 +627,7 @@ class _WaliKelasPageGuruState extends State<WaliKelasPageGuru>
   Color _statusColor(String status) {
     switch (status) {
       case 'baik':
-        return Colors.green;
+        return const Color(0xFF9C6644);
       case 'cukup':
         return Colors.orange;
       case 'kurang':

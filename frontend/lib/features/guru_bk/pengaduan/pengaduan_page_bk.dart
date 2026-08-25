@@ -336,7 +336,7 @@ class _PengaduanPageBKState extends State<PengaduanPageBK>
               const SizedBox(width: 8),
               _statChip('Diproses', '$diproses', Colors.orange),
               const SizedBox(width: 8),
-              _statChip('Selesai', '$selesai', Colors.greenAccent),
+              _statChip('Selesai', '$selesai', const Color(0xFFB08968)),
             ],
           ),
         ],
@@ -772,7 +772,7 @@ class _PengaduanPageBKState extends State<PengaduanPageBK>
       case 'diproses':
         return Colors.orange;
       case 'selesai':
-        return Colors.green;
+        return const Color(0xFF9C6644);
       default:
         return Colors.grey;
     }

@@ -50,7 +50,7 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
   }
 
   Color _getNilaiColor(double nilai) {
-    if (nilai >= 80) return Colors.green;
+    if (nilai >= 80) return const Color(0xFF9C6644);
     if (nilai >= 60) return Colors.orange;
     return Colors.red;
   }

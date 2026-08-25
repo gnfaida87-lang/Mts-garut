@@ -270,7 +270,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
           _buildActionBtn(
             icon: Icons.publish,
             label: 'Publikasi',
-            color: Colors.green,
+            color: const Color(0xFF9C6644),
             onPressed: _filterSemester != null ? _publikasiJadwal : null,
           ),
           // Unpublikasi
@@ -828,7 +828,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
     final isGabungan = j['gabungan_id'] != null && j['gabungan_id'].toString().isNotEmpty && j['gabungan_id'].toString() != 'null';
     final color = isKegiatan
         ? (j['is_istirahat'] == true || j['is_istirahat'] == 1 ? Colors.purple : Colors.teal)
-        : (tervalidasi ? Colors.green : Colors.orange);
+        : (tervalidasi ? const Color(0xFF9C6644) : Colors.orange);
 
     final content = Container(
       height: 52,
@@ -842,7 +842,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(mapelNama, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color[800]), overflow: TextOverflow.ellipsis),
+          Text(mapelNama, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color), overflow: TextOverflow.ellipsis),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -925,7 +925,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       if (!mounted) return;
       setState(() => _jpSlots = slots.cast<Map<String, dynamic>>());
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('JP slot baru ditambahkan'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('JP slot baru ditambahkan'), backgroundColor: Color(0xFF9C6644)),
       );
     } catch (e) {
       if (mounted) {
@@ -996,7 +996,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       await _loadJadwal();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Waktu JP diperbarui dan jadwal tersinkron'), backgroundColor: Colors.green),
+          const SnackBar(content: Text('Waktu JP diperbarui dan jadwal tersinkron'), backgroundColor: Color(0xFF9C6644)),
         );
       }
     } catch (e) {
@@ -1060,7 +1060,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
               Icon(
                 hasIssue ? Icons.warning_amber_rounded : Icons.check_circle_outline,
                 size: 16,
-                color: hasIssue ? Colors.red : Colors.green,
+                color: hasIssue ? Colors.red : const Color(0xFF9C6644),
               ),
               const SizedBox(width: 6),
               Text(
@@ -1068,7 +1068,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: hasIssue ? Colors.red[700] : Colors.green[700],
+                  color: hasIssue ? Colors.red[700] : const Color(0xFF7F5539),
                 ),
               ),
             ],
@@ -1294,7 +1294,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
             ? (data['nama_kegiatan'] ?? data['nama'] ?? 'Kegiatan')
             : (data['mapel_nama'] ?? 'Mapel');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$nama dipindah ke ${_kelasNama(kelasId)}'), backgroundColor: Colors.green, duration: const Duration(seconds: 1)),
+          SnackBar(content: Text('$nama dipindah ke ${_kelasNama(kelasId)}'), backgroundColor: const Color(0xFF9C6644), duration: const Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -1389,7 +1389,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
             ? '${res['saved']} tersimpan, ${(res['errors'] as List).length} error'
             : '${res['saved']} jadwal tersimpan';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.green),
+          SnackBar(content: Text(msg), backgroundColor: const Color(0xFF9C6644)),
         );
       }
       _loadJadwal();
@@ -1436,7 +1436,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       await _loadJadwal();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${res['message'] ?? 'Generate selesai'}'), backgroundColor: Colors.green),
+          SnackBar(content: Text('${res['message'] ?? 'Generate selesai'}'), backgroundColor: const Color(0xFF9C6644)),
         );
       }
     } catch (e) {
@@ -1459,7 +1459,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       await _loadJadwal();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${res['message'] ?? 'Jadwal dipublikasikan'}'), backgroundColor: Colors.green),
+          SnackBar(content: Text('${res['message'] ?? 'Jadwal dipublikasikan'}'), backgroundColor: const Color(0xFF9C6644)),
         );
       }
     } catch (e) {
@@ -1559,7 +1559,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
             final jpTerisi = g.jpTerisi;
             final jpMaxMinggu = g.jpMaxMinggu;
             final persen = jpMaxMinggu > 0 ? jpTerisi / jpMaxMinggu : 0.0;
-            final capColor = persen >= 1.0 ? Colors.red : (persen >= 0.8 ? Colors.orange : Colors.green);
+            final capColor = persen >= 1.0 ? Colors.red : (persen >= 0.8 ? Colors.orange : const Color(0xFF9C6644));
 
             return DataRow(cells: [
               DataCell(Text(g.nama, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600))),
@@ -1645,7 +1645,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kesiapan berhasil disimpan'), backgroundColor: Colors.green),
+          const SnackBar(content: Text('Kesiapan berhasil disimpan'), backgroundColor: Color(0xFF9C6644)),
         );
       }
     } catch (e) {
@@ -1717,7 +1717,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
                             ],
                           ),
                           trailing: adaKelas
-                              ? Icon(Icons.check_circle, color: Colors.green[400], size: 20)
+                              ? const Icon(Icons.check_circle, color: Color(0xFFB08968), size: 20)
                               : Icon(Icons.remove_circle_outline, color: Colors.grey[400], size: 20),
                         ),
                       );

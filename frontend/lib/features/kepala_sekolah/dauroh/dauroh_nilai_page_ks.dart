@@ -324,7 +324,7 @@ class _DaurohNilaiPageKSState extends State<DaurohNilaiPageKS> {
           const SizedBox(width: 12),
           _buildSummaryCard('Rata Total', '${_summary['rata_total'] ?? 0}', AppTheme.primary),
           const SizedBox(width: 12),
-          _buildSummaryCard('Sudah Dinilai', '${_summary['sudah_dinilai'] ?? 0}', Colors.green),
+          _buildSummaryCard('Sudah Dinilai', '${_summary['sudah_dinilai'] ?? 0}', const Color(0xFF9C6644)),
           const SizedBox(width: 12),
           _buildSummaryCard('Belum Dinilai', '${_summary['belum_dinilai'] ?? 0}', AppTheme.red),
         ],

@@ -3,7 +3,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 class DaurohPdfExport {
-  static final PdfColor _green = PdfColor.fromHex('#2E7D32');
+  static final PdfColor _green = PdfColor.fromHex('#9C6644');
   static final PdfColor _orange = PdfColor.fromHex('#FF8F00');
   static final PdfColor _red = PdfColor.fromHex('#C62828');
   static final PdfColor _headerBg = PdfColor.fromHex('#1565C0');
@@ -11,7 +11,7 @@ class DaurohPdfExport {
   static final PdfColor _altRow = PdfColor.fromHex('#F5F5F5');
   static final PdfColor _grey300 = PdfColor.fromHex('#E0E0E0');
   static final PdfColor _grey600 = PdfColor.fromHex('#757575');
-  static final PdfColor _lightGreenBg = PdfColor.fromHex('#E8F5E9');
+  static final PdfColor _lightGreenBg = PdfColor.fromHex('#F5EBE0');
   static final PdfColor _lightOrangeBg = PdfColor.fromHex('#FFF3E0');
   static final PdfColor _lightRedBg = PdfColor.fromHex('#FFEBEE');
 

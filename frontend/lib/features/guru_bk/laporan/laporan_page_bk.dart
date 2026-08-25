@@ -257,7 +257,7 @@ class _LaporanPageBKState extends State<LaporanPageBK>
           DataCell(Text('${r['total'] ?? 0}', style: const TextStyle(fontSize: 12))),
           DataCell(Text('${r['baru'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.red.shade700))),
           DataCell(Text('${r['diproses'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.orange.shade700))),
-          DataCell(Text('${r['selesai'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.green.shade700))),
+          DataCell(Text('${r['selesai'] ?? 0}', style: const TextStyle(fontSize: 12, color: Color(0xFF7F5539)))),
         ])).toList(),
       ),
     );
@@ -294,7 +294,7 @@ class _LaporanPageBKState extends State<LaporanPageBK>
                     const SizedBox(width: 12),
                     _itemStat('Diproses', '${r['diproses'] ?? 0}', Colors.orange),
                     const SizedBox(width: 12),
-                    _itemStat('Selesai', '${r['selesai'] ?? 0}', Colors.green),
+                    _itemStat('Selesai', '${r['selesai'] ?? 0}', const Color(0xFF9C6644)),
                   ],
                 ),
               ],
@@ -561,7 +561,7 @@ class _LaporanPageBKState extends State<LaporanPageBK>
             const SizedBox(height: 8),
             _buildMiniGrid(absensi, Icons.check_circle, (item) {
               final s = item['status']?.toString() ?? '';
-              final color = s == 'hadir' ? Colors.green : s == 'izin' ? Colors.orange : s == 'sakit' ? Colors.blue : Colors.red;
+              final color = s == 'hadir' ? const Color(0xFF9C6644) : s == 'izin' ? Colors.orange : s == 'sakit' ? Colors.blue : Colors.red;
               return _miniStatCard(
                 s.toUpperCase(),
                 '${item['jumlah'] ?? 0}',

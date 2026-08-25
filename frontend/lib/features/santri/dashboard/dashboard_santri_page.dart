@@ -93,7 +93,7 @@ class _DashboardSantriPageState extends State<DashboardSantriPage> {
       info2: _kelas,
       stats: [
         StatItem(Icons.schedule, 'Jadwal Hari Ini', '${_jadwalHariIni.length} Mapel', AppTheme.primary),
-        StatItem(Icons.how_to_reg, 'Kehadiran', '$_totalHadir dari $_totalAbsensi', Colors.green),
+        StatItem(Icons.how_to_reg, 'Kehadiran', '$_totalHadir dari $_totalAbsensi', const Color(0xFF9C6644)),
         StatItem(Icons.grade, 'Rata-rata Nilai', _rataRataNilai.toStringAsFixed(1), Colors.orange),
         StatItem(Icons.bookmark, 'Program at-Ta\'wid', '$_totalProgramDauroh Program', Colors.purple),
       ],

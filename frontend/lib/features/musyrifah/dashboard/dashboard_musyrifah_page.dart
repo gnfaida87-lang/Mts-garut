@@ -178,7 +178,7 @@ class _DashboardMusyrifahPageState extends State<DashboardMusyrifahPage> {
                   _buildHeaderChip(
                     Icons.check_circle_outline,
                     sudahAbsen ? 'Sudah Absen' : 'Belum Absen',
-                    color: sudahAbsen ? Colors.greenAccent : Colors.orangeAccent,
+                    color: sudahAbsen ? const Color(0xFFB08968) : Colors.orangeAccent,
                   ),
                   const SizedBox(width: 12),
                   _buildHeaderChip(

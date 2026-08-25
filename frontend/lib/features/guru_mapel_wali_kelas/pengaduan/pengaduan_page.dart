@@ -94,7 +94,7 @@ class _PengaduanPageGuruState extends State<PengaduanPageGuru> {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 18), SizedBox(width: 8), Text('Laporan terkirim ke BK')]),
-          backgroundColor: const Color(0xFF2E7D32), behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF9C6644), behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), margin: const EdgeInsets.all(16),
         ));
         _deskripsiCtl.clear();
@@ -348,7 +348,7 @@ class _PengaduanPageGuruState extends State<PengaduanPageGuru> {
     final status = p['status']?.toString() ?? 'baru';
     final isBaru = status == 'baru';
     final isDiproses = status == 'diproses';
-    final statusColor = isBaru ? const Color(0xFFC62828) : (isDiproses ? const Color(0xFFEF6C00) : const Color(0xFF2E7D32));
+    final statusColor = isBaru ? const Color(0xFFC62828) : (isDiproses ? const Color(0xFFEF6C00) : const Color(0xFF9C6644));
     final statusIcon = isBaru ? Icons.fiber_new_rounded : (isDiproses ? Icons.pending_actions_rounded : Icons.check_circle_rounded);
     final statusLabel = isBaru ? 'Belum Diterima' : (isDiproses ? 'Diproses BK' : 'Selesai');
     final tgl = p['created_at']?.toString() ?? '';
@@ -434,7 +434,7 @@ class _PengaduanPageGuruState extends State<PengaduanPageGuru> {
     final status = p['status']?.toString() ?? 'baru';
     final isBaru = status == 'baru';
     final isDiproses = status == 'diproses';
-    final statusColor = isBaru ? const Color(0xFFC62828) : (isDiproses ? const Color(0xFFEF6C00) : const Color(0xFF2E7D32));
+    final statusColor = isBaru ? const Color(0xFFC62828) : (isDiproses ? const Color(0xFFEF6C00) : const Color(0xFF9C6644));
     final statusLabel = isBaru ? 'Belum Diterima BK' : (isDiproses ? '✓ Diproses BK' : '✓ Selesai');
     final tgl = p['created_at']?.toString() ?? '';
     final tglLabel = tgl.length >= 16 ? tgl.substring(0, 16).replaceAll('T', ' ') : tgl;
@@ -503,7 +503,7 @@ class _PengaduanPageGuruState extends State<PengaduanPageGuru> {
                       ScaffoldMessenger.of(context).clearSnackBars();
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: const Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 18), SizedBox(width: 8), Text('URL bukti disalin ke clipboard')]),
-                        backgroundColor: const Color(0xFF2E7D32), behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFF9C6644), behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), margin: const EdgeInsets.all(16),
                       ));
                     },

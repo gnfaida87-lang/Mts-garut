@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // ── Dark Green Palette ──
-  static const Color primary = Color(0xFF2E7D32);
-  static const Color primaryDark = Color(0xFF1B5E20);
-  static const Color primaryLight = Color(0xFFE8F5E9);
+  // ── Light Brown Palette (Coklat Muda) ──
+  static const Color primary = Color(0xFF9C6644);
+  static const Color primaryDark = Color(0xFF6F4E37);
+  static const Color primaryLight = Color(0xFFF5EBE0);
   static const Color secondary = Color(0xFFF9A825);
   static const Color secondaryLight = Color(0xFFFFF8E1);
   static const Color error = Color(0xFFEF4444);
@@ -35,7 +35,7 @@ class AppTheme {
 
   // ── Gradient Presets ──
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primary, Color(0xFF43A047)],
+    colors: [primary, Color(0xFFB08968)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -47,7 +47,7 @@ class AppTheme {
   );
 
   static const LinearGradient headerGradient = LinearGradient(
-    colors: [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF43A047)],
+    colors: [Color(0xFF6F4E37), Color(0xFF9C6644), Color(0xFFB08968)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -66,7 +66,7 @@ class AppTheme {
         primary: primary,
         onPrimary: Colors.white,
         primaryContainer: primaryLight,
-        onPrimaryContainer: Color(0xFF1B5E20),
+        onPrimaryContainer: Color(0xFF6F4E37),
         secondary: secondary,
         onSecondary: Colors.white,
         secondaryContainer: secondaryLight,

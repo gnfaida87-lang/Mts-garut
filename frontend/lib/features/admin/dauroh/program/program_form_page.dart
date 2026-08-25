@@ -242,7 +242,7 @@ class _ProgramFormPageState extends State<ProgramFormPage> {
                     labelCtrl: _labelBidang3Ctrl,
                     defaultLabel: 'Fashohah dan Adab',
                     defaultMax: '30',
-                    color: Colors.green,
+                    color: const Color(0xFF9C6644),
                   ),
                   const SizedBox(height: 8),
 

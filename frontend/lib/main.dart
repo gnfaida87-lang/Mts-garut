@@ -51,7 +51,7 @@ class MtsGarutApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MA PERSIS GARUT',
+      title: 'MTs PERSIS GARUT',
       theme: AppTheme.light,
       debugShowCheckedModeBanner: false,
       home: const AuthGate(),

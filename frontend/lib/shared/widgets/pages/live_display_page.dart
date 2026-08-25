@@ -254,7 +254,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'MA PERSIS GARUT',
+                  'MTs PERSIS GARUT',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,

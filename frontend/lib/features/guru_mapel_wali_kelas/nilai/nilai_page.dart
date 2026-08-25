@@ -16,7 +16,7 @@ class NilaiPageGuru extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+            colors: [Color(0xFF9C6644), Color(0xFF6F4E37)],
           ),
         ),
         child: SafeArea(
@@ -60,7 +60,7 @@ class NilaiPageGuru extends StatelessWidget {
                     children: [
                       _MenuCard(
                         icon: Icons.edit_note_rounded,
-                        iconColor: const Color(0xFF2E7D32),
+                        iconColor: const Color(0xFF9C6644),
                         title: 'Input Nilai',
                         subtitle: 'Input nilai harian, PTS, PAS/PAT langsung atau dari Excel',
                         onTap: () => Navigator.of(context).push(_route(const _InputNilaiPage())),
@@ -160,7 +160,7 @@ class _MenuCard extends StatelessWidget {
 
 Color _nilaiColor(num? n) {
   if (n == null) return Colors.grey[300]!;
-  if (n >= 85) return const Color(0xFF2E7D32);
+  if (n >= 85) return const Color(0xFF9C6644);
   if (n >= 70) return const Color(0xFFE65100);
   return const Color(0xFFC62828);
 }
@@ -186,7 +186,7 @@ void _showNotif(BuildContext context, String msg, {bool isError = false, String?
         Expanded(child: Text(msg, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500))),
       ],
     ),
-    backgroundColor: isError ? const Color(0xFFC62828) : const Color(0xFF2E7D32),
+    backgroundColor: isError ? const Color(0xFFC62828) : const Color(0xFF9C6644),
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     margin: const EdgeInsets.all(16),
@@ -493,7 +493,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Input Nilai'),
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: const Color(0xFF9C6644),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -505,12 +505,12 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    color: const Color(0xFF2E7D32).withValues(alpha: 0.06),
+                    color: const Color(0xFF9C6644).withValues(alpha: 0.06),
                     child: Row(
                       children: [
-                        const Icon(Icons.school_rounded, size: 16, color: Color(0xFF2E7D32)),
+                        const Icon(Icons.school_rounded, size: 16, color: Color(0xFF9C6644)),
                         const SizedBox(width: 8),
-                        Text('Semester: $_semesterInfo  •  ${_jenisLabel(_jenis)}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF2E7D32))),
+                        Text('Semester: $_semesterInfo  •  ${_jenisLabel(_jenis)}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF9C6644))),
                       ],
                     ),
                   ),
@@ -584,7 +584,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                       icon: const Icon(Icons.search_rounded),
                       label: const Text('Muat Santri'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E7D32),
+                        backgroundColor: const Color(0xFF9C6644),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -632,7 +632,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                     children: [
                       _chip('Kosongkan', null, Colors.grey[600]!),
                       const SizedBox(width: 6),
-                      _chip('Semua 100', 100, const Color(0xFF2E7D32)),
+                      _chip('Semua 100', 100, const Color(0xFF9C6644)),
                       const SizedBox(width: 6),
                       _chip('Semua 80', 80, const Color(0xFF1565C0)),
                       const SizedBox(width: 6),
@@ -648,7 +648,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
           const SizedBox(height: 6),
           Row(
             children: [
-              _toolBtn(Icons.download_rounded, 'Download Excel', _downloadTemplate, _downloading, const Color(0xFF2E7D32)),
+              _toolBtn(Icons.download_rounded, 'Download Excel', _downloadTemplate, _downloading, const Color(0xFF9C6644)),
               const SizedBox(width: 8),
               _toolBtn(Icons.upload_file_rounded, 'Upload Excel', _uploadExcel, _uploading, const Color(0xFF1565C0)),
               const Spacer(),
@@ -706,11 +706,11 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: filled == total ? const Color(0xFF2E7D32).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+        color: filled == total ? const Color(0xFF9C6644).withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: filled == total ? const Color(0xFF2E7D32).withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2)),
+        border: Border.all(color: filled == total ? const Color(0xFF9C6644).withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2)),
       ),
-      child: Text('$filled/$total', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: filled == total ? const Color(0xFF2E7D32) : Colors.orange[800])),
+      child: Text('$filled/$total', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: filled == total ? const Color(0xFF9C6644) : Colors.orange[800])),
     );
   }
 
@@ -735,7 +735,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                     ),
                     const SizedBox(height: 12),
                     DataTable(
-                      headingRowColor: WidgetStateProperty.all(const Color(0xFF2E7D32).withValues(alpha: 0.06)),
+                      headingRowColor: WidgetStateProperty.all(const Color(0xFF9C6644).withValues(alpha: 0.06)),
                       columnSpacing: 20,
                       headingTextStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                       columns: const [
@@ -927,7 +927,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('$filled/$total', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: pct >= 1 ? const Color(0xFF2E7D32) : Colors.orange[800])),
+        Text('$filled/$total', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: pct >= 1 ? const Color(0xFF9C6644) : Colors.orange[800])),
         const SizedBox(width: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(3),
@@ -936,7 +936,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
             child: LinearProgressIndicator(
               value: pct,
               backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation(pct >= 1 ? const Color(0xFF2E7D32) : Colors.orange),
+              valueColor: AlwaysStoppedAnimation(pct >= 1 ? const Color(0xFF9C6644) : Colors.orange),
             ),
           ),
         ),
@@ -964,7 +964,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('$filled dari $total terisi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: allFilled ? const Color(0xFF2E7D32) : Colors.orange[800])),
+                  Text('$filled dari $total terisi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: allFilled ? const Color(0xFF9C6644) : Colors.orange[800])),
                   const SizedBox(height: 2),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(2),
@@ -973,7 +973,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                       child: LinearProgressIndicator(
                         value: total > 0 ? filled / total : 0.0,
                         backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation(allFilled ? const Color(0xFF2E7D32) : Colors.orange),
+                        valueColor: AlwaysStoppedAnimation(allFilled ? const Color(0xFF9C6644) : Colors.orange),
                       ),
                     ),
                   ),
@@ -990,7 +990,7 @@ class __InputNilaiPageState extends State<_InputNilaiPage> {
                     : const Icon(Icons.save_rounded, size: 18),
                 label: Text(_saving ? 'Menyimpan...' : 'Simpan'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E7D32),
+                  backgroundColor: const Color(0xFF9C6644),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1108,8 +1108,8 @@ class __RiwayatNilaiPageState extends State<_RiwayatNilaiPage> {
                                             const SizedBox(width: 6),
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                              decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                                              child: const Text('Tervalidasi', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.green)),
+                                              decoration: BoxDecoration(color: const Color(0xFF9C6644).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                                              child: const Text('Tervalidasi', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF9C6644))),
                                             ),
                                           ],
                                         ],
@@ -1252,7 +1252,7 @@ class __AnalisisNilaiPageState extends State<_AnalisisNilaiPage> {
                         children: [
                           _statCard('Total Input', '${_stats?['total'] ?? 0}', Icons.grading_rounded, const Color(0xFF1565C0)),
                           const SizedBox(width: 12),
-                          _statCard('Rata-rata', (_stats?['rata_rata'] as double?)?.toStringAsFixed(1) ?? '0', Icons.trending_up_rounded, const Color(0xFF2E7D32)),
+                          _statCard('Rata-rata', (_stats?['rata_rata'] as double?)?.toStringAsFixed(1) ?? '0', Icons.trending_up_rounded, const Color(0xFF9C6644)),
                         ],
                       ),
                     ],
@@ -1292,7 +1292,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF2E7D32)),
+        Icon(icon, size: 18, color: const Color(0xFF9C6644)),
         const SizedBox(width: 8),
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
       ],

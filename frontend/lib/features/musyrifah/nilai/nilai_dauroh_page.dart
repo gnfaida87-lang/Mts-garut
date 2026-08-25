@@ -86,7 +86,7 @@ class _NilaiDaurohPageState extends State<NilaiDaurohPage> {
   Color _statusColor(String? status) {
     switch (status) {
       case 'selesai':
-        return Colors.green;
+        return const Color(0xFF9C6644);
       case 'melanjutkan':
         return Colors.blue;
       case 'mengulang':
@@ -417,7 +417,7 @@ class _NilaiDaurohPageState extends State<NilaiDaurohPage> {
   Widget _scoreCircle(String label, double value, double max, ThemeData theme) {
     final pct = max > 0 ? value / max : 0.0;
     final color = pct >= 0.8
-        ? Colors.green
+        ? const Color(0xFF9C6644)
         : pct >= 0.6
             ? Colors.orange
             : Colors.red;
@@ -455,7 +455,7 @@ class _NilaiDaurohPageState extends State<NilaiDaurohPage> {
 
   Widget _totalBadge(double total, ThemeData theme) {
     final color = total >= 80
-        ? Colors.green
+        ? const Color(0xFF9C6644)
         : total >= 60
             ? Colors.orange
             : Colors.red;
@@ -945,7 +945,7 @@ class _InputNilaiDialogState extends State<_InputNilaiDialog> {
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: _totalNilai >= 80
-                          ? Colors.green[700]
+                          ? const Color(0xFF7F5539)
                           : _totalNilai >= 60
                               ? Colors.orange[700]
                               : Colors.red[700],
@@ -1511,7 +1511,7 @@ class _InputNilaiDialogState extends State<_InputNilaiDialog> {
   }
 
   Color _deductionColor(int v) {
-    if (v <= 1) return Colors.green;
+    if (v <= 1) return const Color(0xFF9C6644);
     if (v <= 2) return Colors.blue;
     if (v <= 3) return Colors.orange;
     return Colors.red;

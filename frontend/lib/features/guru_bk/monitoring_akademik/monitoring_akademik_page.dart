@@ -195,7 +195,7 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
               children: [
                 _miniCard('Santri', '$total', Icons.people, Colors.teal),
                 const SizedBox(width: 6),
-                _miniCard('Hadir', '$totalHadir', Icons.check_circle, Colors.green),
+                _miniCard('Hadir', '$totalHadir', Icons.check_circle, const Color(0xFF9C6644)),
                 const SizedBox(width: 6),
                 _miniCard('Alpa', '$totalAlpa', Icons.cancel, Colors.red),
               ],
@@ -244,7 +244,7 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
             DataCell(Text(a['siswa_nama']?.toString() ?? '', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13))),
             DataCell(Text(a['kelas_nama']?.toString() ?? '', style: const TextStyle(fontSize: 12))),
             DataCell(Text('$total', style: const TextStyle(fontSize: 12))),
-            DataCell(Text('${a['hadir'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.green.shade700))),
+            DataCell(Text('${a['hadir'] ?? 0}', style: const TextStyle(fontSize: 12, color: Color(0xFF7F5539)))),
             DataCell(Text('${a['izin'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.orange.shade700))),
             DataCell(Text('${a['sakit'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.blue.shade700))),
             DataCell(Text('${a['alpa'] ?? 0}', style: TextStyle(fontSize: 12, color: Colors.red.shade700))),
@@ -281,7 +281,7 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: ((a['alpa'] as num?)?.toInt() ?? 0) > 3 ? Colors.red.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
+                        color: ((a['alpa'] as num?)?.toInt() ?? 0) > 3 ? Colors.red.withValues(alpha: 0.1) : const Color(0xFF9C6644).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -289,7 +289,7 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: ((a['alpa'] as num?)?.toInt() ?? 0) > 3 ? Colors.red : Colors.green,
+                          color: ((a['alpa'] as num?)?.toInt() ?? 0) > 3 ? Colors.red : const Color(0xFF9C6644),
                         ),
                       ),
                     ),
@@ -301,7 +301,7 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _miniStatAbsen(Icons.check_circle, Colors.green, '${a['hadir'] ?? 0}', 'Hadir'),
+                    _miniStatAbsen(Icons.check_circle, const Color(0xFF9C6644), '${a['hadir'] ?? 0}', 'Hadir'),
                     _miniStatAbsen(Icons.info, Colors.orange, '${a['izin'] ?? 0}', 'Izin'),
                     _miniStatAbsen(Icons.local_hospital, Colors.blue, '${a['sakit'] ?? 0}', 'Sakit'),
                     _miniStatAbsen(Icons.cancel, Colors.red, '${a['alpa'] ?? 0}', 'Alpa'),
@@ -333,7 +333,7 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_circle_outline, size: 64, color: Colors.green.shade300),
+            const Icon(Icons.check_circle_outline, size: 64, color: Color(0xFFB08968)),
             const SizedBox(height: 12),
             Text('Tidak ada pelanggaran', style: TextStyle(color: Colors.grey.shade500)),
           ],

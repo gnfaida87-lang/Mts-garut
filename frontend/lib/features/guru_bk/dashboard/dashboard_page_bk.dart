@@ -31,7 +31,7 @@ class _DashboardPageBKState extends State<DashboardPageBK> {
       stats: [
         StatItem(Icons.list_alt, 'Total Pengaduan', '${_stats?['total_pengaduan'] ?? 0}', Colors.blue),
         StatItem(Icons.engineering, 'Aktif Diproses', '${_stats?['aktif_diproses'] ?? 0}', Colors.orange),
-        StatItem(Icons.check_circle, 'Selesai', '${_stats?['selesai'] ?? 0}', Colors.green),
+        StatItem(Icons.check_circle, 'Selesai', '${_stats?['selesai'] ?? 0}', const Color(0xFF9C6644)),
         StatItem(Icons.support_agent, 'Total Konseling', '${_stats?['total_konseling'] ?? 0}', Colors.indigo),
       ],
       features: const [

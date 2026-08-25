@@ -97,7 +97,7 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jadwal Mengajar'),
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: const Color(0xFF9C6644),
         foregroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
@@ -132,16 +132,16 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF2E7D32).withValues(alpha: 0.1) : Colors.transparent,
+          color: selected ? const Color(0xFF9C6644).withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: selected ? const Color(0xFF2E7D32).withValues(alpha: 0.3) : Colors.grey[300]!),
+          border: Border.all(color: selected ? const Color(0xFF9C6644).withValues(alpha: 0.3) : Colors.grey[300]!),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: selected ? const Color(0xFF2E7D32) : Colors.grey[600]),
+            Icon(icon, size: 16, color: selected ? const Color(0xFF9C6644) : Colors.grey[600]),
             const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: selected ? const Color(0xFF2E7D32) : Colors.grey[600])),
+            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: selected ? const Color(0xFF9C6644) : Colors.grey[600])),
           ],
         ),
       ),
@@ -166,7 +166,7 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
                 onPressed: _load,
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Coba Lagi'),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E7D32), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9C6644), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               ),
             ],
           ),
@@ -176,7 +176,7 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
 
     return RefreshIndicator(
       onRefresh: _load,
-      color: const Color(0xFF2E7D32),
+      color: const Color(0xFF9C6644),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: _viewMapel ? _buildMapelView() : _buildHariView(),
@@ -283,10 +283,10 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: active ? const Color(0xFF2E7D32).withValues(alpha: 0.3) : Colors.grey[200]!,
+          color: active ? const Color(0xFF9C6644).withValues(alpha: 0.3) : Colors.grey[200]!,
           width: active ? 1.5 : 1,
         ),
-        boxShadow: [BoxShadow(color: (active ? const Color(0xFF2E7D32) : Colors.grey).withValues(alpha: active ? 0.1 : 0.04), blurRadius: 12, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: (active ? const Color(0xFF9C6644) : Colors.grey).withValues(alpha: active ? 0.1 : 0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -297,12 +297,12 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
               width: 60,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: active ? const Color(0xFF2E7D32).withValues(alpha: 0.08) : Colors.grey[50],
+                color: active ? const Color(0xFF9C6644).withValues(alpha: 0.08) : Colors.grey[50],
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
                 children: [
-                  Text(jamMulaiShort, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: active ? const Color(0xFF2E7D32) : Colors.grey[700])),
+                  Text(jamMulaiShort, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: active ? const Color(0xFF9C6644) : Colors.grey[700])),
                   const SizedBox(height: 2),
                   Text(jamSelesaiShort, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                 ],
@@ -321,7 +321,7 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: const Color(0xFF2E7D32).withValues(alpha: 0.06), borderRadius: BorderRadius.circular(6)),
+                        decoration: BoxDecoration(color: const Color(0xFF9C6644).withValues(alpha: 0.06), borderRadius: BorderRadius.circular(6)),
                         child: Text('Jam ke-$jk${jkEnd != jk ? '-$jkEnd' : ''}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[600])),
                       ),
                       const SizedBox(width: 8),
@@ -341,9 +341,9 @@ class _JadwalPageGuruState extends State<JadwalPageGuru> {
                       padding: const EdgeInsets.only(top: 6),
                       child: Row(
                         children: [
-                          Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
+                          Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF9C6644), shape: BoxShape.circle)),
                           const SizedBox(width: 4),
-                          const Text('Sedang Berlangsung', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.green)),
+                          const Text('Sedang Berlangsung', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF9C6644))),
                         ],
                       ),
                     ),
@@ -365,12 +365,12 @@ class _MapelHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = [
-      const Color(0xFF2E7D32), const Color(0xFF1565C0), const Color(0xFFE65100),
+      const Color(0xFF9C6644), const Color(0xFF1565C0), const Color(0xFFE65100),
       const Color(0xFF6A1B9A), const Color(0xFFC62828), const Color(0xFF00838F),
     ];
     final color = colors[mapel.hashCode.abs() % colors.length];
     final lightColors = [
-      const Color(0xFFE8F5E9), const Color(0xFFE3F2FD), const Color(0xFFFFF3E0),
+      const Color(0xFFF5EBE0), const Color(0xFFE3F2FD), const Color(0xFFFFF3E0),
       const Color(0xFFF3E5F5), const Color(0xFFFFEBEE), const Color(0xFFE0F7FA),
     ];
     final lightColor = lightColors[mapel.hashCode.abs() % lightColors.length];
@@ -432,7 +432,7 @@ class _HariHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Text(hari, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: isToday ? const Color(0xFF2E7D32) : Colors.grey[700])),
+          Text(hari, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: isToday ? const Color(0xFF9C6644) : Colors.grey[700])),
           const SizedBox(width: 6),
           Text(tanggal, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
           const SizedBox(width: 8),
@@ -445,8 +445,8 @@ class _HariHeader extends StatelessWidget {
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(color: const Color(0xFF2E7D32).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: const Text('Hari Ini', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2E7D32))),
+              decoration: BoxDecoration(color: const Color(0xFF9C6644).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+              child: const Text('Hari Ini', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF9C6644))),
             ),
           ],
         ],

@@ -509,7 +509,7 @@ class _BakatMinatPageState extends State<BakatMinatPage>
                     ),
                     Icon(
                       hasBm ? Icons.check_circle : Icons.add_circle_outline,
-                      color: hasBm ? Colors.green : AppTheme.primary,
+                      color: hasBm ? const Color(0xFF9C6644) : AppTheme.primary,
                       size: 28,
                     ),
                   ],
