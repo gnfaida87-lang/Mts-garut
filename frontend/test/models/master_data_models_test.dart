@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/shared/models/master_data_models.dart';
+import 'package:mts_garut/shared/models/master_data_models.dart';
 
 void main() {
   group('Kelas', () {

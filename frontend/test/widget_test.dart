@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:ppi_frontend/features/auth/providers/auth_provider.dart';
-import 'package:ppi_frontend/features/auth/screens/login_screen.dart';
+import 'package:mts_garut/features/auth/providers/auth_provider.dart';
+import 'package:mts_garut/features/auth/screens/login_screen.dart';
 
 void main() {
   testWidgets('LoginScreen mobile layout should show school icon and form', (WidgetTester tester) async {

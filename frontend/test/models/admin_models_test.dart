@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/shared/models/admin_models.dart';
+import 'package:mts_garut/shared/models/admin_models.dart';
 
 void main() {
   group('LogAktivitas', () {
@@ -54,24 +54,24 @@ void main() {
   group('ProfilSekolah', () {
     test('fromJson should parse correctly', () {
       final json = {
-        'nama': 'Madrasah PPI',
+        'nama': 'Madrasah MTs Garut',
         'alamat': 'Jl. Raya No. 1',
         'telepon': '021-1234567',
-        'email': 'ppi@madrasah.id',
+        'email': 'info@mtsgarut.id',
       };
 
       final profil = ProfilSekolah.fromJson(json);
 
-      expect(profil.nama, 'Madrasah PPI');
+      expect(profil.nama, 'Madrasah MTs Garut');
       expect(profil.alamat, 'Jl. Raya No. 1');
       expect(profil.telepon, '021-1234567');
-      expect(profil.email, 'ppi@madrasah.id');
+      expect(profil.email, 'info@mtsgarut.id');
     });
 
     test('toJson should serialize correctly', () {
-      const profil = ProfilSekolah(nama: 'PPI', alamat: 'Jl. Raya');
+      const profil = ProfilSekolah(nama: 'MTs Garut', alamat: 'Jl. Raya');
       final json = profil.toJson();
-      expect(json['nama'], 'PPI');
+      expect(json['nama'], 'MTs Garut');
       expect(json['alamat'], 'Jl. Raya');
     });
   });

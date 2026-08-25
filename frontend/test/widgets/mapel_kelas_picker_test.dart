@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/features/admin/master_data/widgets/mapel_kelas_picker.dart';
-import 'package:ppi_frontend/shared/models/guru_mapel_kelas_model.dart';
+import 'package:mts_garut/features/admin/master_data/widgets/mapel_kelas_picker.dart';
+import 'package:mts_garut/shared/models/guru_mapel_kelas_model.dart';
 
 void main() {
   const mapelList = [

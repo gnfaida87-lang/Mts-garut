@@ -366,6 +366,6 @@ CREATE TABLE IF NOT EXISTS pengaturan (
 
 INSERT OR IGNORE INTO pengaturan (key, value) VALUES
   ('hero_title', 'Sistem Informasi Madrasah'),
-  ('hero_subtitle', 'MA / MTs PPI'),
+  ('hero_subtitle', 'MTs Garut'),
   ('logo_url', ''),
   ('background_url', '');

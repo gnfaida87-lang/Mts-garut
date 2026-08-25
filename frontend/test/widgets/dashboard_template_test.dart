@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:ppi_frontend/features/auth/providers/auth_provider.dart';
-import 'package:ppi_frontend/shared/widgets/dashboard_template.dart';
+import 'package:mts_garut/features/auth/providers/auth_provider.dart';
+import 'package:mts_garut/shared/widgets/dashboard_template.dart';
 
 void main() {
   group('DashboardTemplate', () {

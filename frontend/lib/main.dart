@@ -36,7 +36,7 @@ void main() async {
     runApp(
       ChangeNotifierProvider(
         create: (_) => AuthProvider(),
-        child: const PpiApp(),
+        child: const MtsGarutApp(),
       ),
     );
   }, (error, stack) {
@@ -45,8 +45,8 @@ void main() async {
   });
 }
 
-class PpiApp extends StatelessWidget {
-  const PpiApp({super.key});
+class MtsGarutApp extends StatelessWidget {
+  const MtsGarutApp({super.key});
 
   @override
   Widget build(BuildContext context) {

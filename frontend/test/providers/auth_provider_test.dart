@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/features/auth/providers/auth_provider.dart';
+import 'package:mts_garut/features/auth/providers/auth_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

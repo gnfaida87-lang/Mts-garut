@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/features/auth/widgets/login_form.dart';
+import 'package:mts_garut/features/auth/widgets/login_form.dart';
 
 Widget createLoginForm({
   bool isLoading = false,

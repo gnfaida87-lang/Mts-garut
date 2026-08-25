@@ -1,5 +1,5 @@
 -- ============================================================
--- SEED DATA — PPI (MA/MTs)
+-- SEED DATA — MTs Garut
 -- Jalankan dengan: wrangler d1 execute ppi-db --file=src/db/seed.sql
 -- Atau: wrangler d1 execute ppi-db-prod --env production --file=src/db/seed.sql
 -- ============================================================

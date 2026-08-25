@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/shared/widgets/common_widgets.dart';
+import 'package:mts_garut/shared/widgets/common_widgets.dart';
 
 void main() {
   group('AppInputDecoration', () {

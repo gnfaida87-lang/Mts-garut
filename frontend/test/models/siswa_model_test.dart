@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ppi_frontend/shared/models/siswa_model.dart';
+import 'package:mts_garut/shared/models/siswa_model.dart';
 
 void main() {
   group('Siswa', () {

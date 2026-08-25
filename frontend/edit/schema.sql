@@ -1,5 +1,5 @@
 -- ============================================================
--- Skema Database — PPI (MA/MTs)
+-- Skema Database — MTs Garut
 -- Target: Cloudflare D1 (SQLite)
 -- ============================================================
 
@@ -328,7 +328,7 @@ CREATE TABLE pengaturan (
 );
 
 INSERT OR IGNORE INTO pengaturan (key, value) VALUES
-    ('hero_title', 'Sistem Informasi Madrasah PPI'),
+    ('hero_title', 'Sistem Informasi Madrasah'),
     ('hero_subtitle', 'Kelola data akademik, absensi, nilai, rapor, dan bimbingan konseling dalam satu platform.'),
     ('logo_url', ''),
     ('background_url', '');
