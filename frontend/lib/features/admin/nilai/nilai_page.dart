@@ -403,7 +403,9 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
           const Text('Per Mata Pelajaran', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         ]),
         const SizedBox(height: 12),
-        DataTable(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
           headingRowColor: WidgetStateProperty.all(AppTheme.grey50),
           columnSpacing: 24,
           columns: const [
@@ -416,6 +418,7 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
             DataCell(Text('${m['avg_nilai'] ?? '-'}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600))),
             DataCell(Text('${m['count'] ?? 0}', style: const TextStyle(fontSize: 12))),
           ])).toList(),
+        ),
         ),
       ])),
     );
@@ -434,7 +437,9 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
           const Text('Per Kelas', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         ]),
         const SizedBox(height: 12),
-        DataTable(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
           headingRowColor: WidgetStateProperty.all(AppTheme.grey50),
           columnSpacing: 24,
           columns: const [
@@ -449,6 +454,7 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
             DataCell(Text('${k['jumlah_siswa'] ?? 0}', style: const TextStyle(fontSize: 12))),
             DataCell(Text('${k['count'] ?? 0}', style: const TextStyle(fontSize: 12))),
           ])).toList(),
+        ),
         ),
       ])),
     );
@@ -467,7 +473,9 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
           const Text('Per Jenis Nilai', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         ]),
         const SizedBox(height: 12),
-        DataTable(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
           headingRowColor: WidgetStateProperty.all(AppTheme.grey50),
           columnSpacing: 24,
           columns: const [
@@ -480,6 +488,7 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
             DataCell(Text('${j['avg_nilai'] ?? '-'}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600))),
             DataCell(Text('${j['count'] ?? 0}', style: const TextStyle(fontSize: 12))),
           ])).toList(),
+        ),
         ),
       ])),
     );

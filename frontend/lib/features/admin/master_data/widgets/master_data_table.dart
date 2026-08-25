@@ -7,18 +7,20 @@ class MasterDataTableColumn {
   final String key;
   final String label;
   final int flex;
+  final double minWidth;
   final String Function(dynamic value, Map<String, dynamic> row)? displayFn;
 
   const MasterDataTableColumn({
     required this.key,
     required this.label,
     this.flex = 1,
+    this.minWidth = MasterDataTable.defaultMinColWidth,
     this.displayFn,
   });
 }
 
 class MasterDataTable extends StatelessWidget {
-  static const double _minColWidth = 120.0;
+  static const double defaultMinColWidth = 120.0;
   static const double _actionsWidth = 80.0;
 
   final List<MasterDataTableColumn> columns;
@@ -49,7 +51,7 @@ class MasterDataTable extends StatelessWidget {
   });
 
   double get _totalMinWidth {
-    final colsWidth = columns.length * _minColWidth;
+    final colsWidth = columns.fold<double>(0, (sum, c) => sum + c.minWidth);
     final actionsW = showActions ? _actionsWidth : 0.0;
     return colsWidth + actionsW;
   }

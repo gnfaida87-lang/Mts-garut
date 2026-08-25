@@ -389,7 +389,9 @@ class _AnalisisTabState extends State<_AnalisisTab> {
           const Text('Per Kelas', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         ]),
         const SizedBox(height: 12),
-        DataTable(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
           headingRowColor: WidgetStateProperty.all(AppTheme.grey50),
           columnSpacing: 24,
           columns: const [
@@ -404,6 +406,7 @@ class _AnalisisTabState extends State<_AnalisisTab> {
             DataCell(Text('${k['jumlah_siswa'] ?? 0}', style: const TextStyle(fontSize: 12))),
             DataCell(Text('${k['count'] ?? 0}', style: const TextStyle(fontSize: 12))),
           ])).toList(),
+        ),
         ),
       ])),
     );
