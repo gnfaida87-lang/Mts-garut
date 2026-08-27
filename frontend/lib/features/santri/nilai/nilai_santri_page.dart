@@ -219,7 +219,6 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
   }
 
   Widget _buildPredikatItem(String label, dynamic value) {
-    final v = (value ?? 0).toDouble();
     final color = _getNilaiColor(value);
     final bg = _getNilaiBg(value);
     final predikat = _getNilaiLabel(value);

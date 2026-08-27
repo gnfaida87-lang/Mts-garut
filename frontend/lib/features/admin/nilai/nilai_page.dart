@@ -216,13 +216,13 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
             const SizedBox(height: 12),
             const Divider(height: 1),
             const SizedBox(height: 12),
-            Row(children: [
+            const Row(children: [
               Icon(Icons.filter_list, size: 16, color: AppTheme.grey500),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text('Publikasi per Jenis Ujian', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
             ]),
             const SizedBox(height: 4),
-            Text('Aktifkan jenis yang ingin dilihat siswa', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
+            const Text('Aktifkan jenis yang ingin dilihat siswa', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
             const SizedBox(height: 12),
             if (_loadingJenis)
               const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
