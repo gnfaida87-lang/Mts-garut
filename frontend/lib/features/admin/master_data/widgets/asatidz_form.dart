@@ -282,20 +282,37 @@ class _AsatidzFormState extends State<AsatidzForm> {
   Future<void> _onSave() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final errors = <String>[];
+    if (_nipCtrl.text.trim().isEmpty) errors.add('NIP wajib diisi');
+    if (_namaCtrl.text.trim().isEmpty) errors.add('Nama wajib diisi');
+    if (_selectedJk == null) errors.add('Jenis Kelamin wajib dipilih');
+    if (_selectedJabatan.isEmpty) errors.add('Minimal pilih satu Jabatan');
+    if (_selectedStatus == null) errors.add('Status wajib dipilih');
+
+    final hasUsername = _usernameCtrl.text.trim().isNotEmpty;
+    final hasPassword = _passwordCtrl.text.isNotEmpty;
+    if (hasUsername && !hasPassword) errors.add('Password wajib diisi jika username diisi');
+    if (!isEditing && hasPassword && !hasUsername) errors.add('Username wajib diisi jika password diisi');
+
+    if (errors.isNotEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errors.join('\n')),
+        duration: const Duration(seconds: 4),
+      ));
+      return;
+    }
+
     final body = <String, dynamic>{
-      'nip': _nipCtrl.text,
-      'nama': _namaCtrl.text,
+      'nip': _nipCtrl.text.trim(),
+      'nama': _namaCtrl.text.trim(),
       'jenis_kelamin': _selectedJk,
       'jabatan': _selectedJabatan.join(','),
       'status_aktif': _selectedStatus == 'Aktif' ? 1 : 0,
     };
 
-    if (_usernameCtrl.text.isNotEmpty) {
-      body['username'] = _usernameCtrl.text;
-    }
-    if (_passwordCtrl.text.isNotEmpty) {
-      body['password'] = _passwordCtrl.text;
-    }
+    if (hasUsername) body['username'] = _usernameCtrl.text.trim();
+    if (hasPassword) body['password'] = _passwordCtrl.text;
 
     try {
       int? savedId;
@@ -342,7 +359,15 @@ class _AsatidzFormState extends State<AsatidzForm> {
       widget.onSaved();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e')));
+      final msg = e.toString();
+      final displayMsg = msg.contains('sudah ada')
+          ? 'Error: $msg\nGunakan NIP atau Username yang berbeda.'
+          : 'Gagal menyimpan: $msg';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(displayMsg),
+        duration: const Duration(seconds: 5),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ));
     }
   }
 }
