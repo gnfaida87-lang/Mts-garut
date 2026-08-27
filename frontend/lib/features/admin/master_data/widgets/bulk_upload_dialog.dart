@@ -177,9 +177,13 @@ class BulkUploadDialog extends StatelessWidget {
 
     final validRows = rows
         .where((r) => r['valid'] == true)
-        .map((r) => {
-              for (final field in config.saveFields) field: r[field],
-            })
+        .map((r) {
+          final map = <String, dynamic>{};
+          for (final field in config.saveFields) {
+            map[field] = r[field] ?? '';
+          }
+          return map;
+        })
         .toList();
 
     if (validRows.isEmpty) {
