@@ -18,19 +18,35 @@ export async function handleNilai(
   }
 
   // Cek apakah nilai sudah dipublikasikan untuk semester ini
+  let nilaiPublished = true;
   if (semId) {
     const sem = await env.DB.prepare(
       'SELECT nilai_published FROM semester WHERE id = ?'
     ).bind(semId).first<{ nilai_published: number }>();
-    if (sem && sem.nilai_published === 0) {
-      return success({
-        rekap: [],
-        rata_rata_keseluruhan: 0,
-        semester_id: semId,
-        published: false,
-        message: 'Nilai belum dipublikasikan oleh administrator',
-      });
+    if (sem) nilaiPublished = sem.nilai_published === 1;
+  }
+
+  // Ambil status publikasi per jenis
+  const publishedJenis: Record<string, boolean> = {};
+  if (semId) {
+    const { results: pubRows } = await env.DB.prepare(
+      'SELECT jenis, is_published FROM publikasi_jenis WHERE semester_id = ?'
+    ).bind(semId).all();
+    for (const r of pubRows as any[]) {
+      publishedJenis[r.jenis] = r.is_published === 1;
     }
+  }
+
+  // Jika publikasi global OFF dan tidak ada per-jenis publish, kembalikan kosong
+  if (!nilaiPublished && Object.values(publishedJenis).every(v => !v)) {
+    return success({
+      rekap: [],
+      rata_rata_keseluruhan: 0,
+      semester_id: semId,
+      published: false,
+      published_jenis: publishedJenis,
+      message: 'Nilai belum dipublikasikan oleh administrator',
+    });
   }
 
   // Ambil data siswa
@@ -59,9 +75,17 @@ export async function handleNilai(
 
   const { results } = await env.DB.prepare(query).bind(...params).all();
 
-  // Group by mata_pelajaran
+  // Filter: hanya tampilkan jenis yang dipublikasikan
+  const filteredResults = (results as any[]).filter(n => {
+    // Jika publikasi global ON → semua jenis tampil
+    if (nilaiPublished) return true;
+    // Jika publikasi global OFF → hanya jenis yang di-ON-kan per-jenis
+    return publishedJenis[n.jenis] === true;
+  });
+
+  // Group by mata pelajaran
   const grouped: Record<string, any[]> = {};
-  for (const n of results as any[]) {
+  for (const n of filteredResults) {
     if (!grouped[n.mapel_nama]) grouped[n.mapel_nama] = [];
     grouped[n.mapel_nama].push(n);
   }
@@ -90,7 +114,6 @@ export async function handleNilai(
       const avgPts2 = avg('pts2');
       const avgPat = avg('pat');
 
-      // Hitung rata-rata akhir: gunakan jenis yang punya data
       const avgPairs: [number, number][] = [
         [avgHarian, countMap['harian']],
         [avgTugas, countMap['tugas']],
@@ -129,5 +152,7 @@ export async function handleNilai(
     rekap,
     rata_rata_keseluruhan: avgKeseluruhan,
     semester_id: semId,
+    published: true,
+    published_jenis: publishedJenis,
   });
 }

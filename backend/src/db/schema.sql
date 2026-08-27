@@ -69,6 +69,14 @@ CREATE TABLE semester (
     UNIQUE (tahun_ajaran_id, nama)
 );
 
+CREATE TABLE publikasi_jenis (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    semester_id  INTEGER NOT NULL REFERENCES semester(id),
+    jenis        TEXT NOT NULL CHECK (jenis IN ('harian','tugas','pts1','pts2','pas','uts','pat','uas','akhir')),
+    is_published INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (semester_id, jenis)
+);
+
 CREATE TABLE jurusan (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
     nama    TEXT NOT NULL,

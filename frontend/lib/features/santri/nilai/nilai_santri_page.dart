@@ -43,16 +43,41 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
 
   String _getPredikat(double nilai) {
     if (nilai >= 90) return 'Sangat Baik';
-    if (nilai >= 80) return 'Baik';
-    if (nilai >= 70) return 'Cukup';
-    if (nilai >= 60) return 'Kurang';
-    return 'Sangat Kurang';
+    if (nilai >= 75) return 'Baik';
+    if (nilai >= 60) return 'Cukup Baik';
+    return 'Belajar Kembali';
   }
 
-  Color _getNilaiColor(double nilai) {
-    if (nilai >= 80) return const Color(0xFF9C6644);
-    if (nilai >= 60) return Colors.orange;
-    return Colors.red;
+  Color _getPredikatColor(double nilai) {
+    if (nilai >= 90) return const Color(0xFF2E7D32);
+    if (nilai >= 75) return const Color(0xFF1565C0);
+    if (nilai >= 60) return const Color(0xFFE65100);
+    return const Color(0xFFC62828);
+  }
+
+  Color _getPredikatBg(double nilai) {
+    if (nilai >= 90) return const Color(0xFFE8F5E9);
+    if (nilai >= 75) return const Color(0xFFE3F2FD);
+    if (nilai >= 60) return const Color(0xFFFFF3E0);
+    return const Color(0xFFFFEBEE);
+  }
+
+  String _getNilaiLabel(dynamic value) {
+    final v = (value ?? 0).toDouble();
+    if (v == 0) return '';
+    return _getPredikat(v);
+  }
+
+  Color _getNilaiColor(dynamic value) {
+    final v = (value ?? 0).toDouble();
+    if (v == 0) return AppTheme.grey400;
+    return _getPredikatColor(v);
+  }
+
+  Color _getNilaiBg(dynamic value) {
+    final v = (value ?? 0).toDouble();
+    if (v == 0) return AppTheme.grey100;
+    return _getPredikatBg(v);
   }
 
   @override
@@ -104,9 +129,15 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
                   children: [
                     const Text('Rata-rata Nilai', style: TextStyle(color: Colors.white70, fontSize: 12)),
                     const SizedBox(height: 4),
-                    Text(_rataRata.toStringAsFixed(1), style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                    Text(
+                      _getPredikat(_rataRata),
+                      style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 4),
-                    Text(_getPredikat(_rataRata), style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    Text(
+                      _rataRata.toStringAsFixed(1),
+                      style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
                   ],
                 ),
               ),
@@ -136,7 +167,8 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
                       itemBuilder: (_, i) {
                         final r = _rekap[i];
                         final avg = (r['rata_rata'] ?? 0).toDouble();
-                        final color = _getNilaiColor(avg);
+                        final predikatColor = _getPredikatColor(avg);
+                        final predikatBg = _getPredikatBg(avg);
                         return Card(
                           child: Padding(
                             padding: const EdgeInsets.all(16),
@@ -149,25 +181,30 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
                                       child: Text(r['mapel_nama'] ?? '-', style: const TextStyle(fontWeight: FontWeight.w600)),
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                                      child: Text(avg.toStringAsFixed(1), style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: predikatBg,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: predikatColor.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Text(_getPredikat(avg),
+                                        style: TextStyle(color: predikatColor, fontWeight: FontWeight.bold, fontSize: 12)),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
                                 Wrap(
-                                  spacing: 12,
+                                  spacing: 8,
                                   runSpacing: 8,
                                   children: [
-                                    if ((r['harian'] ?? 0) > 0) _buildNilaiItem('Harian', r['harian']),
-                                    if ((r['tugas'] ?? 0) > 0) _buildNilaiItem('Tugas', r['tugas']),
-                                    if ((r['uts'] ?? 0) > 0) _buildNilaiItem('UTS', r['uts']),
-                                    if ((r['uas'] ?? 0) > 0) _buildNilaiItem('UAS', r['uas']),
-                                    if ((r['pts1'] ?? 0) > 0) _buildNilaiItem('PTS1', r['pts1']),
-                                    if ((r['pas'] ?? 0) > 0) _buildNilaiItem('PAS', r['pas']),
-                                    if ((r['pts2'] ?? 0) > 0) _buildNilaiItem('PTS2', r['pts2']),
-                                    if ((r['pat'] ?? 0) > 0) _buildNilaiItem('PAT', r['pat']),
+                                    if ((r['harian'] ?? 0) > 0) _buildPredikatItem('Harian', r['harian']),
+                                    if ((r['tugas'] ?? 0) > 0) _buildPredikatItem('Tugas', r['tugas']),
+                                    if ((r['uts'] ?? 0) > 0) _buildPredikatItem('UTS', r['uts']),
+                                    if ((r['uas'] ?? 0) > 0) _buildPredikatItem('UAS', r['uas']),
+                                    if ((r['pts1'] ?? 0) > 0) _buildPredikatItem('PTS1', r['pts1']),
+                                    if ((r['pas'] ?? 0) > 0) _buildPredikatItem('PAS', r['pas']),
+                                    if ((r['pts2'] ?? 0) > 0) _buildPredikatItem('PTS2', r['pts2']),
+                                    if ((r['pat'] ?? 0) > 0) _buildPredikatItem('PAT', r['pat']),
                                   ],
                                 ),
                               ],
@@ -181,15 +218,26 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
     );
   }
 
-  Widget _buildNilaiItem(String label, dynamic value) {
+  Widget _buildPredikatItem(String label, dynamic value) {
     final v = (value ?? 0).toDouble();
-    return SizedBox(
-      width: 70,
+    final color = _getNilaiColor(value);
+    final bg = _getNilaiBg(value);
+    final predikat = _getNilaiLabel(value);
+
+    if (predikat.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
       child: Column(
         children: [
-          Text(v.toStringAsFixed(0), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _getNilaiColor(v))),
+          Text(predikat, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
+          Text(label, style: TextStyle(fontSize: 9, color: color.withValues(alpha: 0.7)), textAlign: TextAlign.center),
         ],
       ),
     );

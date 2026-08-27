@@ -183,6 +183,20 @@ class AdminService {
     await ApiClient.put('/admin/rapor/$semesterId/publikasi-nilai', body: {'nilai_published': published});
   }
 
+  // ── Publikasi per Jenis Ujian ──
+  static Future<Map<String, dynamic>> getPublikasiJenis() async {
+    final res = await ApiClient.get('/admin/rapor/status-publikasi-jenis');
+    return res['data'] as Map<String, dynamic>;
+  }
+
+  static Future<void> togglePublikasiJenis(int semesterId, String jenis, bool published) async {
+    await ApiClient.put('/admin/rapor/publikasi-jenis', body: {
+      'semester_id': semesterId,
+      'jenis': jenis,
+      'is_published': published,
+    });
+  }
+
   // ── Profil Sekolah ──
   static Future<Map<String, dynamic>> getProfil() async {
     final res = await ApiClient.get('/admin/profil');

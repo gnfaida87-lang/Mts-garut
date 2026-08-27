@@ -196,5 +196,51 @@ export async function handleAdminRapor(request: Request, env: Env, user: UserPay
     return success({ semester_id: semesterId, nilai_published: newValue === 1 });
   }
 
+  // ── Publikasi per Jenis Ujian ──
+
+  // GET /api/admin/rapor/status-publikasi-jenis - status semua jenis per semester aktif
+  if (subPath === '/status-publikasi-jenis' && request.method === 'GET') {
+    const sem = await env.DB.prepare(
+      'SELECT id FROM semester WHERE is_aktif = 1 LIMIT 1'
+    ).first<{ id: number }>();
+    if (!sem) return badRequest('Tidak ada semester aktif');
+
+    const rows = await env.DB.prepare(
+      'SELECT jenis, is_published FROM publikasi_jenis WHERE semester_id = ? ORDER BY CASE jenis WHEN \'harian\' THEN 1 WHEN \'tugas\' THEN 2 WHEN \'pts1\' THEN 3 WHEN \'pts2\' THEN 4 WHEN \'pas\' THEN 5 WHEN \'uts\' THEN 6 WHEN \'pat\' THEN 7 WHEN \'uas\' THEN 8 WHEN \'akhir\' THEN 9 END'
+    ).bind(sem.id).all();
+
+    return success({
+      semester_id: sem.id,
+      jenis: rows.results.map((r: any) => ({
+        jenis: r.jenis,
+        is_published: r.is_published === 1,
+      })),
+    });
+  }
+
+  // PUT /api/admin/rapor/publikasi-jenis - toggle publish per jenis
+  if (subPath === '/publikasi-jenis' && request.method === 'PUT') {
+    const body = await request.json<{ semester_id?: number; jenis?: string; is_published?: boolean }>();
+    if (!body.semester_id || !body.jenis) return badRequest('semester_id dan jenis wajib diisi');
+
+    const validJenis = ['harian','tugas','pts1','pts2','pas','uts','pat','uas','akhir'];
+    if (!validJenis.includes(body.jenis)) return badRequest('Jenis tidak valid');
+
+    const sem = await env.DB.prepare('SELECT id FROM semester WHERE id = ?').bind(body.semester_id).first();
+    if (!sem) return notFound('Semester');
+
+    const newValue = body.is_published === true ? 1 : 0;
+    await env.DB.prepare(
+      'INSERT INTO publikasi_jenis (semester_id, jenis, is_published) VALUES (?, ?, ?) ON CONFLICT(semester_id, jenis) DO UPDATE SET is_published = ?'
+    ).bind(body.semester_id, body.jenis, newValue, newValue).run();
+
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    await env.DB.prepare(
+      "INSERT INTO log_aktivitas (user_id, aksi, modul, detail, ip_address) VALUES (?, 'update', 'rapor', ?, ?)"
+    ).bind(user.sub, `Publikasi jenis ${body.jenis}: ${newValue ? 'ON' : 'OFF'}`, ip).run();
+
+    return success({ semester_id: body.semester_id, jenis: body.jenis, is_published: newValue === 1 });
+  }
+
   return badRequest('Endpoint tidak dikenal');
 }

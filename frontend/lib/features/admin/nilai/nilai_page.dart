@@ -21,9 +21,11 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
   bool _nilaiPublished = false;
   int? _semesterId;
   bool _loadingPublikasi = false;
+  List<Map<String, dynamic>> _jenisList = [];
+  bool _loadingJenis = false;
 
   @override
-  void initState() { super.initState(); _tabCtrl = TabController(length: 3, vsync: this); _load(); _loadPublikasi(); }
+  void initState() { super.initState(); _tabCtrl = TabController(length: 3, vsync: this); _load(); _loadPublikasi(); _loadJenisPublikasi(); }
 
   @override
   void dispose() { _tabCtrl.dispose(); super.dispose(); }
@@ -56,6 +58,39 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
     }
     if (mounted) setState(() => _loadingPublikasi = false);
+  }
+
+  Future<void> _loadJenisPublikasi() async {
+    setState(() => _loadingJenis = true);
+    try {
+      final res = await AdminService.getPublikasiJenis();
+      if (mounted) {
+        setState(() {
+          _semesterId = res['semester_id'] as int?;
+          _jenisList = (res['jenis'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        });
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loadingJenis = false);
+  }
+
+  Future<void> _toggleJenisPublikasi(String jenis, bool current) async {
+    if (_semesterId == null) return;
+    try {
+      await AdminService.togglePublikasiJenis(_semesterId!, jenis, !current);
+      if (mounted) {
+        setState(() {
+          final idx = _jenisList.indexWhere((j) => j['jenis'] == jenis);
+          if (idx >= 0) _jenisList[idx]['is_published'] = !current;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('$jenis ${!current ? 'dipublikasikan' : 'disembunyikan'}'),
+          backgroundColor: !current ? AppTheme.primary : AppTheme.orange,
+        ));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
+    }
   }
 
   String get _jenisValue {
@@ -117,6 +152,39 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
 
   Color _statusColor(String s) => s == 'tervalidasi' ? AppTheme.primary : AppTheme.orange;
 
+  String _jenisLabel(String jenis) {
+    const labels = {
+      'harian': 'Harian', 'tugas': 'Tugas', 'pts1': 'PTS 1', 'pts2': 'PTS 2',
+      'pas': 'PAS', 'uts': 'UTS', 'pat': 'PAT', 'uas': 'UAS', 'akhir': 'Akhir',
+    };
+    return labels[jenis] ?? jenis;
+  }
+
+  Widget _buildJenisChip(String jenis, bool isPublished) {
+    final color = isPublished ? AppTheme.primary : AppTheme.grey400;
+    return InkWell(
+      onTap: () => _toggleJenisPublikasi(jenis, isPublished),
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isPublished ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.grey100,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isPublished ? Icons.visibility : Icons.visibility_off, size: 14, color: color),
+            const SizedBox(width: 6),
+            Text(_jenisLabel(jenis), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: color)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMonitoringTab() {
     return Column(children: [
       DataCard(
@@ -134,14 +202,41 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
               activeColor: AppTheme.primary,
             ),
         ]),
-        child: Row(children: [
-          Icon(_nilaiPublished ? Icons.check_circle : Icons.cancel,
-              size: 16, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
-          const SizedBox(width: 8),
-          Text(
-            _nilaiPublished ? 'Nilai terlihat oleh siswa' : 'Nilai tidak terlihat oleh siswa',
-            style: TextStyle(fontSize: 12, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
-          ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(_nilaiPublished ? Icons.check_circle : Icons.cancel,
+                size: 16, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
+            const SizedBox(width: 8),
+            Text(
+              _nilaiPublished ? 'Semua nilai terlihat oleh siswa' : 'Semua nilai tidak terlihat oleh siswa',
+              style: TextStyle(fontSize: 12, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
+            ),
+          ]),
+          if (!_nilaiPublished) ...[
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+            Row(children: [
+              Icon(Icons.filter_list, size: 16, color: AppTheme.grey500),
+              const SizedBox(width: 8),
+              Text('Publikasi per Jenis Ujian', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
+            ]),
+            const SizedBox(height: 4),
+            Text('Aktifkan jenis yang ingin dilihat siswa', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
+            const SizedBox(height: 12),
+            if (_loadingJenis)
+              const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _jenisList.map((j) {
+                  final jenis = j['jenis'] as String;
+                  final isPub = j['is_published'] as bool;
+                  return _buildJenisChip(jenis, isPub);
+                }).toList(),
+              ),
+          ],
         ]),
       ),
       DataCard(
