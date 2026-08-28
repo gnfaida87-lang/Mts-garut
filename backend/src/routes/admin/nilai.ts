@@ -30,13 +30,16 @@ export async function handleAdminNilai(request: Request, env: Env, user: UserPay
     bindings.push(perPage, offset);
     const rows = await env.DB.prepare(
       `SELECT n.*, s.nama as siswa_nama, s.nis as siswa_nis, mp.nama as mapel_nama,
-              k.nama as kelas_nama, g.nama as guru_nama, sem.nama as semester_nama
+              k.nama as kelas_nama, g.nama as guru_nama, sem.nama as semester_nama,
+              t.nama as tingkat_nama, ta.nama as tahun_ajaran
        FROM nilai n
        LEFT JOIN siswa s ON n.siswa_id = s.id
        LEFT JOIN mata_pelajaran mp ON n.mata_pelajaran_id = mp.id
        LEFT JOIN kelas k ON n.kelas_id = k.id
+       LEFT JOIN tingkat t ON k.tingkat_id = t.id
        LEFT JOIN guru g ON n.diinput_oleh = g.id
        LEFT JOIN semester sem ON n.semester_id = sem.id
+       LEFT JOIN tahun_ajaran ta ON sem.tahun_ajaran_id = ta.id
        ${where} ORDER BY n.created_at DESC LIMIT ? OFFSET ?`
     ).bind(...bindings).all();
 

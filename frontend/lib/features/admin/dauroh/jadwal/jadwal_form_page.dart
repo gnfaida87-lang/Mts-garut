@@ -70,7 +70,7 @@ class _JadwalFormPageState extends State<JadwalFormPage> {
           _kelasList = (kelasRes['kelas'] as List?)?.cast<Map<String, dynamic>>() ?? [];
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[jadwal_form_page.dart] error caught'); }
   }
 
   Future<void> _loadKelasTerkait(int jadwalId) async {
@@ -84,7 +84,7 @@ class _JadwalFormPageState extends State<JadwalFormPage> {
               .toSet();
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[jadwal_form_page.dart] error caught'); }
   }
 
   @override

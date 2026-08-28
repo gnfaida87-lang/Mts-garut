@@ -37,25 +37,53 @@ export async function handleNilai(
     }
   }
 
+  // Ambil info semester: nama & tahun ajaran (untuk metadata tampilan santri)
+  let semesterNama: string | null = null;
+  let semesterTahunAjaran: string | null = null;
+  if (semId) {
+    const sem = await env.DB.prepare(
+      `SELECT sem.nama as semester_nama, ta.nama as tahun_ajaran
+       FROM semester sem
+       LEFT JOIN tahun_ajaran ta ON sem.tahun_ajaran_id = ta.id
+       WHERE sem.id = ?`
+    ).bind(semId).first<{ semester_nama: string; tahun_ajaran: string }>();
+    semesterNama = sem?.semester_nama ?? null;
+    semesterTahunAjaran = sem?.tahun_ajaran ?? null;
+  }
+
+  // Ambil data siswa beserta kelas, tingkat, dan tahun ajaran
+  const { results: siswaData } = await env.DB.prepare(
+    `SELECT s.id, s.kelas_id, k.nama as kelas_nama, t.nama as tingkat_nama,
+            ta.nama as tahun_ajaran
+     FROM siswa s
+     LEFT JOIN kelas k ON s.kelas_id = k.id
+     LEFT JOIN tingkat t ON k.tingkat_id = t.id
+     LEFT JOIN tahun_ajaran ta ON k.tahun_ajaran_id = ta.id
+     WHERE s.id = ?`
+  ).bind(user.siswa_id).all();
+
+  if (siswaData.length === 0) return error('Data siswa tidak ditemukan', 404);
+  const kelasId = (siswaData[0] as any).kelas_id;
+
+  // Meta informasi (kelas/tingkat) dari data siswa
+  const kelasNama = (siswaData[0] as any).kelas_nama ?? null;
+  const tingkatNama = (siswaData[0] as any).tingkat_nama ?? null;
+
   // Jika publikasi global OFF dan tidak ada per-jenis publish, kembalikan kosong
   if (!nilaiPublished && Object.values(publishedJenis).every(v => !v)) {
     return success({
       rekap: [],
       rata_rata_keseluruhan: 0,
       semester_id: semId,
+      semester_nama: semesterNama,
+      tahun_ajaran: semesterTahunAjaran,
+      kelas_nama: kelasNama,
+      tingkat_nama: tingkatNama,
       published: false,
       published_jenis: publishedJenis,
       message: 'Nilai belum dipublikasikan oleh administrator',
     });
   }
-
-  // Ambil data siswa
-  const { results: siswaData } = await env.DB.prepare(
-    'SELECT kelas_id FROM siswa WHERE id = ?'
-  ).bind(user.siswa_id).all();
-
-  if (siswaData.length === 0) return error('Data siswa tidak ditemukan', 404);
-  const kelasId = (siswaData[0] as any).kelas_id;
 
   // Query nilai per mata pelajaran
   let query = `
@@ -152,6 +180,10 @@ export async function handleNilai(
     rekap,
     rata_rata_keseluruhan: avgKeseluruhan,
     semester_id: semId,
+    semester_nama: semesterNama,
+    tahun_ajaran: semesterTahunAjaran,
+    kelas_nama: kelasNama,
+    tingkat_nama: tingkatNama,
     published: true,
     published_jenis: publishedJenis,
   });

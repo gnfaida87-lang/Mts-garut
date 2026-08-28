@@ -315,7 +315,7 @@ class _MasterDataPageState extends State<MasterDataPage> {
               _data[MasterDataType.tahunAjaran] = (taRes['items'] as List).cast<Map<String, dynamic>>();
             });
           }
-        } catch (_) {}
+        } catch (_) { debugPrint('[master_data_page.dart] error caught'); }
       }
     } catch (e) {
       if (mounted) {

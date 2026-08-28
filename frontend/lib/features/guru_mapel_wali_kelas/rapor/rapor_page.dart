@@ -28,7 +28,7 @@ class _RaporPageGuruState extends State<RaporPageGuru> with SingleTickerProvider
   Future<void> _loadDataWali() async {
     try {
       _dataWali = await GuruService.getDataWaliRapor();
-    } catch (_) {}
+    } catch (_) { debugPrint('[rapor_page.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -200,7 +200,7 @@ class _LihatRaporState extends State<_LihatRapor> {
     try {
       _semester = await GuruService.getSemesterList();
       if (_semester.isNotEmpty) _semesterId = _semester[0]['id'] as int?;
-    } catch (_) {}
+    } catch (_) { debugPrint('[rapor_page.dart] error caught'); }
     if (mounted) setState(() => _loadingSemester = false);
   }
 
@@ -663,7 +663,7 @@ class _StatusPengirimanState extends State<_StatusPengiriman> {
     try {
       _semester = await GuruService.getSemesterList();
       if (_semester.isNotEmpty) _semesterId = _semester[0]['id'] as int?;
-    } catch (_) {}
+    } catch (_) { debugPrint('[rapor_page.dart] error caught'); }
     if (mounted) setState(() => _loadingSemester = false);
   }
 

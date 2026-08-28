@@ -110,7 +110,7 @@ class _AsatidzFormState extends State<AsatidzForm> {
     try {
       final r = await ApiClient.get('/admin/guru-wali-kelas/$gid');
       _waliKelasId = r['data']?['kelas_id'] as int?;
-    } catch (_) {}
+    } catch (_) { debugPrint('[asatidz_form.dart] error caught'); }
   }
 
   @override

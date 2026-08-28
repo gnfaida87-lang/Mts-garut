@@ -40,7 +40,7 @@ class _AbsensiPageState extends State<AbsensiPage> with SingleTickerProviderStat
       final res = await ApiClient.get('/referensi');
       final data = res['data'] as Map<String, dynamic>;
       _kelas = data['kelas'] as List<dynamic>? ?? [];
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
   }
 
   @override
@@ -422,7 +422,7 @@ class _AnalisisAbsensiTabState extends State<_AnalisisAbsensiTab> {
     try {
       final res = await AdminService.getReferensi();
       setState(() => _kelasList = (res['kelas'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? []);
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
   }
 
   Future<void> _loadAnalisis() async {

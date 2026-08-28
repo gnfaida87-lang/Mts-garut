@@ -49,7 +49,7 @@ class _AbsensiMonitoringPageState extends State<AbsensiMonitoringPage> {
           _programList = (res['items'] as List).cast<Map<String, dynamic>>();
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_monitoring_page.dart] error caught'); }
   }
 
   Future<void> _load() async {

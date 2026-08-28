@@ -60,7 +60,7 @@ class _MataPelajaranFormState extends State<MataPelajaranForm> {
       final r = await ApiClient.get('/admin/mapel-kelas/$mapelId/kelas');
       final ids = (r['data'] as List).cast<int>();
       _selectedKelasIds = ids.toSet();
-    } catch (_) {}
+    } catch (_) { debugPrint('[mata_pelajaran_form.dart] error caught'); }
   }
 
   @override

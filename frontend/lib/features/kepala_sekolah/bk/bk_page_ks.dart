@@ -24,7 +24,7 @@ class _BKPageKSState extends State<BKPageKS> {
       final data = await KepalaSekolahService.getBK();
       if (!mounted) return;
       _data = data;
-    } catch (_) {}
+    } catch (_) { debugPrint('[bk_page_ks.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

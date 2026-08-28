@@ -52,7 +52,7 @@ class _DaurohNilaiPageState extends State<DaurohNilaiPage> {
           _programList = (res['program'] as List?) ?? [];
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[dauroh_nilai_page.dart] error caught'); }
   }
 
   Future<void> _loadData() async {

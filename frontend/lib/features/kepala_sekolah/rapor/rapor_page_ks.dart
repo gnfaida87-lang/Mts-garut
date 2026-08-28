@@ -24,7 +24,7 @@ class _RaporPageKSState extends State<RaporPageKS> {
       final data = await KepalaSekolahService.getRapor();
       if (!mounted) return;
       _data = data;
-    } catch (_) {}
+    } catch (_) { debugPrint('[rapor_page_ks.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

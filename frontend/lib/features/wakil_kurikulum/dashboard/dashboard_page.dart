@@ -21,7 +21,7 @@ class _DashboardPageWKState extends State<DashboardPageWK> {
   Future<void> _load() async {
     setState(() => _loading = true);
     try { _data = await WakilKurikulumService.getDashboard(); }
-    catch (_) {}
+    catch (_) { debugPrint('[dashboard_page.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

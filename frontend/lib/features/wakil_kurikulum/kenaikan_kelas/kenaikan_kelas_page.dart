@@ -1372,7 +1372,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
                       _minAbsensiCtrl.text = (data['min_absensi_persen'] ?? 75).toString();
                       _minNilaiCtrl.text = (data['min_nilai_akhir'] ?? 60).toString();
                     });
-                  } catch (_) {}
+                  } catch (_) { debugPrint('[kenaikan_kelas_page.dart] error caught'); }
                 }
               },
             ),

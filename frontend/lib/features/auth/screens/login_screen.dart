@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           }
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[login_screen.dart] error caught'); }
   }
 
   @override

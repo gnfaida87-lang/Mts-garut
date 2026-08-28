@@ -42,7 +42,7 @@ class _NilaiMonitoringPageState extends State<NilaiMonitoringPage> {
           _kelasList = (results[1]['kelas'] as List?)?.cast<Map<String, dynamic>>() ?? [];
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[nilai_monitoring_page.dart] error caught'); }
   }
 
   Future<void> _load() async {

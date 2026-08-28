@@ -236,7 +236,7 @@ class _AnalisisTabState extends State<_AnalisisTab> {
         _semesterList = (res['semester'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         _kelasList = (res['kelas'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
       });
-    } catch (_) {}
+    } catch (_) { debugPrint('[rapor_page.dart] error caught'); }
   }
 
   Future<void> _loadAnalisis() async {

@@ -43,4 +43,14 @@ console.md
 jadwal.md
 frontend.zip
 
+# Dokumentasi & artefak pribadi/lokal (bukan bagian kode)
+push.md
+deploy.md
+Worker-URL.md
+jwt.md
+hasil.md
+hasil1.md
+error.md
+mts-garut-db-backup-*.sql
+
 temp_main.js

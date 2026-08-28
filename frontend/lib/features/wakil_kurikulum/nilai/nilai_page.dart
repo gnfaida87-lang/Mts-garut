@@ -87,7 +87,7 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
       _kelasList = (ref['kelas'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
       _mapelList = (ref['mapel'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
       _tahunAjaranList = (ref['semester'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-    } catch (_) {}
+    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
   }
 
   Future<void> _showFormBobot({BobotNilai? existing}) async {

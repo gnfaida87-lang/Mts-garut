@@ -24,7 +24,7 @@ class _JadwalPageKSState extends State<JadwalPageKS> {
       final data = await KepalaSekolahService.getJadwal();
       if (!mounted) return;
       _jadwal = data;
-    } catch (_) {}
+    } catch (_) { debugPrint('[jadwal_page_ks.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

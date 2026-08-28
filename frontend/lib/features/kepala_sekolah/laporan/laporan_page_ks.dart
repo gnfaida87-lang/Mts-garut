@@ -29,7 +29,7 @@ class _LaporanPageKSState extends State<LaporanPageKS> {
       final data = res['data'] as Map<String, dynamic>;
       _kelas = data['kelas'] as List<dynamic>? ?? [];
       _semester = data['semester'] as List<dynamic>? ?? [];
-    } catch (_) {}
+    } catch (_) { debugPrint('[laporan_page_ks.dart] error caught'); }
     if (mounted) _loadLaporan();
   }
 

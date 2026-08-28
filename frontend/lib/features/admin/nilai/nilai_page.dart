@@ -39,7 +39,7 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
           _semesterId = res['semester_id'];
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
   }
 
   Future<void> _togglePublikasi() async {
@@ -70,7 +70,7 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
           _jenisList = (res['jenis'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
     if (mounted) setState(() => _loadingJenis = false);
   }
 
@@ -312,6 +312,18 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
                               const SizedBox(width: 12),
                               Text('${d['kelas_nama'] ?? '-'} | ${d['semester_nama'] ?? '-'}', style: const TextStyle(fontSize: 11, color: AppTheme.grey400)),
                             ]),
+                            if ((d['tahun_ajaran'] ?? '') != '') ...[
+                              const SizedBox(height: 2),
+                              Row(children: [
+                                const Icon(Icons.calendar_today_outlined, size: 12, color: AppTheme.grey500),
+                                const SizedBox(width: 4),
+                                Text('TA ${d['tahun_ajaran'] ?? '-'}', style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+                                const SizedBox(width: 12),
+                                const Icon(Icons.menu_book_outlined, size: 12, color: AppTheme.grey500),
+                                const SizedBox(width: 4),
+                                Text('Tingkat ${d['tingkat_nama'] ?? '-'}', style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+                              ]),
+                            ],
                           ])),
                           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                             StatusBadge(label: st, color: _statusColor(st), small: true),
@@ -363,7 +375,7 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
         _semesterList = (res['semester'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         _kelasList = (res['kelas'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
       });
-    } catch (_) {}
+    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
   }
 
   Future<void> _loadAnalisis() async {

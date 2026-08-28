@@ -86,7 +86,7 @@ class _PengaduanPageBKState extends State<PengaduanPageBK>
       _items.addAll(newItems);
       _page++;
       _totalPages = pag?['total_pages'] as int? ?? _totalPages;
-    } catch (_) {}
+    } catch (_) { debugPrint('[pengaduan_page_bk.dart] error caught'); }
     if (mounted) setState(() => _loadingMore = false);
   }
 

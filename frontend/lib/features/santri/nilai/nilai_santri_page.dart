@@ -16,6 +16,10 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
   bool _loading = true;
   bool _published = true;
   String _message = '';
+  String _semesterNama = '';
+  String _tahunAjaran = '';
+  String _kelasNama = '';
+  String _tingkatNama = '';
 
   @override
   void initState() {
@@ -33,6 +37,10 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
           _message = result['message'] as String? ?? '';
           _rekap = (result['rekap'] as List).cast<Map<String, dynamic>>();
           _rataRata = (result['rata_rata_keseluruhan'] ?? 0).toDouble();
+          _semesterNama = result['semester_nama'] as String? ?? '';
+          _tahunAjaran = result['tahun_ajaran'] as String? ?? '';
+          _kelasNama = result['kelas_nama'] as String? ?? '';
+          _tingkatNama = result['tingkat_nama'] as String? ?? '';
           _loading = false;
         });
       }
@@ -133,11 +141,6 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
                       _getPredikat(_rataRata),
                       style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _rataRata.toStringAsFixed(1),
-                      style: const TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
                   ],
                 ),
               ),
@@ -154,6 +157,34 @@ class _NilaiSantriPageState extends State<NilaiSantriPage> {
             ],
           ),
         ),
+        if (_tahunAjaran.isNotEmpty || _semesterNama.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.white70),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    [
+                      if (_tahunAjaran.isNotEmpty) 'TA $_tahunAjaran',
+                      if (_semesterNama.isNotEmpty) _semesterNama,
+                      if (_tingkatNama.isNotEmpty) 'Tingkat $_tingkatNama',
+                      if (_kelasNama.isNotEmpty) 'Kelas $_kelasNama',
+                    ].join(' • '),
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         // Detail per Mapel
         Expanded(
           child: _loading

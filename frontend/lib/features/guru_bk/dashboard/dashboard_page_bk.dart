@@ -20,7 +20,7 @@ class _DashboardPageBKState extends State<DashboardPageBK> {
   Future<void> _load() async {
     try {
       _stats = await GuruBKService.getStatistik();
-    } catch (_) {}
+    } catch (_) { debugPrint('[dashboard_page_bk.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

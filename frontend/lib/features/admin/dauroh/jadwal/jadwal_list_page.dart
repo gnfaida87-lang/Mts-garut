@@ -44,7 +44,7 @@ class _JadwalListPageState extends State<JadwalListPage> {
           _programList = (res['items'] as List).cast<Map<String, dynamic>>();
         });
       }
-    } catch (_) {}
+    } catch (_) { debugPrint('[jadwal_list_page.dart] error caught'); }
   }
 
   Future<void> _load({bool refresh = false}) async {

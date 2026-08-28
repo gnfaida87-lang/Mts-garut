@@ -196,7 +196,7 @@ class _BakatMinatPageState extends State<BakatMinatPage>
                             try {
                               await GuruBKService.deleteBakatMinat(siswa['bm_id']);
                               if (ctx.mounted) Navigator.pop(ctx, true);
-                            } catch (_) {}
+                            } catch (_) { debugPrint('[bakat_minat_page.dart] error caught'); }
                           }
                         },
                         icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),

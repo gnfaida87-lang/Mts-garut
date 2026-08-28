@@ -27,11 +27,11 @@ class _ProfilPageGuruState extends State<ProfilPageGuru> {
     try {
       final res = await ApiClient.get('/guru/profil');
       _profil = res['data'] as Map<String, dynamic>?;
-    } catch (_) {}
+    } catch (_) { debugPrint('[profil_page.dart] error caught'); }
     try {
       final wali = await GuruService.cekWaliKelas();
       _isWaliKelas = wali['is_wali_kelas'] == true;
-    } catch (_) {}
+    } catch (_) { debugPrint('[profil_page.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

@@ -40,7 +40,7 @@ class _PengaduanPageGuruState extends State<PengaduanPageGuru> {
       _kelasList = data['kelas'] as List<dynamic>? ?? [];
       _siswaList = data['siswa'] as List<dynamic>? ?? [];
       await _loadRiwayat();
-    } catch (_) {}
+    } catch (_) { debugPrint('[pengaduan_page.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

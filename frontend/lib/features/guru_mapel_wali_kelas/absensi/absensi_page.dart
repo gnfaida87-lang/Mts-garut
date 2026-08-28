@@ -218,7 +218,7 @@ class _InputAbsensiPageState extends State<_InputAbsensiPage> {
     setState(() => _loading = true);
     try {
       _assignments = await GuruService.getAssignments();
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
     setState(() => _loading = false);
   }
 
@@ -681,7 +681,7 @@ class _RiwayatAbsensiPageState extends State<_RiwayatAbsensiPage> {
       _items = data['items'] as List<dynamic>? ?? [];
       final pag = data['pagination'] as Map<String, dynamic>? ?? {};
       _totalPages = pag['total_pages'] as int? ?? 1;
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
     setState(() => _loading = false);
   }
 
@@ -955,7 +955,7 @@ class _DetailSesiPageState extends State<_DetailSesiPage> {
         mapelId: s['mata_pelajaran_id'] != null ? '${s['mata_pelajaran_id']}' : null,
         jam: s['jam'] as String?,
       );
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
     setState(() => _loading = false);
   }
 

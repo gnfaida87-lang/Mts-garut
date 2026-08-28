@@ -24,7 +24,7 @@ class _NilaiPageKSState extends State<NilaiPageKS> {
       final data = await KepalaSekolahService.getNilai();
       if (!mounted) return;
       _data = data;
-    } catch (_) {}
+    } catch (_) { debugPrint('[nilai_page_ks.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 

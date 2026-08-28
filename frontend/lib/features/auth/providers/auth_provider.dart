@@ -83,7 +83,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     try {
       await _authService.logout();
-    } catch (_) {}
+    } catch (_) { debugPrint('[auth_provider.dart] error caught'); }
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();

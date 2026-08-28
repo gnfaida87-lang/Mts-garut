@@ -123,7 +123,7 @@ class _TabGuruState extends State<_TabGuru> {
       _items = data['items'] as List<dynamic>? ?? [];
       final pag = data['pagination'] as Map<String, dynamic>? ?? {};
       _totalPages = pag['total_pages'] as int? ?? 1;
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page_ks.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -293,7 +293,7 @@ class _TabSiswaState extends State<_TabSiswa> {
       final res = await KepalaSekolahService.getReferensi();
       if (!mounted) return;
       setState(() => _kelas = res['kelas'] as List<dynamic>? ?? []);
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page_ks.dart] error caught'); }
   }
 
   Future<void> _load() async {
@@ -306,7 +306,7 @@ class _TabSiswaState extends State<_TabSiswa> {
       _items = data['items'] as List<dynamic>? ?? [];
       final pag = data['pagination'] as Map<String, dynamic>? ?? {};
       _totalPages = pag['total_pages'] as int? ?? 1;
-    } catch (_) {}
+    } catch (_) { debugPrint('[absensi_page_ks.dart] error caught'); }
     if (mounted) setState(() => _loading = false);
   }
 
