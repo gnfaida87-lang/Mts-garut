@@ -277,17 +277,20 @@ class _SantriFormState extends State<SantriForm> {
         const Text('Akun Login', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
       ]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+        const Text(
+          'Kosongkan Username & Password untuk otomatis memakai NIS sebagai username sekaligus password.',
+          style: TextStyle(fontSize: 11, color: AppTheme.grey500),
+        ),
+        const SizedBox(height: 12),
         ModernField(controller: _usernameCtrl, label: 'Username', icon: Icons.alternate_email, hint: 'Username untuk login'),
         const SizedBox(height: 16),
         ModernPasswordField(
           controller: _passwordCtrl,
-          label: isEditing ? 'Password (kosongkan jika tidak diubah)' : 'Password',
+          label: 'Password',
           obscureText: _passwordObscure,
           onToggle: () => setState(() => _passwordObscure = !_passwordObscure),
-          validator: isEditing
-              ? null
-              : (v) => (v == null || v.isEmpty) ? 'Password wajib diisi' : null,
-          suffixText: isEditing ? 'Opsional' : null,
+          validator: null,
+          suffixText: 'Kosong = NIS',
         ),
       ]),
     );

@@ -134,10 +134,11 @@ export async function handleAdminMasterData(request: Request, env: Env, user: Us
       if (resource === 'siswa') {
         const resultBody = await result.clone().json() as { data?: { id?: number } };
         const siswaId = resultBody?.data?.id;
-        const username = body['username'] as string | undefined;
-        const password = body['password'] as string | undefined;
-        if (siswaId && username && password) {
-          await upsertUserForSiswa(env, siswaId, username, password, user.sub, ip);
+        const username = ((body['username'] as string | undefined) ?? '').trim() || String(body['nis'] ?? '');
+        const password = (body['password'] as string | undefined) ?? '';
+        const effectivePassword = password !== '' ? password : username;
+        if (siswaId && username) {
+          await upsertUserForSiswa(env, siswaId, username, effectivePassword, user.sub, ip);
         }
       }
       // Auto-copy kelas dari tahun ajaran aktif sebelumnya ke tahun baru
@@ -206,10 +207,19 @@ export async function handleAdminMasterData(request: Request, env: Env, user: Us
         }
       }
       if (resource === 'siswa') {
-        const username = body['username'] as string | undefined;
-        const password = body['password'] as string | undefined;
-        if (username && password) {
-          await upsertUserForSiswa(env, id, username, password, user.sub, ip);
+        const username = ((body['username'] as string | undefined) ?? '').trim();
+        const password = (body['password'] as string | undefined) ?? '';
+        const existingUser = await env.DB.prepare('SELECT id FROM users WHERE siswa_id = ?').bind(id).first<{ id: number }>();
+        if (existingUser) {
+          if (username !== '' && password !== '') {
+            await upsertUserForSiswa(env, id, username, password, user.sub, ip);
+          }
+        } else {
+          const curNis = ((body['nis'] as string | undefined) ?? '').trim();
+          const fallback = username !== '' ? username : (curNis || ((await env.DB.prepare('SELECT nis FROM siswa WHERE id = ?').bind(id).first<{ nis: string }>())?.nis ?? ''));
+          if (fallback) {
+            await upsertUserForSiswa(env, id, fallback, password !== '' ? password : fallback, user.sub, ip);
+          }
         }
       }
       return result;
