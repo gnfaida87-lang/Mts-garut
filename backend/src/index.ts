@@ -731,11 +731,14 @@ async function handleDashboardGuru(env: Env, user: UserPayload): Promise<Respons
 }
 
 async function handleReferensi(env: Env): Promise<Response> {
-  const [kelas, mataPelajaran, semester, siswa] = await Promise.all([
+  const [kelas, mataPelajaran, semester, siswa, tahunAjaran, tingkat, semesterAll] = await Promise.all([
     env.DB.prepare('SELECT id, nama FROM kelas ORDER BY nama').all(),
     env.DB.prepare('SELECT id, nama, kode FROM mata_pelajaran ORDER BY nama').all(),
-    env.DB.prepare('SELECT id, nama FROM semester WHERE is_aktif = 1 ORDER BY tahun_ajaran_id DESC, nama').all(),
+    env.DB.prepare('SELECT id, nama, tahun_ajaran_id FROM semester WHERE is_aktif = 1 ORDER BY tahun_ajaran_id DESC, nama').all(),
     env.DB.prepare("SELECT id, nis, nama, kelas_id FROM siswa WHERE status = 'aktif' ORDER BY nama").all(),
+    env.DB.prepare('SELECT id, nama FROM tahun_ajaran ORDER BY nama DESC').all(),
+    env.DB.prepare('SELECT id, nama FROM tingkat ORDER BY id').all(),
+    env.DB.prepare("SELECT id, nama, tahun_ajaran_id FROM semester ORDER BY tahun_ajaran_id DESC, id").all(),
   ]);
 
   return success({
@@ -743,6 +746,9 @@ async function handleReferensi(env: Env): Promise<Response> {
     mata_pelajaran: mataPelajaran.results,
     semester: semester.results,
     siswa: siswa.results,
+    tahun_ajaran: tahunAjaran.results,
+    tingkat: tingkat.results,
+    semester_all: semesterAll.results,
   });
 }
 

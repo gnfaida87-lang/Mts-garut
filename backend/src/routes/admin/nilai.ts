@@ -148,5 +148,106 @@ export async function handleAdminNilai(request: Request, env: Env, user: UserPay
     return success({ items: rows.results, pagination: { page, per_page: perPage, total, total_pages: Math.ceil(total / perPage) } });
   }
 
+  // GET /api/admin/nilai/komplit-per-mapel - status kelengkapan nilai per mapel
+  if (subPath === '/komplit-per-mapel' && request.method === 'GET') {
+    const reqSemester = url.searchParams.get('semester_id');
+    const reqTingkat = url.searchParams.get('tingkat_id');
+    const jenis = url.searchParams.get('jenis') || '';
+
+    if (!reqSemester || !reqTingkat) return badRequest('semester_id dan tingkat_id wajib diisi');
+    const semesterId = parseInt(reqSemester);
+    const tingkatId = parseInt(reqTingkat);
+
+    const sem = await env.DB.prepare(
+      'SELECT id, tahun_ajaran_id, nama FROM semester WHERE id = ?'
+    ).bind(semesterId).first<{ id: number; tahun_ajaran_id: number; nama: string }>();
+    if (!sem) return notFound('Semester');
+
+    const tingkat = await env.DB.prepare('SELECT id, nama FROM tingkat WHERE id = ?').bind(tingkatId).first<{ id: number; nama: string }>();
+    if (!tingkat) return notFound('Tingkat');
+
+    // Total santri aktif pada semua kelas dengan tingkat tsb (tahun ajaran semester)
+    const totalRow = await env.DB.prepare(
+      `SELECT COUNT(*) as total
+       FROM siswa s
+       JOIN kelas k ON s.kelas_id = k.id
+       WHERE s.status = 'aktif' AND k.tingkat_id = ? AND k.tahun_ajaran_id = ?`
+    ).bind(tingkatId, sem.tahun_ajaran_id).first<{ total: number }>();
+    const totalSantri = totalRow?.total || 0;
+
+    // Daftar mapel yang terdaftar pada kelas-kelas tingkat tsb (basis daftar)
+    const mapelRows = await env.DB.prepare(
+      `SELECT DISTINCT mp.id as mata_pelajaran_id, mp.nama as mapel_nama
+       FROM mapel_kelas mk
+       JOIN kelas k ON mk.kelas_id = k.id
+       JOIN mata_pelajaran mp ON mk.mata_pelajaran_id = mp.id
+       WHERE k.tingkat_id = ? AND k.tahun_ajaran_id = ?
+       ORDER BY mp.nama`
+    ).bind(tingkatId, sem.tahun_ajaran_id).all();
+
+    // Jumlah santri yang sudah dinilai per mapel (distinct siswa)
+    const nilaiRows = await env.DB.prepare(
+      `SELECT n.mata_pelajaran_id, COUNT(DISTINCT n.siswa_id) as cnt
+       FROM nilai n
+       JOIN kelas k ON n.kelas_id = k.id
+       WHERE n.semester_id = ? AND n.jenis = ? AND k.tingkat_id = ?
+       GROUP BY n.mata_pelajaran_id`
+    ).bind(semesterId, jenis, tingkatId).all();
+    const nilaiMap = new Map<number, number>();
+    for (const r of nilaiRows.results as any[]) { nilaiMap.set(r.mata_pelajaran_id, r.cnt); }
+
+    // Status publikasi per mapel per jenis
+    const pubRows = await env.DB.prepare(
+      'SELECT mata_pelajaran_id, is_published FROM publikasi_mapel WHERE semester_id = ? AND jenis = ?'
+    ).bind(semesterId, jenis).all();
+    const pubMap = new Map<number, boolean>();
+    for (const r of pubRows.results as any[]) { pubMap.set(r.mata_pelajaran_id, r.is_published === 1); }
+
+    const items = (mapelRows.results as any[]).map((m) => {
+      const terisi = nilaiMap.get(m.mata_pelajaran_id) || 0;
+      let status = 'kosong';
+      if (terisi > 0 && terisi < totalSantri) status = 'sebagian';
+      else if (terisi >= totalSantri) status = 'komplit';
+      return {
+        mata_pelajaran_id: m.mata_pelajaran_id,
+        mapel_nama: m.mapel_nama,
+        tingkat_id: tingkatId,
+        tingkat_nama: tingkat.nama,
+        total_santri: totalSantri,
+        nilai_terisi: terisi,
+        status,
+        is_published: pubMap.get(m.mata_pelajaran_id) ?? false,
+      };
+    });
+
+    return success({ semester_id: semesterId, semester_nama: sem.nama, tingkat_id: tingkatId, tingkat_nama: tingkat.nama, jenis, total_santri: totalSantri, items });
+  }
+
+  // PUT /api/admin/nilai/publikasi-mapel - toggle publish/unpublish per mapel
+  if (subPath === '/publikasi-mapel' && request.method === 'PUT') {
+    const body = await request.json<{ semester_id?: number; mata_pelajaran_id?: number; jenis?: string; is_published?: boolean }>();
+    if (!body.semester_id || !body.mata_pelajaran_id || !body.jenis) {
+      return badRequest('semester_id, mata_pelajaran_id dan jenis wajib diisi');
+    }
+
+    const sem = await env.DB.prepare('SELECT id FROM semester WHERE id = ?').bind(body.semester_id).first();
+    if (!sem) return notFound('Semester');
+
+    const mapel = await env.DB.prepare('SELECT id FROM mata_pelajaran WHERE id = ?').bind(body.mata_pelajaran_id).first();
+    if (!mapel) return notFound('Mata pelajaran');
+
+    const newValue = body.is_published === true ? 1 : 0;
+    await env.DB.prepare(
+      'INSERT INTO publikasi_mapel (semester_id, mata_pelajaran_id, jenis, is_published) VALUES (?, ?, ?, ?) ON CONFLICT(semester_id, mata_pelajaran_id, jenis) DO UPDATE SET is_published = ?'
+    ).bind(body.semester_id, body.mata_pelajaran_id, body.jenis, newValue, newValue).run();
+
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    await env.DB.prepare(
+      "INSERT INTO log_aktivitas (user_id, aksi, modul, detail, ip_address) VALUES (?, 'update', 'rapor', ?, ?)"
+    ).bind(user.sub, `Publikasi mapel ${body.mata_pelajaran_id} (${body.jenis}) : ${newValue ? 'ON' : 'OFF'}`, ip).run();
+
+    return success({ semester_id: body.semester_id, mata_pelajaran_id: body.mata_pelajaran_id, jenis: body.jenis, is_published: newValue === 1 });
+  }
+
   return badRequest('Endpoint tidak dikenal');
 }

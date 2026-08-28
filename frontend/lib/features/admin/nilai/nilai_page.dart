@@ -12,40 +12,41 @@ class NilaiPage extends StatefulWidget {
 
 class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMixin {
   late TabController _tabCtrl;
-  List<Map<String, dynamic>> _data = [];
-  bool _loading = false;
-  int _page = 1;
-  int _totalPages = 1;
-  String _statusFilter = '';
-  String _jenisFilter = '';
-  bool _nilaiPublished = false;
-  int? _selectedSemesterId;
   int? _selectedTahunAjaranId;
-  List<Map<String, dynamic>> _semesterOptions = [];
+  int? _selectedSemesterId;
+  int? _selectedTingkatId;
+  String _jenis = '';
   List<Map<String, dynamic>> _tahunAjaranOptions = [];
-  bool _loadingPublikasi = false;
-  List<Map<String, dynamic>> _jenisList = [];
-  bool _loadingJenis = false;
-  List<Map<String, dynamic>> _kelasList = [];
-  bool _loadingKelas = false;
+  List<Map<String, dynamic>> _semesterOptions = [];
+  List<Map<String, dynamic>> _tingkatOptions = [];
+  List<Map<String, dynamic>> _mapelList = [];
+  bool _loadingMapel = false;
+  int? _publishingId;
 
   @override
-  void initState() { super.initState(); _tabCtrl = TabController(length: 3, vsync: this); _load(); _initPublikasi(); }
+  void initState() { super.initState(); _tabCtrl = TabController(length: 3, vsync: this); _loadReferensi().then((_) => _applyFilter()); }
 
-  Future<void> _initPublikasi() async {
-    await _loadSemesterOptions();
-    await _loadPublikasi();
-    await _loadJenisPublikasi();
-    await _loadKelasPublikasi();
-  }
+  @override
+  void dispose() { _tabCtrl.dispose(); super.dispose(); }
 
-  Future<void> _loadSemesterOptions() async {
+  Future<void> _loadReferensi() async {
     try {
       final res = await AdminService.getReferensi();
       if (!mounted) return;
       setState(() {
-        _semesterOptions = (res['semester'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         _tahunAjaranOptions = (res['tahun_ajaran'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        _semesterOptions = (res['semester_all'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        _tingkatOptions = (res['tingkat'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        if (_selectedTahunAjaranId == null && _tahunAjaranOptions.isNotEmpty) {
+          _selectedTahunAjaranId = _tahunAjaranOptions.first['id'] as int;
+        }
+        if (_selectedTingkatId == null && _tingkatOptions.isNotEmpty) {
+          _selectedTingkatId = _tingkatOptions.first['id'] as int;
+        }
+        final semesters = _semestersInTA(_selectedTahunAjaranId);
+        if (_selectedSemesterId == null && semesters.isNotEmpty) {
+          _selectedSemesterId = semesters.first['id'] as int;
+        }
       });
     } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
   }
@@ -60,200 +61,102 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
       _selectedTahunAjaranId = taId;
       final sems = _semestersInTA(taId);
       if (!sems.any((s) => s['id'] == _selectedSemesterId)) {
-        _selectedSemesterId = sems.isNotEmpty ? sems.first['id'] as int : _selectedSemesterId;
+        _selectedSemesterId = sems.isNotEmpty ? sems.first['id'] as int : null;
       }
     });
-    _reloadPublikasiForSemester(_selectedSemesterId);
-  }
-
-  void _selectSemester(int? id) {
-    setState(() => _selectedSemesterId = id);
-    _reloadPublikasiForSemester(id);
-  }
-
-  Future<void> _reloadPublikasiForSemester(int? id) async {
-    await _loadPublikasi();
-    await _loadJenisPublikasi();
-    await _loadKelasPublikasi();
-  }
-
-  @override
-  void dispose() { _tabCtrl.dispose(); super.dispose(); }
-
-  Future<void> _loadPublikasi() async {
-    try {
-      final res = await AdminService.getPublikasiStatus(_selectedSemesterId);
-      if (mounted) {
-        setState(() {
-          _nilaiPublished = res['nilai_published'] == true;
-          _selectedSemesterId = res['semester_id'] as int? ?? _selectedSemesterId;
-        });
-      }
-    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
-  }
-
-  Future<void> _togglePublikasi() async {
-    if (_selectedSemesterId == null) return;
-    setState(() => _loadingPublikasi = true);
-    try {
-      await AdminService.togglePublikasiNilai(_selectedSemesterId!, !_nilaiPublished);
-      if (mounted) {
-        setState(() => _nilaiPublished = !_nilaiPublished);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(_nilaiPublished ? 'Nilai dipublikasikan ke siswa' : 'Nilai disembunyikan dari siswa'),
-          backgroundColor: _nilaiPublished ? AppTheme.primary : AppTheme.orange,
-        ));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
-    }
-    if (mounted) setState(() => _loadingPublikasi = false);
-  }
-
-  Future<void> _loadJenisPublikasi() async {
-    setState(() => _loadingJenis = true);
-    try {
-      final res = await AdminService.getPublikasiJenis(_selectedSemesterId);
-      if (mounted) {
-        setState(() {
-          _jenisList = (res['jenis'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
-        });
-      }
-    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
-    if (mounted) setState(() => _loadingJenis = false);
-  }
-
-  Future<void> _toggleJenisPublikasi(String jenis, bool current) async {
-    if (_selectedSemesterId == null) return;
-    try {
-      await AdminService.togglePublikasiJenis(_selectedSemesterId!, jenis, !current);
-      if (mounted) {
-        setState(() {
-          final idx = _jenisList.indexWhere((j) => j['jenis'] == jenis);
-          if (idx >= 0) _jenisList[idx]['is_published'] = !current;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('$jenis ${!current ? 'dipublikasikan' : 'disembunyikan'}'),
-          backgroundColor: !current ? AppTheme.primary : AppTheme.orange,
-        ));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
-    }
-  }
-
-  Future<void> _setAllJenis(bool newVal) async {
-    if (_selectedSemesterId == null || _jenisList.isEmpty) return;
-    try {
-      for (final j in _jenisList) {
-        final jenis = j['jenis'] as String;
-        if ((j['is_published'] == true) != newVal) {
-          await AdminService.togglePublikasiJenis(_selectedSemesterId!, jenis, newVal);
-        }
-      }
-      if (mounted) {
-        setState(() {
-          for (final j in _jenisList) { j['is_published'] = newVal; }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(newVal ? 'Semua jenis dipublikasikan' : 'Semua jenis disembunyikan'),
-          backgroundColor: newVal ? AppTheme.primary : AppTheme.orange,
-        ));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
-    }
-  }
-
-  Future<void> _loadKelasPublikasi() async {
-    setState(() => _loadingKelas = true);
-    try {
-      final res = await AdminService.getPublikasiKelas(_selectedSemesterId);
-      if (mounted) {
-        setState(() {
-          _kelasList = (res['kelass'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
-        });
-      }
-    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
-    if (mounted) setState(() => _loadingKelas = false);
-  }
-
-  Future<void> _toggleKelasPublikasi(int kelasId, bool current) async {
-    if (_selectedSemesterId == null) return;
-    final nama = _kelasList
-        .where((k) => k['kelas_id'] == kelasId)
-        .map((k) => k['kelas_nama'] ?? 'Kelas')
-        .firstOrNull;
-    try {
-      await AdminService.togglePublikasiKelas(_selectedSemesterId!, kelasId, !current);
-      if (mounted) {
-        setState(() {
-          final idx = _kelasList.indexWhere((k) => k['kelas_id'] == kelasId);
-          if (idx >= 0) _kelasList[idx]['is_published'] = !current;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('$nama ${!current ? 'dipublikasikan' : 'disembunyikan'}'),
-          backgroundColor: !current ? AppTheme.primary : AppTheme.orange,
-        ));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
-    }
-  }
-
-  Future<void> _setAllKelas(bool newVal) async {
-    if (_selectedSemesterId == null || _kelasList.isEmpty) return;
-    try {
-      for (final kk in _kelasList) {
-        final kelasId = kk['kelas_id'] as int;
-        if ((kk['is_published'] == true) != newVal) {
-          await AdminService.togglePublikasiKelas(_selectedSemesterId!, kelasId, newVal);
-        }
-      }
-      if (mounted) {
-        setState(() {
-          for (final kk in _kelasList) { kk['is_published'] = newVal; }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(newVal ? 'Semua kelas diaktifkan' : 'Semua kelas disembunyikan'),
-          backgroundColor: newVal ? AppTheme.primary : AppTheme.orange,
-        ));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
-    }
   }
 
   String get _jenisValue {
-    if (_jenisFilter.isEmpty) return '';
-    return _jenisFilter.toLowerCase();
+    if (_jenis.isEmpty) return '';
+    return _jenis.toLowerCase();
   }
 
-  Future<void> _load() async {
-    setState(() => _loading = true);
-    try {
-      final res = await AdminService.getNilai(page: _page, jenis: _jenisValue.isEmpty ? null : _jenisValue,
-          statusValidasi: _statusFilter.isEmpty ? null : _statusFilter);
-      _data = (res['items'] as List<dynamic>).cast<Map<String, dynamic>>();
-      _totalPages = res['pagination']?['total_pages'] ?? 1;
-    } catch (_) { _data = []; }
-    if (mounted) setState(() => _loading = false);
-  }
+  bool get _filterReady =>
+      _selectedSemesterId != null && _selectedTingkatId != null && _jenis.isNotEmpty;
 
-  Future<void> _validasi(int id) async {
+  Future<void> _applyFilter() async {
+    if (!_filterReady) return;
+    setState(() => _loadingMapel = true);
     try {
-      await AdminService.validasiNilai(id);
-      _load();
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal validasi: $e'), backgroundColor: AppTheme.error));
+      final res = await AdminService.komplitPerMapel(
+        semesterId: '$_selectedSemesterId',
+        tingkatId: '$_selectedTingkatId',
+        jenis: _jenisValue,
+      );
+      if (mounted) {
+        setState(() => _mapelList = (res['items'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? []);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _mapelList = []);
     }
+    if (mounted) setState(() => _loadingMapel = false);
+  }
+
+  Color _completenessColor(String status) {
+    switch (status) {
+      case 'komplit': return AppTheme.primary;
+      case 'sebagian': return AppTheme.orange;
+      default: return AppTheme.error;
+    }
+  }
+
+  String _completenessLabel(String status) {
+    switch (status) {
+      case 'komplit': return 'Komplit';
+      case 'sebagian': return 'Belum lengkap';
+      default: return 'Belum upload';
+    }
+  }
+
+  IconData _completenessIcon(String status) {
+    switch (status) {
+      case 'komplit': return Icons.check_circle;
+      case 'sebagian': return Icons.pending;
+      default: return Icons.cancel;
+    }
+  }
+
+  String _jenisLabel(String jenis) {
+    const labels = {
+      'harian': 'Harian', 'tugas': 'Tugas', 'pts1': 'PTS 1', 'pts2': 'PTS 2',
+      'pas': 'PAS', 'uts': 'UTS', 'pat': 'PAT', 'uas': 'UAS', 'akhir': 'Akhir',
+    };
+    return labels[jenis] ?? jenis;
+  }
+
+  Future<void> _toggleMapelPublish(Map<String, dynamic> m) async {
+    if (_selectedSemesterId == null || _publishingId != null) return;
+    final mapelId = m['mata_pelajaran_id'] as int;
+    final target = (m['is_published'] == true) ? false : true;
+    setState(() => _publishingId = mapelId);
+    try {
+      await AdminService.togglePublikasiMapel(
+        semesterId: _selectedSemesterId!,
+        mataPelajaranId: mapelId,
+        jenis: _jenisValue,
+        published: target,
+      );
+      if (mounted) {
+        setState(() {
+          final m2 = _mapelList.firstWhere((x) => x['mata_pelajaran_id'] == mapelId, orElse: () => {});
+          if (m2.isNotEmpty) m2['is_published'] = target;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${m['mapel_nama']}: ${target ? 'Dipublikasikan' : 'Publikasi ditutup'}'),
+          backgroundColor: target ? AppTheme.primary : AppTheme.orange,
+        ));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
+    }
+    if (mounted) setState(() => _publishingId = null);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Nilai'), automaticallyImplyLeading: false,
-        bottom: TabBar(controller: _tabCtrl, onTap: (i) { _page = 1; _load(); }, isScrollable: true,
+        bottom: TabBar(controller: _tabCtrl,
           tabs: const [
             Tab(text: 'Monitoring Nilai', icon: Icon(Icons.visibility_outlined, size: 18)),
             Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
@@ -269,110 +172,24 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildPagination() {
-    if (_page >= _totalPages) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Center(child: OutlinedButton.icon(
-        onPressed: () { _page++; _load(); },
-        icon: const Icon(Icons.expand_more, size: 18),
-        label: const Text('Muat lebih banyak'),
-      )),
-    );
-  }
-
-  Color _statusColor(String s) => s == 'tervalidasi' ? AppTheme.primary : AppTheme.orange;
-
-  String _jenisLabel(String jenis) {
-    const labels = {
-      'harian': 'Harian', 'tugas': 'Tugas', 'pts1': 'PTS 1', 'pts2': 'PTS 2',
-      'pas': 'PAS', 'uts': 'UTS', 'pat': 'PAT', 'uas': 'UAS', 'akhir': 'Akhir',
-    };
-    return labels[jenis] ?? jenis;
-  }
-
-  Widget _buildCheckItem({required String label, required bool selected, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.grey50,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: selected ? AppTheme.primary : AppTheme.grey300),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(selected ? Icons.check_box : Icons.check_box_outline_blank, size: 18,
-                color: selected ? AppTheme.primary : AppTheme.grey400),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: selected ? AppTheme.primary : AppTheme.grey700)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectAllButton({required bool allSelected, required bool enabled, required VoidCallback onPressed}) {
-    return TextButton.icon(
-      onPressed: enabled ? onPressed : null,
-      icon: Icon(allSelected ? Icons.deselect : Icons.select_all, size: 16),
-      label: Text(allSelected ? 'Bersihkan semua' : 'Pilih semua', style: const TextStyle(fontSize: 12)),
-      style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8), minimumSize: const Size(0, 32)),
-    );
-  }
-
   Widget _buildMonitoringTab() {
-    return Column(children: [
+    return SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
       DataCard(
         padding: const EdgeInsets.all(16),
-        header: Row(children: [
-          const Icon(Icons.visibility_outlined, size: 20, color: AppTheme.primary),
-          const SizedBox(width: 8),
-          const Expanded(child: Text('Publikasi Nilai ke Siswa', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600))),
-          if (_loadingPublikasi)
-            const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-          else
-            Switch(
-              value: _nilaiPublished,
-              onChanged: (_) => _togglePublikasi(),
-              activeColor: AppTheme.primary,
-            ),
+        header: const Row(children: [
+          Icon(Icons.filter_list, size: 20, color: AppTheme.primary),
+          SizedBox(width: 8),
+          Text('Filter Monitoring', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         ]),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(_nilaiPublished ? Icons.check_circle : Icons.cancel,
-                size: 16, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
-            const SizedBox(width: 8),
-            Text(
-              _nilaiPublished ? 'Semua nilai terlihat oleh siswa' : 'Semua nilai tidak terlihat oleh siswa',
-              style: TextStyle(fontSize: 12, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
-            ),
-          ]),
-          const SizedBox(height: 14),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
-          const Row(children: [
-            Icon(Icons.calendar_month_outlined, size: 16, color: AppTheme.grey500),
-            SizedBox(width: 8),
-            Text('Pilih Semester & Tahun Ajaran', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
-          ]),
-          const SizedBox(height: 4),
-          const Text('Kelola kategori publikasi untuk semester tertentu', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
-          const SizedBox(height: 10),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(child: DropdownButtonFormField<int>(
               value: _selectedTahunAjaranId,
               isDense: true,
-              decoration: inputDecoration('Tahun Ajaran', Icons.calendar_today_outlined, optional: true),
-              items: [
-                const DropdownMenuItem<int>(value: null, child: Text('Semua TA', style: TextStyle(fontSize: 13))),
-                ..._tahunAjaranOptions.map((t) => DropdownMenuItem(
-                    value: t['id'] as int,
-                    child: Text('TA ${t['nama']}', style: const TextStyle(fontSize: 13)))),
-              ],
+              decoration: inputDecoration('Tahun Ajaran', Icons.calendar_today_outlined),
+              items: _tahunAjaranOptions.map((t) => DropdownMenuItem(
+                  value: t['id'] as int,
+                  child: Text('TA ${t['nama']}', style: const TextStyle(fontSize: 13)))).toList(),
               onChanged: _selectTahunAjaran,
             )),
             const SizedBox(width: 12),
@@ -383,188 +200,135 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
               items: _semestersInTA(_selectedTahunAjaranId).map((s) => DropdownMenuItem(
                   value: s['id'] as int,
                   child: Text('${s['nama']}', style: const TextStyle(fontSize: 13)))).toList(),
-              onChanged: _selectSemester,
+              onChanged: (v) => setState(() => _selectedSemesterId = v),
             )),
           ]),
-          if (!_nilaiPublished) ...[
-            const SizedBox(height: 14),
-            const Divider(height: 1),
-            const SizedBox(height: 12),
-            Row(children: [
-              const Icon(Icons.filter_list, size: 16, color: AppTheme.grey500),
-              const SizedBox(width: 8),
-              const Expanded(child: Text('Publikasi per Jenis Ujian', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700))),
-              if (_jenisList.isNotEmpty)
-                _buildSelectAllButton(
-                  allSelected: _jenisList.every((j) => j['is_published'] == true),
-                  enabled: true,
-                  onPressed: () => _setAllJenis(!_jenisList.every((j) => j['is_published'] == true)),
-                ),
-            ]),
-            const SizedBox(height: 4),
-            const Text('Centang jenis yang boleh dilihat siswa (bisa lebih dari satu)', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
-            const SizedBox(height: 10),
-            if (_loadingJenis)
-              const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
-            else
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _jenisList.map((j) {
-                  final jenis = j['jenis'] as String;
-                  final isPub = j['is_published'] as bool;
-                  return _buildCheckItem(
-                    label: _jenisLabel(jenis),
-                    selected: isPub,
-                    onTap: () => _toggleJenisPublikasi(jenis, isPub),
-                  );
-                }).toList(),
-              ),
-            const SizedBox(height: 16),
-            const Divider(height: 1),
-            const SizedBox(height: 12),
-            Row(children: [
-              const Icon(Icons.school_outlined, size: 16, color: AppTheme.grey500),
-              const SizedBox(width: 8),
-              const Expanded(child: Text('Publikasi per Kelas', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700))),
-              if (_kelasList.isNotEmpty)
-                _buildSelectAllButton(
-                  allSelected: _kelasList.every((k) => k['is_published'] == true),
-                  enabled: true,
-                  onPressed: () => _setAllKelas(!_kelasList.every((k) => k['is_published'] == true)),
-                ),
-            ]),
-            const SizedBox(height: 4),
-            const Text('Centang kelas yang boleh melihat nilai (bisa lebih dari satu)', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
-            const SizedBox(height: 10),
-            if (_loadingKelas)
-              const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
-            else if (_kelasList.isEmpty)
-              const Text('Belum ada data kelas', style: TextStyle(fontSize: 12, color: AppTheme.grey400))
-            else
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _kelasList.map((k) {
-                  final kelasId = k['kelas_id'] as int;
-                  final nama = k['kelas_nama'] as String? ?? 'Kelas';
-                  final isPub = k['is_published'] as bool;
-                  return _buildCheckItem(
-                    label: nama,
-                    selected: isPub,
-                    onTap: () => _toggleKelasPublikasi(kelasId, isPub),
-                  );
-                }).toList(),
-              ),
-          ],
-        ]),
-      ),
-      DataCard(
-        padding: const EdgeInsets.all(16),
-        header: const Row(children: [
-          Icon(Icons.filter_list, size: 20, color: AppTheme.primary),
-          SizedBox(width: 8),
-          Text('Filter', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-        ]),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const SizedBox(height: 12),
           Row(children: [
-            Expanded(child: DropdownButtonFormField<String>(
-              value: _statusFilter.isEmpty ? null : _statusFilter,
+            Expanded(child: DropdownButtonFormField<int>(
+              value: _selectedTingkatId,
               isDense: true,
-              decoration: inputDecoration('Status', Icons.verified_outlined),
-              items: ['', 'draft', 'tervalidasi'].map((s) => DropdownMenuItem(value: s.isEmpty ? null : s,
-                  child: Text(s.isEmpty ? 'Semua' : s, style: const TextStyle(fontSize: 13)))).toList(),
-              onChanged: (v) { _statusFilter = v ?? ''; },
+              decoration: inputDecoration('Tingkat', Icons.school_outlined),
+              items: _tingkatOptions.map((t) => DropdownMenuItem(
+                  value: t['id'] as int,
+                  child: Text('${t['nama']}', style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: (v) => setState(() => _selectedTingkatId = v),
             )),
             const SizedBox(width: 12),
             Expanded(child: DropdownButtonFormField<String>(
-              value: _jenisFilter.isEmpty ? null : _jenisFilter,
+              value: _jenis.isEmpty ? null : _jenis,
               isDense: true,
-              decoration: inputDecoration('Jenis', Icons.category_outlined),
-              items: ['', 'harian', 'tugas', 'uts', 'uas', 'akhir', 'pts1', 'pas', 'pts2', 'pat'].map((s) => DropdownMenuItem(value: s.isEmpty ? null : s,
-                  child: Text(s.isEmpty ? 'Semua' : s, style: const TextStyle(fontSize: 13)))).toList(),
-              onChanged: (v) { _jenisFilter = v ?? ''; },
+              decoration: inputDecoration('Jenis Ujian', Icons.category_outlined),
+              items: ['harian', 'tugas', 'pts1', 'pts2', 'pas', 'uts', 'pat', 'uas', 'akhir'].map((s) => DropdownMenuItem(
+                  value: s,
+                  child: Text(_jenisLabel(s), style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: (v) => setState(() => _jenis = v ?? ''),
             )),
-            const SizedBox(width: 12),
+          ]),
+          const SizedBox(height: 12),
+          Row(children: [
+            const Expanded(child: Text(
+              'Pilih kombinasi untuk menampilkan status kelengkapan nilai per mata pelajaran.',
+              style: TextStyle(fontSize: 11, color: AppTheme.grey400),
+            )),
             FilledButton.icon(
-              onPressed: () { _page = 1; _load(); },
+              onPressed: _filterReady ? _applyFilter : null,
               icon: const Icon(Icons.search, size: 18),
-              label: const Text('Cari'),
+              label: const Text('Terapkan'),
             ),
           ]),
         ]),
       ),
-      Expanded(child: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _data.isEmpty
-              ? const EmptyState(icon: Icons.inbox_outlined, message: 'Tidak ada data nilai.')
-              : ListView.builder(padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), itemCount: _data.length + 1,
-                  itemBuilder: (_, i) {
-                    if (i == _data.length) return _buildPagination();
-                    final d = _data[i];
-                    final st = d['status_validasi'] as String? ?? 'draft';
-                    final isDraft = st == 'draft';
-                    return Card(
-                      margin: const EdgeInsets.only(top: 10),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: AppTheme.grey200)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Row(children: [
-                          CircleAvatar(radius: 22, backgroundColor: _statusColor(st).withValues(alpha: 0.12),
-                            child: Text((d['siswa_nama'] as String? ?? '?')[0], style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _statusColor(st)))),
-                          const SizedBox(width: 14),
-                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text('${d['siswa_nama'] ?? '-'}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 4),
-                            Row(children: [
-                              const Icon(Icons.book_outlined, size: 12, color: AppTheme.grey500),
-                              const SizedBox(width: 4),
-                              Text('${d['mapel_nama'] ?? '-'}', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                              const SizedBox(width: 12),
-                              const Icon(Icons.category_outlined, size: 12, color: AppTheme.grey500),
-                              const SizedBox(width: 4),
-                              Text('${d['jenis'] ?? '-'}', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                            ]),
-                            const SizedBox(height: 2),
-                            Row(children: [
-                              Text('Nilai: ${d['nilai'] ?? '-'}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
-                              const SizedBox(width: 12),
-                              Text('${d['kelas_nama'] ?? '-'} | ${d['semester_nama'] ?? '-'}', style: const TextStyle(fontSize: 11, color: AppTheme.grey400)),
-                            ]),
-                            if ((d['tahun_ajaran'] ?? '') != '') ...[
-                              const SizedBox(height: 2),
-                              Row(children: [
-                                const Icon(Icons.calendar_today_outlined, size: 12, color: AppTheme.grey500),
-                                const SizedBox(width: 4),
-                                Text('TA ${d['tahun_ajaran'] ?? '-'}', style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
-                                const SizedBox(width: 12),
-                                const Icon(Icons.menu_book_outlined, size: 12, color: AppTheme.grey500),
-                                const SizedBox(width: 4),
-                                Text('Tingkat ${d['tingkat_nama'] ?? '-'}', style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
-                              ]),
-                            ],
-                          ])),
-                          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                            StatusBadge(label: st, color: _statusColor(st), small: true),
-                            if (isDraft) ...[
-                              const SizedBox(height: 6),
-                              SizedBox(
-                                height: 32,
-                                child: OutlinedButton.icon(
-                                  onPressed: () => _validasi(d['id'] as int),
-                                  icon: const Icon(Icons.check_circle_outline, size: 14),
-                                  label: const Text('Validasi', style: TextStyle(fontSize: 11)),
-                                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 10)),
-                                ),
-                              ),
-                            ],
-                          ]),
-                        ]),
-                      ),
-                    );
-                  },
-                )),
+      const SizedBox(height: 16),
+      DataCard(
+        padding: const EdgeInsets.all(16),
+        header: const Row(children: [
+          Icon(Icons.book_outlined, size: 20, color: AppTheme.primary),
+          SizedBox(width: 8),
+          Text('List Mata Pelajaran', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+        ]),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Wrap(spacing: 16, runSpacing: 6, children: [
+            _LegendDot(color: AppTheme.primary, label: 'Komplit'),
+            _LegendDot(color: AppTheme.orange, label: 'Belum lengkap'),
+            _LegendDot(color: AppTheme.error, label: 'Belum upload'),
+          ]),
+          const SizedBox(height: 12),
+          if (_loadingMapel)
+            const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)))
+          else if (_mapelList.isEmpty)
+            EmptyState(icon: Icons.book_outlined, message: _filterReady
+                ? 'Belum ada data mata pelajaran untuk kombinasi ini.'
+                : 'Pilih Tahun Ajaran, Semester, Tingkat, dan Jenis Ujian, lalu klik Terapkan.')
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _mapelList.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (_, i) {
+                final m = _mapelList[i];
+                final status = m['status'] as String? ?? 'kosong';
+                final color = _completenessColor(status);
+                final isPublished = m['is_published'] == true;
+                final canPublish = status == 'komplit';
+                final publishing = _publishingId == m['mata_pelajaran_id'];
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: color.withValues(alpha: 0.35)),
+                  ),
+                  child: Row(children: [
+                    Icon(_completenessIcon(status), size: 22, color: color),
+                    const SizedBox(width: 12),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('${m['mapel_nama'] ?? '-'}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 2),
+                      Text('Tingkat ${m['tingkat_nama'] ?? '-'} · Nilai ${m['nilai_terisi'] ?? 0}/${m['total_santri'] ?? 0} santri',
+                          style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
+                    ])),
+                    StatusBadge(label: _completenessLabel(status), color: color, small: true),
+                    const SizedBox(width: 10),
+                    if (canPublish)
+                      SizedBox(
+                        height: 32,
+                        child: OutlinedButton.icon(
+                          onPressed: publishing ? null : () => _toggleMapelPublish(m),
+                          icon: publishing
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                              : Icon(isPublished ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 15),
+                          label: Text(isPublished ? 'Tutup Publikasi' : 'Publikasi',
+                              style: const TextStyle(fontSize: 11)),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            foregroundColor: isPublished ? AppTheme.orange : AppTheme.primary,
+                          ),
+                        ),
+                      )
+                    else
+                      const Text('Belum dapat dipublikasi', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
+                  ]),
+                );
+              },
+            ),
+        ]),
+      ),
+    ]));
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _LegendDot({required this.color, required this.label});
+  @override
+  Widget build(BuildContext context) {
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+      const SizedBox(width: 6),
+      Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey700)),
     ]);
   }
 }

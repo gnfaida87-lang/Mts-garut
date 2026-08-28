@@ -217,6 +217,23 @@ class AdminService {
     });
   }
 
+  // ── Publikasi per Mapel (Komplit Monitoring) ──
+  static Future<Map<String, dynamic>> komplitPerMapel({required String semesterId, required String tingkatId, String? jenis}) async {
+    final params = <String, String>{'semester_id': semesterId, 'tingkat_id': tingkatId};
+    if (jenis != null && jenis.isNotEmpty) params['jenis'] = jenis;
+    final res = await ApiClient.get('/admin/nilai/komplit-per-mapel', queryParams: params);
+    return res['data'] as Map<String, dynamic>;
+  }
+
+  static Future<void> togglePublikasiMapel({required int semesterId, required int mataPelajaranId, required String jenis, required bool published}) async {
+    await ApiClient.put('/admin/nilai/publikasi-mapel', body: {
+      'semester_id': semesterId,
+      'mata_pelajaran_id': mataPelajaranId,
+      'jenis': jenis,
+      'is_published': published,
+    });
+  }
+
   // ── Profil Sekolah ──
   static Future<Map<String, dynamic>> getProfil() async {
     final res = await ApiClient.get('/admin/profil');
