@@ -174,8 +174,10 @@ class AdminService {
   }
 
   // ── Publikasi Nilai ──
-  static Future<Map<String, dynamic>> getPublikasiStatus() async {
-    final res = await ApiClient.get('/admin/rapor/status-publikasi');
+  static Future<Map<String, dynamic>> getPublikasiStatus(int? semesterId) async {
+    final params = <String, String>{};
+    if (semesterId != null) params['semester_id'] = '$semesterId';
+    final res = await ApiClient.get('/admin/rapor/status-publikasi', queryParams: params);
     return res['data'] as Map<String, dynamic>;
   }
 
@@ -184,8 +186,10 @@ class AdminService {
   }
 
   // ── Publikasi per Jenis Ujian ──
-  static Future<Map<String, dynamic>> getPublikasiJenis() async {
-    final res = await ApiClient.get('/admin/rapor/status-publikasi-jenis');
+  static Future<Map<String, dynamic>> getPublikasiJenis(int? semesterId) async {
+    final params = <String, String>{};
+    if (semesterId != null) params['semester_id'] = '$semesterId';
+    final res = await ApiClient.get('/admin/rapor/status-publikasi-jenis', queryParams: params);
     return res['data'] as Map<String, dynamic>;
   }
 
@@ -198,8 +202,10 @@ class AdminService {
   }
 
   // ── Publikasi per Kelas ──
-  static Future<Map<String, dynamic>> getPublikasiKelas() async {
-    final res = await ApiClient.get('/admin/rapor/status-publikasi-kelas');
+  static Future<Map<String, dynamic>> getPublikasiKelas(int? semesterId) async {
+    final params = <String, String>{};
+    if (semesterId != null) params['semester_id'] = '$semesterId';
+    final res = await ApiClient.get('/admin/rapor/status-publikasi-kelas', queryParams: params);
     return res['data'] as Map<String, dynamic>;
   }
 

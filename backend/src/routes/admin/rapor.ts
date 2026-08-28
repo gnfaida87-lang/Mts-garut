@@ -161,11 +161,19 @@ export async function handleAdminRapor(request: Request, env: Env, user: UserPay
     return success({ items: rows.results, pagination: { page, per_page: perPage, total, total_pages: Math.ceil(total / perPage) } });
   }
 
-  // GET /api/admin/rapor/status-publikasi - cek status publikasi nilai semester aktif
+  // GET /api/admin/rapor/status-publikasi - cek status publikasi nilai semester (default aktif)
   if (subPath === '/status-publikasi' && request.method === 'GET') {
-    const semester = await env.DB.prepare(
-      'SELECT id, nama, tahun_ajaran_id, nilai_published FROM semester WHERE is_aktif = 1 LIMIT 1'
-    ).first<{ id: number; nama: string; tahun_ajaran_id: number; nilai_published: number }>();
+    const reqSemesterId = url.searchParams.get('semester_id');
+    let semester;
+    if (reqSemesterId) {
+      semester = await env.DB.prepare(
+        'SELECT id, nama, tahun_ajaran_id, nilai_published FROM semester WHERE id = ?'
+      ).bind(parseInt(reqSemesterId)).first<{ id: number; nama: string; tahun_ajaran_id: number; nilai_published: number }>();
+    } else {
+      semester = await env.DB.prepare(
+        'SELECT id, nama, tahun_ajaran_id, nilai_published FROM semester WHERE is_aktif = 1 LIMIT 1'
+      ).first<{ id: number; nama: string; tahun_ajaran_id: number; nilai_published: number }>();
+    }
 
     if (!semester) return badRequest('Tidak ada semester aktif');
 
@@ -198,11 +206,17 @@ export async function handleAdminRapor(request: Request, env: Env, user: UserPay
 
   // ── Publikasi per Jenis Ujian ──
 
-  // GET /api/admin/rapor/status-publikasi-jenis - status semua jenis per semester aktif
+  // GET /api/admin/rapor/status-publikasi-jenis - status semua jenis per semester (default aktif)
   if (subPath === '/status-publikasi-jenis' && request.method === 'GET') {
-    const sem = await env.DB.prepare(
-      'SELECT id FROM semester WHERE is_aktif = 1 LIMIT 1'
-    ).first<{ id: number }>();
+    const reqSemesterId = url.searchParams.get('semester_id');
+    let sem;
+    if (reqSemesterId) {
+      sem = await env.DB.prepare('SELECT id FROM semester WHERE id = ?').bind(parseInt(reqSemesterId)).first<{ id: number }>();
+    } else {
+      sem = await env.DB.prepare(
+        'SELECT id FROM semester WHERE is_aktif = 1 LIMIT 1'
+      ).first<{ id: number }>();
+    }
     if (!sem) return badRequest('Tidak ada semester aktif');
 
     const rows = await env.DB.prepare(
@@ -244,11 +258,17 @@ export async function handleAdminRapor(request: Request, env: Env, user: UserPay
 
   // ── Publikasi per Kelas ──
 
-  // GET /api/admin/rapor/status-publikasi-kelas - status semua kelas per semester aktif
+  // GET /api/admin/rapor/status-publikasi-kelas - status semua kelas per semester (default aktif)
   if (subPath === '/status-publikasi-kelas' && request.method === 'GET') {
-    const sem = await env.DB.prepare(
-      'SELECT id, tahun_ajaran_id FROM semester WHERE is_aktif = 1 LIMIT 1'
-    ).first<{ id: number; tahun_ajaran_id: number }>();
+    const reqSemesterId = url.searchParams.get('semester_id');
+    let sem;
+    if (reqSemesterId) {
+      sem = await env.DB.prepare('SELECT id, tahun_ajaran_id FROM semester WHERE id = ?').bind(parseInt(reqSemesterId)).first<{ id: number; tahun_ajaran_id: number }>();
+    } else {
+      sem = await env.DB.prepare(
+        'SELECT id, tahun_ajaran_id FROM semester WHERE is_aktif = 1 LIMIT 1'
+      ).first<{ id: number; tahun_ajaran_id: number }>();
+    }
     if (!sem) return badRequest('Tidak ada semester aktif');
 
     const rows = await env.DB.prepare(

@@ -19,7 +19,10 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
   String _statusFilter = '';
   String _jenisFilter = '';
   bool _nilaiPublished = false;
-  int? _semesterId;
+  int? _selectedSemesterId;
+  int? _selectedTahunAjaranId;
+  List<Map<String, dynamic>> _semesterOptions = [];
+  List<Map<String, dynamic>> _tahunAjaranOptions = [];
   bool _loadingPublikasi = false;
   List<Map<String, dynamic>> _jenisList = [];
   bool _loadingJenis = false;
@@ -27,28 +30,73 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
   bool _loadingKelas = false;
 
   @override
-  void initState() { super.initState(); _tabCtrl = TabController(length: 3, vsync: this); _load(); _loadPublikasi(); _loadJenisPublikasi(); _loadKelasPublikasi(); }
+  void initState() { super.initState(); _tabCtrl = TabController(length: 3, vsync: this); _load(); _initPublikasi(); }
+
+  Future<void> _initPublikasi() async {
+    await _loadSemesterOptions();
+    await _loadPublikasi();
+    await _loadJenisPublikasi();
+    await _loadKelasPublikasi();
+  }
+
+  Future<void> _loadSemesterOptions() async {
+    try {
+      final res = await AdminService.getReferensi();
+      if (!mounted) return;
+      setState(() {
+        _semesterOptions = (res['semester'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        _tahunAjaranOptions = (res['tahun_ajaran'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+      });
+    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
+  }
+
+  List<Map<String, dynamic>> _semestersInTA(int? taId) {
+    if (taId == null) return _semesterOptions;
+    return _semesterOptions.where((s) => s['tahun_ajaran_id'] == taId).toList();
+  }
+
+  void _selectTahunAjaran(int? taId) {
+    setState(() {
+      _selectedTahunAjaranId = taId;
+      final sems = _semestersInTA(taId);
+      if (!sems.any((s) => s['id'] == _selectedSemesterId)) {
+        _selectedSemesterId = sems.isNotEmpty ? sems.first['id'] as int : _selectedSemesterId;
+      }
+    });
+    _reloadPublikasiForSemester(_selectedSemesterId);
+  }
+
+  void _selectSemester(int? id) {
+    setState(() => _selectedSemesterId = id);
+    _reloadPublikasiForSemester(id);
+  }
+
+  Future<void> _reloadPublikasiForSemester(int? id) async {
+    await _loadPublikasi();
+    await _loadJenisPublikasi();
+    await _loadKelasPublikasi();
+  }
 
   @override
   void dispose() { _tabCtrl.dispose(); super.dispose(); }
 
   Future<void> _loadPublikasi() async {
     try {
-      final res = await AdminService.getPublikasiStatus();
+      final res = await AdminService.getPublikasiStatus(_selectedSemesterId);
       if (mounted) {
         setState(() {
           _nilaiPublished = res['nilai_published'] == true;
-          _semesterId = res['semester_id'];
+          _selectedSemesterId = res['semester_id'] as int? ?? _selectedSemesterId;
         });
       }
     } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
   }
 
   Future<void> _togglePublikasi() async {
-    if (_semesterId == null) return;
+    if (_selectedSemesterId == null) return;
     setState(() => _loadingPublikasi = true);
     try {
-      await AdminService.togglePublikasiNilai(_semesterId!, !_nilaiPublished);
+      await AdminService.togglePublikasiNilai(_selectedSemesterId!, !_nilaiPublished);
       if (mounted) {
         setState(() => _nilaiPublished = !_nilaiPublished);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -65,10 +113,9 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
   Future<void> _loadJenisPublikasi() async {
     setState(() => _loadingJenis = true);
     try {
-      final res = await AdminService.getPublikasiJenis();
+      final res = await AdminService.getPublikasiJenis(_selectedSemesterId);
       if (mounted) {
         setState(() {
-          _semesterId = res['semester_id'] as int?;
           _jenisList = (res['jenis'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         });
       }
@@ -77,9 +124,9 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _toggleJenisPublikasi(String jenis, bool current) async {
-    if (_semesterId == null) return;
+    if (_selectedSemesterId == null) return;
     try {
-      await AdminService.togglePublikasiJenis(_semesterId!, jenis, !current);
+      await AdminService.togglePublikasiJenis(_selectedSemesterId!, jenis, !current);
       if (mounted) {
         setState(() {
           final idx = _jenisList.indexWhere((j) => j['jenis'] == jenis);
@@ -95,13 +142,35 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
     }
   }
 
+  Future<void> _setAllJenis(bool newVal) async {
+    if (_selectedSemesterId == null || _jenisList.isEmpty) return;
+    try {
+      for (final j in _jenisList) {
+        final jenis = j['jenis'] as String;
+        if ((j['is_published'] == true) != newVal) {
+          await AdminService.togglePublikasiJenis(_selectedSemesterId!, jenis, newVal);
+        }
+      }
+      if (mounted) {
+        setState(() {
+          for (final j in _jenisList) { j['is_published'] = newVal; }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(newVal ? 'Semua jenis dipublikasikan' : 'Semua jenis disembunyikan'),
+          backgroundColor: newVal ? AppTheme.primary : AppTheme.orange,
+        ));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
+    }
+  }
+
   Future<void> _loadKelasPublikasi() async {
     setState(() => _loadingKelas = true);
     try {
-      final res = await AdminService.getPublikasiKelas();
+      final res = await AdminService.getPublikasiKelas(_selectedSemesterId);
       if (mounted) {
         setState(() {
-          _semesterId = res['semester_id'] as int?;
           _kelasList = (res['kelass'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         });
       }
@@ -110,13 +179,13 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _toggleKelasPublikasi(int kelasId, bool current) async {
-    if (_semesterId == null) return;
+    if (_selectedSemesterId == null) return;
     final nama = _kelasList
         .where((k) => k['kelas_id'] == kelasId)
         .map((k) => k['kelas_nama'] ?? 'Kelas')
         .firstOrNull;
     try {
-      await AdminService.togglePublikasiKelas(_semesterId!, kelasId, !current);
+      await AdminService.togglePublikasiKelas(_selectedSemesterId!, kelasId, !current);
       if (mounted) {
         setState(() {
           final idx = _kelasList.indexWhere((k) => k['kelas_id'] == kelasId);
@@ -125,6 +194,29 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('$nama ${!current ? 'dipublikasikan' : 'disembunyikan'}'),
           backgroundColor: !current ? AppTheme.primary : AppTheme.orange,
+        ));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $e'), backgroundColor: AppTheme.error));
+    }
+  }
+
+  Future<void> _setAllKelas(bool newVal) async {
+    if (_selectedSemesterId == null || _kelasList.isEmpty) return;
+    try {
+      for (final kk in _kelasList) {
+        final kelasId = kk['kelas_id'] as int;
+        if ((kk['is_published'] == true) != newVal) {
+          await AdminService.togglePublikasiKelas(_selectedSemesterId!, kelasId, newVal);
+        }
+      }
+      if (mounted) {
+        setState(() {
+          for (final kk in _kelasList) { kk['is_published'] = newVal; }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(newVal ? 'Semua kelas diaktifkan' : 'Semua kelas disembunyikan'),
+          backgroundColor: newVal ? AppTheme.primary : AppTheme.orange,
         ));
       }
     } catch (e) {
@@ -199,28 +291,36 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
     return labels[jenis] ?? jenis;
   }
 
-  Widget _buildJenisChip(String jenis, bool isPublished) {
-    final color = isPublished ? AppTheme.primary : AppTheme.grey400;
+  Widget _buildCheckItem({required String label, required bool selected, required VoidCallback onTap}) {
     return InkWell(
-      onTap: () => _toggleJenisPublikasi(jenis, isPublished),
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isPublished ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.grey100,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          color: selected ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.grey50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: selected ? AppTheme.primary : AppTheme.grey300),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isPublished ? Icons.visibility : Icons.visibility_off, size: 14, color: color),
+            Icon(selected ? Icons.check_box : Icons.check_box_outline_blank, size: 18,
+                color: selected ? AppTheme.primary : AppTheme.grey400),
             const SizedBox(width: 6),
-            Text(_jenisLabel(jenis), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: color)),
+            Text(label, style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: selected ? AppTheme.primary : AppTheme.grey700)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSelectAllButton({required bool allSelected, required bool enabled, required VoidCallback onPressed}) {
+    return TextButton.icon(
+      onPressed: enabled ? onPressed : null,
+      icon: Icon(allSelected ? Icons.deselect : Icons.select_all, size: 16),
+      label: Text(allSelected ? 'Bersihkan semua' : 'Pilih semua', style: const TextStyle(fontSize: 12)),
+      style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8), minimumSize: const Size(0, 32)),
     );
   }
 
@@ -251,18 +351,59 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
               style: TextStyle(fontSize: 12, color: _nilaiPublished ? AppTheme.primary : AppTheme.orange),
             ),
           ]),
+          const SizedBox(height: 14),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          const Row(children: [
+            Icon(Icons.calendar_month_outlined, size: 16, color: AppTheme.grey500),
+            SizedBox(width: 8),
+            Text('Pilih Semester & Tahun Ajaran', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
+          ]),
+          const SizedBox(height: 4),
+          const Text('Kelola kategori publikasi untuk semester tertentu', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
+          const SizedBox(height: 10),
+          Row(children: [
+            Expanded(child: DropdownButtonFormField<int>(
+              value: _selectedTahunAjaranId,
+              isDense: true,
+              decoration: inputDecoration('Tahun Ajaran', Icons.calendar_today_outlined, optional: true),
+              items: [
+                const DropdownMenuItem<int>(value: null, child: Text('Semua TA', style: TextStyle(fontSize: 13))),
+                ..._tahunAjaranOptions.map((t) => DropdownMenuItem(
+                    value: t['id'] as int,
+                    child: Text('TA ${t['nama']}', style: const TextStyle(fontSize: 13)))),
+              ],
+              onChanged: _selectTahunAjaran,
+            )),
+            const SizedBox(width: 12),
+            Expanded(child: DropdownButtonFormField<int>(
+              value: _selectedSemesterId,
+              isDense: true,
+              decoration: inputDecoration('Semester', Icons.menu_book_outlined),
+              items: _semestersInTA(_selectedTahunAjaranId).map((s) => DropdownMenuItem(
+                  value: s['id'] as int,
+                  child: Text('${s['nama']}', style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: _selectSemester,
+            )),
+          ]),
           if (!_nilaiPublished) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             const Divider(height: 1),
             const SizedBox(height: 12),
-            const Row(children: [
-              Icon(Icons.filter_list, size: 16, color: AppTheme.grey500),
-              SizedBox(width: 8),
-              Text('Publikasi per Jenis Ujian', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
+            Row(children: [
+              const Icon(Icons.filter_list, size: 16, color: AppTheme.grey500),
+              const SizedBox(width: 8),
+              const Expanded(child: Text('Publikasi per Jenis Ujian', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700))),
+              if (_jenisList.isNotEmpty)
+                _buildSelectAllButton(
+                  allSelected: _jenisList.every((j) => j['is_published'] == true),
+                  enabled: true,
+                  onPressed: () => _setAllJenis(!_jenisList.every((j) => j['is_published'] == true)),
+                ),
             ]),
             const SizedBox(height: 4),
-            const Text('Aktifkan jenis yang ingin dilihat siswa', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
-            const SizedBox(height: 12),
+            const Text('Centang jenis yang boleh dilihat siswa (bisa lebih dari satu)', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
+            const SizedBox(height: 10),
             if (_loadingJenis)
               const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
             else
@@ -272,40 +413,46 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
                 children: _jenisList.map((j) {
                   final jenis = j['jenis'] as String;
                   final isPub = j['is_published'] as bool;
-                  return _buildJenisChip(jenis, isPub);
+                  return _buildCheckItem(
+                    label: _jenisLabel(jenis),
+                    selected: isPub,
+                    onTap: () => _toggleJenisPublikasi(jenis, isPub),
+                  );
                 }).toList(),
               ),
             const SizedBox(height: 16),
             const Divider(height: 1),
             const SizedBox(height: 12),
-            const Row(children: [
-              Icon(Icons.school_outlined, size: 16, color: AppTheme.grey500),
-              SizedBox(width: 8),
-              Text('Publikasi per Kelas', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700)),
+            Row(children: [
+              const Icon(Icons.school_outlined, size: 16, color: AppTheme.grey500),
+              const SizedBox(width: 8),
+              const Expanded(child: Text('Publikasi per Kelas', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey700))),
+              if (_kelasList.isNotEmpty)
+                _buildSelectAllButton(
+                  allSelected: _kelasList.every((k) => k['is_published'] == true),
+                  enabled: true,
+                  onPressed: () => _setAllKelas(!_kelasList.every((k) => k['is_published'] == true)),
+                ),
             ]),
             const SizedBox(height: 4),
-            const Text('Aktifkan kelas yang boleh melihat nilai', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
-            const SizedBox(height: 8),
+            const Text('Centang kelas yang boleh melihat nilai (bisa lebih dari satu)', style: TextStyle(fontSize: 11, color: AppTheme.grey400)),
+            const SizedBox(height: 10),
             if (_loadingKelas)
               const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
             else if (_kelasList.isEmpty)
               const Text('Belum ada data kelas', style: TextStyle(fontSize: 12, color: AppTheme.grey400))
             else
               Wrap(
-                spacing: 16,
-                runSpacing: 12,
+                spacing: 8,
+                runSpacing: 8,
                 children: _kelasList.map((k) {
                   final kelasId = k['kelas_id'] as int;
                   final nama = k['kelas_nama'] as String? ?? 'Kelas';
                   final isPub = k['is_published'] as bool;
-                  return FilterChip(
-                    label: Text(nama, style: const TextStyle(fontSize: 12)),
+                  return _buildCheckItem(
+                    label: nama,
                     selected: isPub,
-                    selectedColor: AppTheme.primary.withValues(alpha: 0.15),
-                    checkmarkColor: AppTheme.primary,
-                    backgroundColor: AppTheme.grey100,
-                    side: BorderSide(color: isPub ? AppTheme.primary : AppTheme.grey300),
-                    onSelected: (_) => _toggleKelasPublikasi(kelasId, isPub),
+                    onTap: () => _toggleKelasPublikasi(kelasId, isPub),
                   );
                 }).toList(),
               ),
