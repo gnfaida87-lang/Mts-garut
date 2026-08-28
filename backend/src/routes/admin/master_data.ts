@@ -1,6 +1,6 @@
 import { Env, UserPayload } from '../../types';
 import { CrudConfig, list, getById, create, update, remove, success, notFound } from '../../utils/crud';
-import { json, badRequest, corsHeaders } from '../../utils/response';
+import { json, badRequest, corsHeaders, error } from '../../utils/response';
 import bcrypt from 'bcryptjs';
 import * as XLSX from 'xlsx';
 
@@ -426,46 +426,51 @@ export async function handleGuruMapelKelasAll(request: Request, env: Env, user: 
 
   // GET: list semua kombinasi dengan search + pagination
   if (request.method === 'GET') {
-    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
-    const perPage = Math.min(100, Math.max(1, parseInt(url.searchParams.get('per_page') || '20')));
-    const search = (url.searchParams.get('search') || '').trim();
-    const offset = (page - 1) * perPage;
+    try {
+      const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
+      const perPage = Math.min(100, Math.max(1, parseInt(url.searchParams.get('per_page') || '20')));
+      const search = (url.searchParams.get('search') || '').trim();
+      const offset = (page - 1) * perPage;
 
-    let where = '';
-    const bindings: unknown[] = [];
-    if (search) {
-      where = 'WHERE (g.nama LIKE ? OR g.nip LIKE ? OR mp.nama LIKE ? OR k.nama LIKE ?)';
-      bindings.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+      let where = '';
+      const bindings: unknown[] = [];
+      if (search) {
+        where = 'WHERE (g.nama LIKE ? OR g.nip LIKE ? OR mp.nama LIKE ? OR k.nama LIKE ?)';
+        bindings.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+      }
+
+      const countResult = await env.DB.prepare(
+        `SELECT COUNT(*) as total
+         FROM guru_mapel_kelas gmk
+         LEFT JOIN guru g ON gmk.guru_id = g.id
+         LEFT JOIN mata_pelajaran mp ON gmk.mata_pelajaran_id = mp.id
+         LEFT JOIN kelas k ON gmk.kelas_id = k.id
+         ${where}`
+      ).bind(...bindings).first<{ total: number }>();
+
+      const total = countResult?.total || 0;
+      bindings.push(perPage, offset);
+      const rows = await env.DB.prepare(
+        `SELECT gmk.id, gmk.guru_id, g.nama as guru_nama, g.nip as guru_nip, g.jabatan as guru_jabatan,
+                gmk.mata_pelajaran_id, mp.nama as mapel_nama, mp.kode as mapel_kode,
+                gmk.kelas_id, k.nama as kelas_nama
+         FROM guru_mapel_kelas gmk
+         LEFT JOIN guru g ON gmk.guru_id = g.id
+         LEFT JOIN mata_pelajaran mp ON gmk.mata_pelajaran_id = mp.id
+         LEFT JOIN kelas k ON gmk.kelas_id = k.id
+         ${where}
+         ORDER BY g.nip ASC, mp.kode ASC, k.nama ASC
+         LIMIT ? OFFSET ?`
+      ).bind(...bindings).all();
+
+      return success({
+        items: rows.results,
+        pagination: { page, per_page: perPage, total, total_pages: Math.ceil(total / perPage) },
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Database error';
+      return error(`Gagal memuat data guru mapel kelas: ${msg}`, 500);
     }
-
-    const countResult = await env.DB.prepare(
-      `SELECT COUNT(*) as total
-       FROM guru_mapel_kelas gmk
-       LEFT JOIN guru g ON gmk.guru_id = g.id
-       LEFT JOIN mata_pelajaran mp ON gmk.mata_pelajaran_id = mp.id
-       LEFT JOIN kelas k ON gmk.kelas_id = k.id
-       ${where}`
-    ).bind(...bindings).first<{ total: number }>();
-
-    const total = countResult?.total || 0;
-    bindings.push(perPage, offset);
-    const rows = await env.DB.prepare(
-      `SELECT gmk.id, gmk.guru_id, g.nama as guru_nama, g.nip as guru_nip, g.jabatan as guru_jabatan,
-              gmk.mata_pelajaran_id, mp.nama as mapel_nama, mp.kode as mapel_kode,
-              gmk.kelas_id, k.nama as kelas_nama
-       FROM guru_mapel_kelas gmk
-       LEFT JOIN guru g ON gmk.guru_id = g.id
-       LEFT JOIN mata_pelajaran mp ON gmk.mata_pelajaran_id = mp.id
-       LEFT JOIN kelas k ON gmk.kelas_id = k.id
-       ${where}
-       ORDER BY g.nip ASC, mp.kode ASC, k.nama ASC
-       LIMIT ? OFFSET ?`
-    ).bind(...bindings).all();
-
-    return success({
-      items: rows.results,
-      pagination: { page, per_page: perPage, total, total_pages: Math.ceil(total / perPage) },
-    });
   }
 
   // POST: tambah 1 penugasan guru-mapel-kelas
