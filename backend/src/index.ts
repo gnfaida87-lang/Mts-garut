@@ -79,7 +79,22 @@ export default {
       // Public pengaturan (GET only, for login page)
       if (path === '/api/pengaturan-tampilan' && request.method === 'GET') {
         const rows = await env.DB.prepare('SELECT key, value FROM pengaturan ORDER BY key').all();
-        return success(rows.results);
+        const map = new Map<string, string>();
+        for (const r of rows.results as { key: string; value: string }[]) map.set(r.key, r.value);
+
+        const defaults = [
+          ['hero_title', 'Sistem Informasi MA Persis Garut'],
+          ['hero_subtitle', 'Kelola data akademik, absensi, nilai, rapor, dan bimbingan konseling dalam satu platform.'],
+          ['logo_url', ''],
+          ['background_url', ''],
+        ] as const;
+        for (const [key, val] of defaults) {
+          if (!map.has(key)) map.set(key, val);
+        }
+
+        return success(
+          Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([key, value]) => ({ key, value }))
+        );
       }
 
       // Public display kiosk - papan absensi asatidz live (read-only, tanpa auth)
