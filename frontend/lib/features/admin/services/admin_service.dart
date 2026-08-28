@@ -197,6 +197,20 @@ class AdminService {
     });
   }
 
+  // ── Publikasi per Kelas ──
+  static Future<Map<String, dynamic>> getPublikasiKelas() async {
+    final res = await ApiClient.get('/admin/rapor/status-publikasi-kelas');
+    return res['data'] as Map<String, dynamic>;
+  }
+
+  static Future<void> togglePublikasiKelas(int semesterId, int kelasId, bool published) async {
+    await ApiClient.put('/admin/rapor/publikasi-kelas', body: {
+      'semester_id': semesterId,
+      'kelas_id': kelasId,
+      'is_published': published,
+    });
+  }
+
   // ── Profil Sekolah ──
   static Future<Map<String, dynamic>> getProfil() async {
     final res = await ApiClient.get('/admin/profil');

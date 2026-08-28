@@ -17,6 +17,10 @@ void main() {
       ),
     );
 
+    // Pump melewati timeout _loadPengaturan (5 detik) agar tidak ada timer
+    // yang menggantung saat widget tree dibongkar.
+    await tester.pump(const Duration(seconds: 6));
+
     expect(find.byIcon(Icons.school), findsOneWidget);
     expect(find.text('Masuk'), findsWidgets);
     expect(find.text('Username / NIS'), findsOneWidget);

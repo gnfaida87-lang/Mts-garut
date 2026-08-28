@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/services/auth_service.dart';
@@ -35,7 +36,12 @@ class AuthProvider extends ChangeNotifier {
     try {
       final loggedIn = await _authService.isLoggedIn();
       if (loggedIn) {
-        final user = await _authService.getCurrentUser();
+        // Batasi waktu tunggu validasi session agar halaman login tidak
+        // menggantung berlama-lama ketika token kedaluwarsa / jaringan lambat.
+        // TimeoutException ditangkap di catch → fallback ke unauthenticated.
+        final user = await _authService
+            .getCurrentUser()
+            .timeout(const Duration(seconds: 6));
         if (user != null) {
           _user = user;
           _status = AuthStatus.authenticated;

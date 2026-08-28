@@ -69,6 +69,15 @@ export async function handleNilai(
   const kelasNama = (siswaData[0] as any).kelas_nama ?? null;
   const tingkatNama = (siswaData[0] as any).tingkat_nama ?? null;
 
+  // Ambil status publikasi per kelas (apakah kelas siswa ini boleh melihat nilai)
+  let kelasPublished = false;
+  if (semId) {
+    const pk = await env.DB.prepare(
+      'SELECT is_published FROM publikasi_kelas WHERE semester_id = ? AND kelas_id = ? LIMIT 1'
+    ).bind(semId, kelasId).first<{ is_published: number }>();
+    kelasPublished = !!(pk && pk.is_published === 1);
+  }
+
   // Jika publikasi global OFF dan tidak ada per-jenis publish, kembalikan kosong
   if (!nilaiPublished && Object.values(publishedJenis).every(v => !v)) {
     return success({
@@ -82,6 +91,22 @@ export async function handleNilai(
       published: false,
       published_jenis: publishedJenis,
       message: 'Nilai belum dipublikasikan oleh administrator',
+    });
+  }
+
+  // Jika publikasi global OFF dan kelas siswa ini belum diaktifkan → nilai disembunyikan
+  if (!nilaiPublished && !kelasPublished) {
+    return success({
+      rekap: [],
+      rata_rata_keseluruhan: 0,
+      semester_id: semId,
+      semester_nama: semesterNama,
+      tahun_ajaran: semesterTahunAjaran,
+      kelas_nama: kelasNama,
+      tingkat_nama: tingkatNama,
+      published: false,
+      published_jenis: publishedJenis,
+      message: 'Nilai belum dipublikasikan untuk kelas ini',
     });
   }
 

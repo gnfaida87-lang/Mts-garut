@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/network/api_client.dart';
@@ -38,7 +39,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   Future<void> _loadPengaturan() async {
     try {
-      final res = await ApiClient.get('/pengaturan-tampilan');
+      // Timeout singkat agar tampilan login tidak menggantung menunggu
+      // jaringan lambat. Gagal → tetap tampilkan teks default.
+      final res = await ApiClient.get('/pengaturan-tampilan')
+          .timeout(const Duration(seconds: 5));
       final data = res['data'] as List<dynamic>? ?? [];
       if (mounted) {
         setState(() {
