@@ -291,8 +291,15 @@ class _AsatidzFormState extends State<AsatidzForm> {
 
     final hasUsername = _usernameCtrl.text.trim().isNotEmpty;
     final hasPassword = _passwordCtrl.text.isNotEmpty;
-    if (hasUsername && !hasPassword) errors.add('Password wajib diisi jika username diisi');
-    if (!isEditing && hasPassword && !hasUsername) errors.add('Username wajib diisi jika password diisi');
+    if (!isEditing) {
+      // Saat membuat akun baru: username + password harus lengkap bersama.
+      if (hasUsername && !hasPassword) errors.add('Password wajib diisi jika username diisi');
+      if (hasPassword && !hasUsername) errors.add('Username wajib diisi jika password diisi');
+    } else if (hasPassword && !hasUsername) {
+      // Saat mengedit: password opsional (kosong = tidak diubah).
+      // Hanya dicek jika password diisi tapi username malah dikosongkan.
+      errors.add('Username wajib diisi jika password diisi');
+    }
 
     if (errors.isNotEmpty) {
       if (!mounted) return;
