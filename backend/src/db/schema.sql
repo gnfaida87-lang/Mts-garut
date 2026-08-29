@@ -420,7 +420,7 @@ CREATE TABLE pengaturan (
 );
 
 INSERT OR IGNORE INTO pengaturan (key, value) VALUES
-    ('hero_title', 'MA PERSIS GARUT'),
+    ('hero_title', 'MTs PERSIS GARUT'),
     ('hero_subtitle', 'Absensi, Jadwal, Nilai, dan Lainnya'),
     ('logo_url', ''),
     ('background_url', '');

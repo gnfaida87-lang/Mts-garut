@@ -83,7 +83,7 @@ export default {
         for (const r of rows.results as { key: string; value: string }[]) map.set(r.key, r.value);
 
         const defaults = [
-          ['hero_title', 'Sistem Informasi MA Persis Garut'],
+          ['hero_title', 'Sistem Informasi MTs Persis Garut'],
           ['hero_subtitle', 'Kelola data akademik, absensi, nilai, rapor, dan bimbingan konseling dalam satu platform.'],
           ['logo_url', ''],
           ['background_url', ''],

@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late final Animation<double> _fadeIn;
   late final Animation<Offset> _slideUp;
 
-  String _heroTitle = 'Sistem Informasi MA Persis Garut';
+  String _heroTitle = 'Sistem Informasi MTs Persis Garut';
   String _heroSubtitle = 'Kelola data akademik, absensi, nilai, rapor, dan bimbingan konseling dalam satu platform.';
   String _logoUrl = '';
   String _backgroundUrl = '';

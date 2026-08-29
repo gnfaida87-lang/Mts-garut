@@ -79,7 +79,7 @@ class DaurohPdfExport {
                 ),
                 pw.SizedBox(height: 4),
                 pw.Text(
-                  'MA Persis Garut',
+                  'MTs Persis Garut',
                   style: const pw.TextStyle(fontSize: 12, color: PdfColors.white),
                 ),
               ],

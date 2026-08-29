@@ -110,7 +110,7 @@ class _DashboardMusyrifahPageState extends State<DashboardMusyrifahPage> {
                   const SizedBox(height: 24),
                   const Center(
                     child: Text(
-                      'Sistem Informasi MA Persis Garut',
+                      'Sistem Informasi MTs Persis Garut',
                       style: TextStyle(color: AppTheme.grey400, fontSize: 12),
                     ),
                   ),

@@ -34,7 +34,7 @@ class SplashScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Sistem Informasi\nMA Persis Garut',
+                  'Sistem Informasi\nMTs Persis Garut',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,

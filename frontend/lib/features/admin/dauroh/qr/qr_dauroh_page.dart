@@ -87,7 +87,7 @@ class _QrDaurohPageState extends State<QrDaurohPage> {
           pw.SizedBox(height: 4),
           pw.Center(
             child: pw.Text(
-              'MA Persis Garut',
+'MTs Persis Garut',
               style: const pw.TextStyle(fontSize: 14, color: PdfColors.grey600),
             ),
           ),
@@ -225,7 +225,7 @@ class _QrDaurohPageState extends State<QrDaurohPage> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'MA Persis Garut',
+            'MTs Persis Garut',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.grey600),
           ),
         ],
