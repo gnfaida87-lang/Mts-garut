@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../core/theme/app_theme.dart';
 import '../services/santri_service.dart';
+import 'materi_pdf_viewer_page.dart';
 
 class MateriSantriPage extends StatefulWidget {
   const MateriSantriPage({super.key});
@@ -37,11 +38,27 @@ class _MateriSantriPageState extends State<MateriSantriPage> {
     }
   }
 
-  Future<void> _openUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+  void _openPdf(String url, String judul) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => MateriPdfViewerPage(url: url, title: judul),
+      ),
+    );
+  }
+
+  void _playVideo(String url, String judul) {
+    final videoId = YoutubePlayer.convertUrlToId(url);
+    if (videoId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Link video tidak valid')),
+      );
+      return;
     }
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => _VideoPlayerDialog(videoId: videoId, judul: judul),
+    );
   }
 
   void _selectMapel(Map<String, dynamic> mapel) {
@@ -255,7 +272,7 @@ class _MateriSantriPageState extends State<MateriSantriPage> {
                 if (hasYoutube)
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => _openUrl(m['link_youtube']),
+                      onPressed: () => _playVideo(m['link_youtube'], m['judul'] ?? 'Video'),
                       icon: const Icon(Icons.play_circle_outline, size: 16),
                       label: const Text('Putar Video', style: TextStyle(fontSize: 12)),
                       style: ElevatedButton.styleFrom(
@@ -267,12 +284,11 @@ class _MateriSantriPageState extends State<MateriSantriPage> {
                     ),
                   ),
                 if (hasYoutube && hasDrive) const SizedBox(width: 8),
-                // Google Drive button
                 if (hasDrive)
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => _openUrl(m['link_url']),
-                      icon: const Icon(Icons.cloud_download_outlined, size: 16),
+                      onPressed: () => _openPdf(m['link_url'], m['judul'] ?? 'Materi'),
+                      icon: const Icon(Icons.visibility_outlined, size: 16),
                       label: const Text('Lihat Materi', style: TextStyle(fontSize: 12)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primary,
@@ -286,6 +302,82 @@ class _MateriSantriPageState extends State<MateriSantriPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _VideoPlayerDialog extends StatefulWidget {
+  final String videoId;
+  final String judul;
+
+  const _VideoPlayerDialog({required this.videoId, required this.judul});
+
+  @override
+  State<_VideoPlayerDialog> createState() => _VideoPlayerDialogState();
+}
+
+class _VideoPlayerDialogState extends State<_VideoPlayerDialog> {
+  late YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = YoutubePlayerController(
+      initialVideoId: widget.videoId,
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        loop: false,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.judul,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: YoutubePlayer(
+                controller: _controller,
+                showVideoProgressIndicator: true,
+                progressIndicatorColor: AppTheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }

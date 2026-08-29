@@ -16,6 +16,7 @@ class SantriService {
   Future<Map<String, dynamic>> getAbsensi({
     String? bulan,
     String? tahun,
+    String? tanggal,
     int page = 1,
     int perPage = 20,
   }) async {
@@ -23,6 +24,7 @@ class SantriService {
       'page': page.toString(),
       'per_page': perPage.toString(),
     };
+    if (tanggal != null && tanggal.isNotEmpty) queryParams['tanggal'] = tanggal;
     if (bulan != null) queryParams['bulan'] = bulan;
     if (tahun != null) queryParams['tahun'] = tahun;
     final response = await ApiClient.get('/siswa/absensi', queryParams: queryParams);

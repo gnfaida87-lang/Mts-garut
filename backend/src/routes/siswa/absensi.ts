@@ -8,6 +8,7 @@ export async function handleAbsensi(
 ): Promise<Response> {
   const bulan = url.searchParams.get('bulan');
   const tahun = url.searchParams.get('tahun');
+  const tanggal = url.searchParams.get('tanggal');
   const page = parseInt(url.searchParams.get('page') ?? '1');
   const perPage = parseInt(url.searchParams.get('per_page') ?? '20');
   const offset = (page - 1) * perPage;
@@ -16,7 +17,10 @@ export async function handleAbsensi(
   let countQuery = 'SELECT COUNT(*) as total FROM absensi_siswa WHERE siswa_id = ?';
   const countParams: any[] = [user.siswa_id];
 
-  if (bulan && tahun) {
+  if (tanggal) {
+    countQuery += " AND tanggal = ?";
+    countParams.push(tanggal);
+  } else if (bulan && tahun) {
     countQuery += " AND strftime('%m', tanggal) = ? AND strftime('%Y', tanggal) = ?";
     countParams.push(bulan.padStart(2, '0'), tahun);
   }
@@ -33,7 +37,10 @@ export async function handleAbsensi(
   `;
   const dataParams: any[] = [user.siswa_id];
 
-  if (bulan && tahun) {
+  if (tanggal) {
+    dataQuery += " AND a.tanggal = ?";
+    dataParams.push(tanggal);
+  } else if (bulan && tahun) {
     dataQuery += " AND strftime('%m', a.tanggal) = ? AND strftime('%Y', a.tanggal) = ?";
     dataParams.push(bulan.padStart(2, '0'), tahun);
   }
@@ -51,7 +58,10 @@ export async function handleAbsensi(
   `;
   const statsParams: any[] = [user.siswa_id];
 
-  if (bulan && tahun) {
+  if (tanggal) {
+    statsQuery += " AND tanggal = ?";
+    statsParams.push(tanggal);
+  } else if (bulan && tahun) {
     statsQuery += " AND strftime('%m', tanggal) = ? AND strftime('%Y', tanggal) = ?";
     statsParams.push(bulan.padStart(2, '0'), tahun);
   }

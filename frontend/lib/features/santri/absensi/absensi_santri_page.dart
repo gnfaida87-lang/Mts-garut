@@ -19,6 +19,25 @@ class _AbsensiSantriPageState extends State<AbsensiSantriPage> {
 
   String _bulan = DateTime.now().month.toString();
   String _tahun = DateTime.now().year.toString();
+  String? _tanggal;
+
+  Future<void> _pickTanggal() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(now.year - 3),
+      lastDate: DateTime(now.year, 12, 31),
+    );
+    if (picked != null) {
+      setState(() {
+        _tanggal = '${picked.year.toString().padLeft(4, '0')}-'
+            '${picked.month.toString().padLeft(2, '0')}-'
+            '${picked.day.toString().padLeft(2, '0')}';
+      });
+      _loadAbsensi();
+    }
+  }
 
   @override
   void initState() {
@@ -29,7 +48,12 @@ class _AbsensiSantriPageState extends State<AbsensiSantriPage> {
   Future<void> _loadAbsensi() async {
     setState(() => _loading = true);
     try {
-      final result = await _service.getAbsensi(bulan: _bulan, tahun: _tahun, page: _page);
+      final result = await _service.getAbsensi(
+        tanggal: _tanggal,
+        bulan: _bulan,
+        tahun: _tahun,
+        page: _page,
+      );
       if (mounted) {
         setState(() {
           _data = (result['data'] as List).cast<Map<String, dynamic>>();
@@ -130,6 +154,41 @@ class _AbsensiSantriPageState extends State<AbsensiSantriPage> {
             ],
           ),
         ),
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: OutlinedButton.icon(
+              onPressed: _pickTanggal,
+              icon: const Icon(Icons.event, size: 18),
+              label: Text(
+                _tanggal == null
+                    ? 'Filter Tanggal (Semua)'
+                    : 'Tanggal: $_tanggal',
+                style: const TextStyle(fontSize: 13),
+              ),
+              style: OutlinedButton.styleFrom(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+            ),
+          ),
+        ),
+        if (_tanggal != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: TextButton.icon(
+                onPressed: () {
+                  setState(() => _tanggal = null);
+                  _loadAbsensi();
+                },
+                icon: const Icon(Icons.clear, size: 16),
+                label: const Text('Reset Tanggal', style: TextStyle(fontSize: 12)),
+              ),
+            ),
+          ),
         const SizedBox(height: 16),
         // Data
         Expanded(
