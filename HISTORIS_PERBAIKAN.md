@@ -18,6 +18,8 @@
 8. [Yang Sengaja Dibiarkan](#8-yang-sengaja-dibiarkan)
 9. [Lampiran: Diff Per Modul](#9-lampiran-diff-per-modul)
 
+> Bagian 7d (Perbaikan 500 `referensi`, Backend/D1) terletak di tengah bagian 7 — lihat [7d](#7d-perbaikan-500-get-apiwakil-kurikulumreferensi-backend--migrasi-d1).
+
 ---
 
 ## 1. Pola Perbaikan yang Digunakan
@@ -341,6 +343,34 @@ if (mounted) setState(() => _loading = false);
 - `flutter analyze` = **No issues found!**.
 
 > **Tertunda (belum diterapkan):** Poin B (skip `/api/public/*` dari `generalRateLimit` di `index.ts`) dan Poin D (tampilkan pesan error asli, simpan `e.message`) — butuh persetujuan terpisah.
+
+---
+
+## 7d. Perbaikan 500 `GET /api/wakil-kurikulum/referensi` (Backend / Migrasi D1)
+
+> **Kategori:** Backend + migrasi D1 (di luar cakupan "Frontend" pada judul dokumen ini, tetapi dicatat di sini agar satu referensi). Tidak mengubah alur kerja aplikasi; murni menambahkan tabel skema yang hilang.
+
+**Gejala:** Console (Firefox) menampilkan:
+- `GET https://mts-garut.gn-faida87.workers.dev/api/wakil-kurikulum/referensi` → status **500**
+- `CORS Missing Allow Origin` (gejala **sekunder** — header CORS tidak sempat dipasang karena exception terjadi lebih dulu).
+
+**Diagnosis bertahap:**
+1. Route `referensi` (`backend/src/routes/wakil_kurikulum/penjadwalan.ts:318-401`) menjalankan `Promise.all` berisi 11 query DB.
+2. Verifikasi D1 produksi `mts-garut-db`: tabel `kelas_gabungan`/`kelas_gabungan_anggota` **sudah ada** (migrasi `0026` applied), query paling kompleks valid.
+3. Dengan token JWT valid (role `wakil_kurikulum`), endpoint produksi mengembalikan **HTTP 500 `error code: 1101`** (exception Worker tak tertangkap) — sementara `dashboard` & `monitoring-nilai` tetap **200** → bug spesifik di handler `referensi`.
+4. Uji query D1 remote menemukan: **`no such table: kegiatan_tetap`** → inilah penyebab 500.
+
+**Akar masalah:** Database produksi `mts-garut-db` (dibuat ulang pada 25 Agu, commit `8b48b55`) menerapkan migrasi `0001`–`0035`. Tabel **`kegiatan_tetap`** hanya dibuat lewat `backend/src/db/migrations/v11.sql` (folder lama) yang **tidak tercakup** alur migrasi `backend/migrations/` → tabel tidak pernah ada di DB baru. Route `referensi` (`penjadwalan.ts:334`) yang menyentuh `kegiatan_tetap` → exception → 500 + CORS.
+
+**Perbaikan:**
+- Ditambahkan: `backend/migrations/0036_kegiatan_tetap.sql` (salinan `v11.sql`, idempoten `CREATE TABLE IF NOT EXISTS` + seed `INSERT OR IGNORE`) agar masuk alur migrasi `backend/migrations/`.
+- Diterapkan ke produksi: `npx wrangler d1 execute mts-garut-db --remote --file=migrations/0036_kegiatan_tetap.sql`.
+
+**Verifikasi:**
+- Tabel `kegiatan_tetap` ada + 6 seed default (Istirahat RG/UG, Tahfidz & Tahsin, Murojaah, Ba'at, Shalat Dzuhur Berjamaah).
+- `GET /api/wakil-kurikulum/referensi` dengan token valid → **HTTP 200** (sebelumnya 500/1101).
+
+> **Catatan:** sistem Al-Idarah (server terpisah) tidak tersentuh. Poin B & Poin D tetap tertunda.
 
 ---
 
