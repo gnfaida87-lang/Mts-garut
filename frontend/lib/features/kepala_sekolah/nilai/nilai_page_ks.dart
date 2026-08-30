@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class NilaiPageKS extends StatefulWidget {
@@ -24,7 +25,7 @@ class _NilaiPageKSState extends State<NilaiPageKS> {
       final data = await KepalaSekolahService.getNilai();
       if (!mounted) return;
       _data = data;
-    } catch (_) { debugPrint('[nilai_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data nilai'); }
     if (mounted) setState(() => _loading = false);
   }
 

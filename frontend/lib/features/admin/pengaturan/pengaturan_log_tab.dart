@@ -28,7 +28,7 @@ class _LogTabState extends State<_LogTab> {
         _totalPages = res['pagination']?['total_pages'] ?? 1;
         _loading = false;
       }); }
-    } catch (e) { if (mounted) setState(() => _loading = false); }
+    } catch (e) { if (mounted) { setState(() => _loading = false); AppUtils.handleError(context, e, message: 'Gagal memuat log aktivitas'); } }
   }
 
   List<Map<String, dynamic>> get _filteredLogs {

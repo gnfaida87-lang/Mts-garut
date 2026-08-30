@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/guru_bk_service.dart';
 
 class PengaduanPageBK extends StatefulWidget {
@@ -86,7 +87,7 @@ class _PengaduanPageBKState extends State<PengaduanPageBK>
       _items.addAll(newItems);
       _page++;
       _totalPages = pag?['total_pages'] as int? ?? _totalPages;
-    } catch (_) { debugPrint('[pengaduan_page_bk.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data pengaduan berikutnya'); }
     if (mounted) setState(() => _loadingMore = false);
   }
 

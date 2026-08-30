@@ -62,7 +62,7 @@ class _LiveDisplayStats {
 }
 
 class _LiveDisplayPageState extends State<LiveDisplayPage> {
-  static const Duration _pollInterval = Duration(seconds: 5);
+  static const Duration _pollInterval = Duration(seconds: 15);
   static const Duration _welcomeDuration = Duration(seconds: 6);
 
   Timer? _pollTimer;

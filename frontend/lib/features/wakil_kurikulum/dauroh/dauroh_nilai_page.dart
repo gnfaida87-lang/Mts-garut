@@ -3,6 +3,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/wakil_kurikulum_service.dart';
 
 class DaurohNilaiPage extends StatefulWidget {
@@ -52,7 +53,9 @@ class _DaurohNilaiPageState extends State<DaurohNilaiPage> {
           _programList = (res['program'] as List?) ?? [];
         });
       }
-    } catch (_) { debugPrint('[dauroh_nilai_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat filter nilai at-Ta\'wid');
+    }
   }
 
   Future<void> _loadData() async {

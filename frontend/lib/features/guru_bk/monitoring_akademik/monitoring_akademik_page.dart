@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/guru_bk_service.dart';
 
 class MonitoringAkademikPage extends StatefulWidget {
@@ -46,8 +47,11 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
     try {
       final list = await GuruBKService.getKelasList();
       if (mounted) setState(() => _kelasList = list);
-    } catch (_) {
-      if (mounted) setState(() => _kelasList = []);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _kelasList = []);
+        AppUtils.handleError(context, e, message: 'Gagal memuat daftar kelas');
+      }
     }
   }
 
@@ -62,9 +66,10 @@ class _MonitoringAkademikPageState extends State<MonitoringAkademikPage>
       if (!mounted) return;
       _absensi = results[0];
       _pelanggaran = results[1];
-    } catch (_) {
+    } catch (e) {
       _absensi = [];
       _pelanggaran = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data monitoring');
     }
     if (mounted) {
       setState(() => _loading = false);

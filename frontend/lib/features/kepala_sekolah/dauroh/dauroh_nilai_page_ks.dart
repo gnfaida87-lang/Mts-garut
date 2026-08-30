@@ -3,6 +3,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class DaurohNilaiPageKS extends StatefulWidget {
@@ -52,7 +53,7 @@ class _DaurohNilaiPageKSState extends State<DaurohNilaiPageKS> {
           _programList = (res['program'] as List?) ?? [];
         });
       }
-    } catch (_) { debugPrint('[dauroh_nilai_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat filter nilai at-Ta\'wid'); }
   }
 
   Future<void> _loadData() async {
@@ -172,29 +173,34 @@ class _DaurohNilaiPageKSState extends State<DaurohNilaiPageKS> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: const Text('Monitoring Nilai at-Ta\'wid'),
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.print),
-            tooltip: 'Cetak / Print Preview',
-            onPressed: _items.isEmpty ? null : _printPreview,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Row(
+            children: [
+              const Text('Monitoring Nilai at-Ta\'wid',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.primaryDark)),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.print),
+                tooltip: 'Cetak / Print Preview',
+                onPressed: _items.isEmpty ? null : _printPreview,
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildFilterSection(),
-          _buildSummarySection(),
-          Expanded(child: _buildDataTable()),
-          _buildPagination(),
-        ],
-      ),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              _buildFilterSection(),
+              _buildSummarySection(),
+              Expanded(child: _buildDataTable()),
+              _buildPagination(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_client.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/wakil_kurikulum_service.dart';
 
 class KenaikanKelasPage extends StatefulWidget {
@@ -75,7 +76,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
       _alumni = List<Map<String, dynamic>>.from(alumniData['items'] ?? []);
       _alumniTotalPages = alumniData['pagination']?['total_pages'] ?? 1;
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data');
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -86,7 +87,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
       _kelasList = (ref['kelas'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
       _tahunAjaranList = (ref['tahun_ajaran'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memuat referensi: $e')));
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat referensi');
     }
   }
 
@@ -123,7 +124,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
       _kelasTujuan = (kelasTujuanData['kelas'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
       _isLastLevel = kelasTujuanData['is_last_level'] ?? false;
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data');
     }
     if (mounted) setState(() => _loadingBatch = false);
   }
@@ -224,7 +225,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
         _load();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memproses: $e')));
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memproses kenaikan kelas');
     } finally {
       if (mounted) setState(() => _loadingBatch = false);
     }
@@ -1259,7 +1260,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
       final result = await WakilKurikulumService.getCalonAlumni();
       calonAlumniList = List<Map<String, dynamic>>.from(result);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memuat data siswa: $e')));
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data siswa');
       return;
     }
 
@@ -1302,7 +1303,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
                   });
                   if (ctx.mounted) Navigator.pop(ctx);
                   _load();
-                } catch (e) { if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('$e'))); }
+                } catch (e) { if (ctx.mounted) AppUtils.handleError(ctx, e, message: 'Gagal menyimpan alumni'); }
               },
               style: FilledButton.styleFrom(backgroundColor: AppTheme.primary),
               child: const Text('Simpan'),
@@ -1328,7 +1329,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
                 await ApiClient.delete('/wakil-kurikulum/alumni/${a['id']}');
                 if (ctx.mounted) Navigator.pop(ctx);
                 _load();
-              } catch (e) { if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('$e'))); }
+              } catch (e) { if (ctx.mounted) AppUtils.handleError(ctx, e, message: 'Gagal menghapus alumni'); }
             },
             style: FilledButton.styleFrom(backgroundColor: AppTheme.error),
             child: const Text('Hapus'),
@@ -1372,7 +1373,9 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
                       _minAbsensiCtrl.text = (data['min_absensi_persen'] ?? 75).toString();
                       _minNilaiCtrl.text = (data['min_nilai_akhir'] ?? 60).toString();
                     });
-                  } catch (_) { debugPrint('[kenaikan_kelas_page.dart] error caught'); }
+                  } catch (e) {
+                    if (ctx.mounted) AppUtils.handleError(ctx, e, message: 'Gagal memuat pengaturan kenaikan');
+                  }
                 }
               },
             ),
@@ -1417,7 +1420,7 @@ class _KenaikanKelasPageState extends State<KenaikanKelasPage> with SingleTicker
                         if (ctx.mounted) Navigator.pop(ctx);
                         if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pengaturan berhasil disimpan')));
                       } catch (e) {
-                        if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('$e')));
+                        if (ctx.mounted) AppUtils.handleError(ctx, e, message: 'Gagal menyimpan pengaturan');
                       }
                     },
               style: FilledButton.styleFrom(backgroundColor: AppTheme.primary),

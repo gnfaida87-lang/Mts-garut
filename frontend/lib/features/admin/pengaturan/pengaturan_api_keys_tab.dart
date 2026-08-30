@@ -46,7 +46,7 @@ class _ApiKeysTabState extends State<_ApiKeysTab> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) { setState(() => _loading = false); AppUtils.handleError(context, e, message: 'Gagal memuat API keys'); }
     }
   }
 

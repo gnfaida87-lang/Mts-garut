@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/dashboard_template.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/wakil_kurikulum_service.dart';
 
 class DashboardPageWK extends StatefulWidget {
@@ -21,7 +22,7 @@ class _DashboardPageWKState extends State<DashboardPageWK> {
   Future<void> _load() async {
     setState(() => _loading = true);
     try { _data = await WakilKurikulumService.getDashboard(); }
-    catch (_) { debugPrint('[dashboard_page.dart] error caught'); }
+    catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat dashboard'); }
     if (mounted) setState(() => _loading = false);
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/guru_bk_service.dart';
 
 class KonselingPage extends StatefulWidget {
@@ -51,8 +52,11 @@ class _KonselingPageState extends State<KonselingPage>
     try {
       final list = await GuruBKService.getKelasList();
       if (mounted) setState(() => _kelasList = list);
-    } catch (_) {
-      if (mounted) setState(() => _kelasList = []);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _kelasList = []);
+        AppUtils.handleError(context, e, message: 'Gagal memuat daftar kelas');
+      }
     }
   }
 
@@ -61,8 +65,9 @@ class _KonselingPageState extends State<KonselingPage>
     setState(() => _siswaLoading = true);
     try {
       _siswaList = await GuruBKService.getSiswaByKelas(int.parse(_selectedKelasId!));
-    } catch (_) {
+    } catch (e) {
       _siswaList = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data santri');
     }
     if (mounted) {
       setState(() => _siswaLoading = false);
@@ -79,8 +84,9 @@ class _KonselingPageState extends State<KonselingPage>
       _history = data['items'] as List<dynamic>? ?? [];
       final pag = data['pagination'] as Map<String, dynamic>?;
       _historyTotalPages = pag?['total_pages'] as int? ?? 1;
-    } catch (_) {
+    } catch (e) {
       _history = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat riwayat konseling');
     }
     if (mounted) setState(() => _historyLoading = false);
   }
@@ -251,11 +257,7 @@ class _KonselingPageState extends State<KonselingPage>
                     });
                     if (ctx.mounted) Navigator.pop(ctx, true);
                   } catch (e) {
-                    if (ctx.mounted) {
-                      ScaffoldMessenger.of(ctx).showSnackBar(
-                        SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
-                      );
-                    }
+                    if (ctx.mounted) AppUtils.handleError(ctx, e, message: 'Gagal menyimpan jadwal konseling');
                   }
                 },
                 icon: const Icon(Icons.save, size: 18),
@@ -300,11 +302,7 @@ class _KonselingPageState extends State<KonselingPage>
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
-        );
-      }
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal menyelesaikan konseling');
     }
   }
 

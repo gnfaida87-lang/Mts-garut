@@ -71,46 +71,58 @@ class _ProfilMusyrifahPageState extends State<ProfilMusyrifahPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profil Musyrifah'), automaticallyImplyLeading: false),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _profil == null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          _error ?? 'Gagal memuat profil',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppTheme.error),
-                        ),
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Row(
+            children: [
+              Text('Profil Musyrifah',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+              : _profil == null
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Text(
+                              _error ?? 'Gagal memuat profil',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: AppTheme.error),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            onPressed: _load,
+                            icon: const Icon(Icons.refresh, size: 18),
+                            label: const Text('Coba Lagi'),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      FilledButton.icon(
-                        onPressed: _load,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Coba Lagi'),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          _buildAvatar(),
+                          const SizedBox(height: 24),
+                          _buildInfoCard(),
+                          const SizedBox(height: 24),
+                          _buildLogoutButton(),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      _buildAvatar(),
-                      const SizedBox(height: 24),
-                      _buildInfoCard(),
-                      const SizedBox(height: 24),
-                      _buildLogoutButton(),
-                    ],
-                  ),
-                ),
+                    ),
+        ),
+      ],
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../../../shared/widgets/dashboard_template.dart';
 import '../services/kepala_sekolah_service.dart';
 
@@ -21,7 +22,7 @@ class _DashboardPageKSState extends State<DashboardPageKS> {
   Future<void> _load() async {
     try {
       _data = await KepalaSekolahService.getDashboard();
-    } catch (_) { debugPrint('[dashboard_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat dashboard'); }
     if (mounted) setState(() => _loading = false);
   }
 

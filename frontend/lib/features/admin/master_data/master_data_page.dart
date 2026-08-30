@@ -420,7 +420,7 @@ class _MasterDataPageState extends State<MasterDataPage> {
     if ((type == MasterDataType.semester || type == MasterDataType.kelas) && taList.isEmpty) {
       AdminService.list('tahun-ajaran', page: 1, perPage: 100).then((res) {
         if (mounted) setState(() { _data[MasterDataType.tahunAjaran] = (res['items'] as List).cast<Map<String, dynamic>>(); });
-      });
+      }).catchError((e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat tahun ajaran'); });
     }
     if ((type == MasterDataType.semester || type == MasterDataType.kelas) && edit != null) {
       selectedTaId = int.tryParse(edit['tahun_ajaran_id']?.toString() ?? '');
@@ -434,12 +434,12 @@ class _MasterDataPageState extends State<MasterDataPage> {
       if (tingkatList.isEmpty) {
         AdminService.list('tingkat', page: 1, perPage: 100).then((res) {
           if (mounted) setState(() { _data[MasterDataType.tingkat] = (res['items'] as List).cast<Map<String, dynamic>>(); });
-        });
+        }).catchError((e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat tingkat'); });
       }
       if (jurusanList.isEmpty) {
         AdminService.list('jurusan', page: 1, perPage: 100).then((res) {
           if (mounted) setState(() { _data[MasterDataType.jurusan] = (res['items'] as List).cast<Map<String, dynamic>>(); });
-        });
+        }).catchError((e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat jurusan'); });
       }
       if (edit != null) {
         selectedTingkatId = int.tryParse(edit['tingkat_id']?.toString() ?? '');
@@ -930,13 +930,24 @@ class _MasterDataPageState extends State<MasterDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Master Data'), automaticallyImplyLeading: false),
-      body: Row(children: [
-        _buildSidebar(),
-        const VerticalDivider(width: 1),
-        Expanded(child: _buildContent()),
-      ]),
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Master Data',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
+        ),
+        Expanded(
+          child: Row(children: [
+            _buildSidebar(),
+            const VerticalDivider(width: 1),
+            Expanded(child: _buildContent()),
+          ]),
+        ),
+      ],
     );
   }
 

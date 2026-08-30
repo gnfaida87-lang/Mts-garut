@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/wakil_kurikulum_service.dart';
 
 class LaporanPageWK extends StatefulWidget {
@@ -26,7 +27,10 @@ class _LaporanPageWKState extends State<LaporanPageWK> with SingleTickerProvider
     try {
       final res = await WakilKurikulumService.getLaporan(_jenis);
       _data = res.cast<Map<String, dynamic>>();
-    } catch (_) { _data = []; }
+    } catch (e) {
+      _data = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat laporan');
+    }
     if (mounted) setState(() => _loading = false);
   }
 

@@ -134,9 +134,10 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       _kesiapan = (await WakilKurikulumService.getKesiapan(int.parse(_filterSemester!)))
           .cast<Map<String, dynamic>>();
       _kesiapanRows = _kesiapan.map((k) => _KesiapanRowData.fromJson(k)).toList();
-    } catch (_) {
+    } catch (e) {
       _kesiapan = [];
       _kesiapanRows = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat kesiapan mengajar guru');
     }
     if (mounted) setState(() => _kesiapanLoading = false);
   }
@@ -146,8 +147,9 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
     try {
       _waliKelas = (await WakilKurikulumService.getWaliKelas())
           .cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _waliKelas = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data wali kelas');
     }
     if (mounted) setState(() => _waliKelasLoading = false);
   }

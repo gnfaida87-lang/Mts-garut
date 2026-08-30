@@ -18,7 +18,7 @@ class _HakAksesTabState extends State<_HakAksesTab> {
     try {
       final res = await AdminService.getHakAkses();
       if (mounted) setState(() { _items = res.cast<Map<String, dynamic>>(); _loading = false; });
-    } catch (e) { if (mounted) setState(() => _loading = false); }
+    } catch (e) { if (mounted) { setState(() => _loading = false); AppUtils.handleError(context, e, message: 'Gagal memuat hak akses'); } }
   }
 
   Future<void> _add() {

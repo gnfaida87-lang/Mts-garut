@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/guru_bk_service.dart';
 
 class BakatMinatPage extends StatefulWidget {
@@ -44,8 +45,11 @@ class _BakatMinatPageState extends State<BakatMinatPage>
     try {
       final list = await GuruBKService.getKelasList();
       if (mounted) setState(() => _kelasList = list);
-    } catch (_) {
-      if (mounted) setState(() => _kelasList = []);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _kelasList = []);
+        AppUtils.handleError(context, e, message: 'Gagal memuat daftar kelas');
+      }
     }
   }
 
@@ -54,8 +58,9 @@ class _BakatMinatPageState extends State<BakatMinatPage>
     setState(() => _loading = true);
     try {
       _siswaList = await GuruBKService.getSiswaBakatMinat(int.parse(_selectedKelasId!));
-    } catch (_) {
+    } catch (e) {
       _siswaList = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data santri');
     }
     if (mounted) {
       setState(() => _loading = false);
@@ -196,7 +201,7 @@ class _BakatMinatPageState extends State<BakatMinatPage>
                             try {
                               await GuruBKService.deleteBakatMinat(siswa['bm_id']);
                               if (ctx.mounted) Navigator.pop(ctx, true);
-                            } catch (_) { debugPrint('[bakat_minat_page.dart] error caught'); }
+                            } catch (e) { if (ctx.mounted) AppUtils.handleError(ctx, e, message: 'Gagal menghapus data bakat & minat'); }
                           }
                         },
                         icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),

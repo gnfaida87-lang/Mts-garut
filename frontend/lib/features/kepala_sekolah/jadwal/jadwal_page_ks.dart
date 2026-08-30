@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class JadwalPageKS extends StatefulWidget {
@@ -24,7 +25,7 @@ class _JadwalPageKSState extends State<JadwalPageKS> {
       final data = await KepalaSekolahService.getJadwal();
       if (!mounted) return;
       _jadwal = data;
-    } catch (_) { debugPrint('[jadwal_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data jadwal'); }
     if (mounted) setState(() => _loading = false);
   }
 

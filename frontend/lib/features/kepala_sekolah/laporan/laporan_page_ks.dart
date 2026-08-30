@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class LaporanPageKS extends StatefulWidget {
@@ -29,7 +30,7 @@ class _LaporanPageKSState extends State<LaporanPageKS> {
       final data = res['data'] as Map<String, dynamic>;
       _kelas = data['kelas'] as List<dynamic>? ?? [];
       _semester = data['semester'] as List<dynamic>? ?? [];
-    } catch (_) { debugPrint('[laporan_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat referensi laporan'); }
     if (mounted) _loadLaporan();
   }
 
@@ -42,8 +43,9 @@ class _LaporanPageKSState extends State<LaporanPageKS> {
         kelasId: _kelasId?.toString(),
         semesterId: (_tab == 3) ? _semesterId?.toString() : null,
       );
-    } catch (_) {
+    } catch (e) {
       _items = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat laporan');
     }
     if (mounted) setState(() => _loading = false);
   }

@@ -58,55 +58,63 @@ class _RiwayatAbsensiPageState extends State<RiwayatAbsensiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Riwayat Absensi'),
-        automaticallyImplyLeading: false,
-        actions: [
-          _buildBulanFilter(),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
-                      const SizedBox(height: 12),
-                      Text(_error!, style: const TextStyle(color: AppTheme.error)),
-                      const SizedBox(height: 12),
-                      FilledButton.icon(
-                        onPressed: _load,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                )
-              : _data.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.history,
-                      message: 'Belum ada riwayat absensi',
-                    )
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: RefreshIndicator(
-                            color: AppTheme.primary,
-                            onRefresh: _load,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: _data.length,
-                              itemBuilder: (_, i) => _buildAbsensiCard(_data[i]),
-                            ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+          child: Row(
+            children: [
+              const Text('Riwayat Absensi',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+              const Spacer(),
+              _buildBulanFilter(),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+              : _error != null
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+                          const SizedBox(height: 12),
+                          Text(_error!, style: const TextStyle(color: AppTheme.error)),
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            onPressed: _load,
+                            icon: const Icon(Icons.refresh, size: 18),
+                            label: const Text('Coba Lagi'),
                           ),
+                        ],
+                      ),
+                    )
+                  : _data.isEmpty
+                      ? const EmptyState(
+                          icon: Icons.history,
+                          message: 'Belum ada riwayat absensi',
+                        )
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: RefreshIndicator(
+                                color: AppTheme.primary,
+                                onRefresh: _load,
+                                child: ListView.builder(
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: _data.length,
+                                  itemBuilder: (_, i) => _buildAbsensiCard(_data[i]),
+                                ),
+                              ),
+                            ),
+                            if (_totalPages > 1)
+                              _buildPaginationBar(),
+                          ],
                         ),
-                        if (_totalPages > 1)
-                          _buildPaginationBar(),
-                      ],
-                    ),
+        ),
+      ],
     );
   }
 

@@ -110,7 +110,7 @@ class _InputNilaiDialogState extends State<_InputNilaiDialog> {
         _suratList = surat;
         _filteredSurat = surat;
       });
-    } catch (_) { debugPrint('[nilai_dauroh_input_dialog.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat daftar surat'); }
 
     // Load programs for new input (dari jadwal yang diampu, agar nilai pertama bisa diinput)
     if (widget.existing == null) {
@@ -136,7 +136,7 @@ class _InputNilaiDialogState extends State<_InputNilaiDialog> {
           _jadwalList = jadwalData;
           _programList = progMap.values.toList();
         });
-      } catch (_) { debugPrint('[nilai_dauroh_input_dialog.dart] error caught'); }
+      } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat jadwal'); }
     }
 
     // If editing, load detail
@@ -555,7 +555,9 @@ class _InputNilaiDialogState extends State<_InputNilaiDialog> {
                                       await MusyrifahService.listSantriByJadwal(
                                           int.parse(v));
                                   setState(() => _santriList = santri);
-                                } catch (_) { debugPrint('[nilai_dauroh_input_dialog.dart] error caught'); }
+                                } catch (e) {
+                                  if (context.mounted) AppUtils.handleError(context, e, message: 'Gagal memuat daftar santri');
+                                }
                               }
                             },
                           ),

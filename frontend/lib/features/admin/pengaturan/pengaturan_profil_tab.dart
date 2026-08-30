@@ -24,7 +24,9 @@ class _ProfilTabState extends State<_ProfilTab> {
       _alamatCtrl.text = data['alamat']?.toString() ?? '';
       _telpCtrl.text = data['telepon']?.toString() ?? '';
       _emailCtrl.text = data['email']?.toString() ?? '';
-    } catch (_) { debugPrint('[pengaturan_profil_tab.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat profil sekolah');
+    }
     setState(() => _loading = false);
   }
 
@@ -116,7 +118,9 @@ class _TampilanLoginTabState extends State<_TampilanLoginTab> {
         if (m['key'] == 'logo_url') _logoUrlCtrl.text = m['value'] as String? ?? '';
         if (m['key'] == 'background_url') _bgUrlCtrl.text = m['value'] as String? ?? '';
       }
-    } catch (_) { debugPrint('[pengaturan_profil_tab.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat tampilan login');
+    }
     setState(() => _loading = false);
   }
 

@@ -87,7 +87,13 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
       _kelasList = (ref['kelas'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
       _mapelList = (ref['mapel'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
       _tahunAjaranList = (ref['semester'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memuat referensi: $e'), backgroundColor: AppTheme.error),
+        );
+      }
+    }
   }
 
   Future<void> _showFormBobot({BobotNilai? existing}) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/dashboard_template.dart';
+import '../../../../shared/widgets/app_utils.dart';
 import '../services/guru_bk_service.dart';
 
 class DashboardPageBK extends StatefulWidget {
@@ -20,7 +21,7 @@ class _DashboardPageBKState extends State<DashboardPageBK> {
   Future<void> _load() async {
     try {
       _stats = await GuruBKService.getStatistik();
-    } catch (_) { debugPrint('[dashboard_page_bk.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat dashboard'); }
     if (mounted) setState(() => _loading = false);
   }
 

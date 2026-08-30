@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/dauroh_service.dart';
 import '../widgets/dauroh_form_widgets.dart';
+import '../../../../shared/widgets/app_utils.dart';
 
 class JadwalFormPage extends StatefulWidget {
   final Map<String, dynamic>? editData;
@@ -70,7 +71,9 @@ class _JadwalFormPageState extends State<JadwalFormPage> {
           _kelasList = (kelasRes['kelas'] as List?)?.cast<Map<String, dynamic>>() ?? [];
         });
       }
-    } catch (_) { debugPrint('[jadwal_form_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data referensi jadwal');
+    }
   }
 
   Future<void> _loadKelasTerkait(int jadwalId) async {
@@ -84,7 +87,9 @@ class _JadwalFormPageState extends State<JadwalFormPage> {
               .toSet();
         });
       }
-    } catch (_) { debugPrint('[jadwal_form_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat kelas terkait');
+    }
   }
 
   @override

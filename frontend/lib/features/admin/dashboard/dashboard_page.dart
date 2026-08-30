@@ -53,9 +53,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: _loading
+    return Container(
+      color: AppTheme.background,
+      child: _loading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _error != null
               ? Center(

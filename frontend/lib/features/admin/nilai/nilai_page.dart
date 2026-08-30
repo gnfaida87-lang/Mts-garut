@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../../../shared/widgets/common_widgets.dart';
 import '../services/admin_service.dart';
 
@@ -48,7 +49,9 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
           _selectedSemesterId = semesters.first['id'] as int;
         }
       });
-    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data referensi nilai');
+    }
   }
 
   List<Map<String, dynamic>> _semestersInTA(int? taId) {
@@ -86,8 +89,11 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
       if (mounted) {
         setState(() => _mapelList = (res['items'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? []);
       }
-    } catch (_) {
-      if (mounted) setState(() => _mapelList = []);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _mapelList = []);
+        AppUtils.handleError(context, e, message: 'Gagal memuat data nilai');
+      }
     }
     if (mounted) setState(() => _loadingMapel = false);
   }
@@ -154,21 +160,34 @@ class _NilaiPageState extends State<NilaiPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Nilai'), automaticallyImplyLeading: false,
-        bottom: TabBar(controller: _tabCtrl,
-          tabs: const [
-            Tab(text: 'Monitoring Nilai', icon: Icon(Icons.visibility_outlined, size: 18)),
-            Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
-            Tab(text: 'Audit', icon: Icon(Icons.history, size: 18)),
-          ],
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Nilai',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
         ),
-      ),
-      body: IndexedStack(index: _tabCtrl.index, children: [
-        _buildMonitoringTab(),
-        const _AnalisisNilaiTab(),
-        const _AuditNilaiTab(),
-      ]),
+        Material(
+          color: Colors.white,
+          child: TabBar(controller: _tabCtrl,
+            tabs: const [
+              Tab(text: 'Monitoring Nilai', icon: Icon(Icons.visibility_outlined, size: 18)),
+              Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
+              Tab(text: 'Audit', icon: Icon(Icons.history, size: 18)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: IndexedStack(index: _tabCtrl.index, children: [
+            _buildMonitoringTab(),
+            const _AnalisisNilaiTab(),
+            const _AuditNilaiTab(),
+          ]),
+        ),
+      ],
     );
   }
 
@@ -359,7 +378,9 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
         _semesterList = (res['semester'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         _kelasList = (res['kelas'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
       });
-    } catch (_) { debugPrint('[nilai_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat referensi kelas');
+    }
   }
 
   Future<void> _loadAnalisis() async {
@@ -371,7 +392,10 @@ class _AnalisisNilaiTabState extends State<_AnalisisNilaiTab> {
         kelasId: _kelasId,
         jenis: _jenis.isEmpty ? null : _jenis,
       );
-    } catch (_) { _analisis = null; }
+    } catch (e) {
+      _analisis = null;
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat analisis nilai');
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -608,7 +632,10 @@ class _AuditNilaiTabState extends State<_AuditNilaiTab> {
       final res = await AdminService.getAuditNilai(page: _page);
       _items = (res['items'] as List<dynamic>).cast<Map<String, dynamic>>();
       _totalPages = res['pagination']?['total_pages'] ?? 1;
-    } catch (_) { _items = []; }
+    } catch (e) {
+      _items = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat riwayat audit');
+    }
     if (mounted) setState(() => _loading = false);
   }
 

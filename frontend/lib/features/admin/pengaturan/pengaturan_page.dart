@@ -39,34 +39,45 @@ class _PengaturanPageState extends State<PengaturanPage> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pengaturan'),
-        automaticallyImplyLeading: false,
-        bottom: TabBar(
-          controller: _tabCtrl,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          tabs: const [
-            Tab(icon: Icon(Icons.security_outlined, size: 18), text: 'Hak Akses'),
-            Tab(icon: Icon(Icons.history, size: 18), text: 'Log'),
-            Tab(icon: Icon(Icons.backup_outlined, size: 18), text: 'Backup'),
-            Tab(icon: Icon(Icons.restore_outlined, size: 18), text: 'Restore'),
-            Tab(icon: Icon(Icons.school_outlined, size: 18), text: 'Profil'),
-            Tab(icon: Icon(Icons.login_outlined, size: 18), text: 'Tampilan'),
-            Tab(icon: Icon(Icons.key_outlined, size: 18), text: 'API Keys'),
-          ],
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Pengaturan',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
         ),
-      ),
-      body: TabBarView(controller: _tabCtrl, children: [
-        _HakAksesTab(),
-        _LogTab(),
-        _BackupTab(),
-        _RestoreTab(),
-        _ProfilTab(),
-        _TampilanLoginTab(),
-        _ApiKeysTab(),
-      ]),
+        Material(
+          color: Colors.white,
+          child: TabBar(
+            controller: _tabCtrl,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: const [
+              Tab(icon: Icon(Icons.security_outlined, size: 18), text: 'Hak Akses'),
+              Tab(icon: Icon(Icons.history, size: 18), text: 'Log'),
+              Tab(icon: Icon(Icons.backup_outlined, size: 18), text: 'Backup'),
+              Tab(icon: Icon(Icons.restore_outlined, size: 18), text: 'Restore'),
+              Tab(icon: Icon(Icons.school_outlined, size: 18), text: 'Profil'),
+              Tab(icon: Icon(Icons.login_outlined, size: 18), text: 'Tampilan'),
+              Tab(icon: Icon(Icons.key_outlined, size: 18), text: 'API Keys'),
+            ],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(controller: _tabCtrl, children: [
+            _HakAksesTab(),
+            _LogTab(),
+            _BackupTab(),
+            _RestoreTab(),
+            _ProfilTab(),
+            _TampilanLoginTab(),
+            _ApiKeysTab(),
+          ]),
+        ),
+      ],
     );
   }
 }

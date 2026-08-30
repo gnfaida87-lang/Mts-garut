@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/dauroh_pdf_export.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/musyrifah_service.dart';
 part 'nilai_dauroh_input_dialog.dart';
 
@@ -115,172 +117,174 @@ class _NilaiDaurohPageState extends State<NilaiDaurohPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nilai at-Ta\'wid'),
-        automaticallyImplyLeading: false,
-        actions: [
-          if (_items.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.picture_as_pdf),
-              tooltip: 'Export Semua ke PDF',
-              onPressed: () => DaurohPdfExport.exportBatch(
-                _items,
-                title: 'Laporan Penilaian at-Ta\'wid',
-              ),
-            ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Input Nilai Baru',
-            onPressed: () => _openDialog(),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Filters
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              border: Border(
-                bottom: BorderSide(color: theme.dividerColor.withValues(alpha: 0.3)),
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchCtrl,
-                        decoration: InputDecoration(
-                          hintText: 'Cari nama santri...',
-                          prefixIcon: const Icon(Icons.search, size: 20),
-                          suffixIcon: _searchCtrl.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 18),
-                                  onPressed: () {
-                                    _searchCtrl.clear();
-                                    _load();
-                                  },
-                                )
-                              : null,
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onSubmitted: (_) => _load(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 160,
-                      child: DropdownButtonFormField<String>(
-                        value: _filterStatus,
-                        isDense: true,
-                        decoration: InputDecoration(
-                          hintText: 'Status',
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: null,
-                            child: Text('Semua Status'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'mengulang',
-                            child: Text('Mengulang'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'melanjutkan',
-                            child: Text('Melanjutkan'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'selesai',
-                            child: Text('Selesai'),
-                          ),
-                        ],
-                        onChanged: (v) {
-                          setState(() => _filterStatus = v);
-                          _load();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 180,
-                      child: DropdownButtonFormField<String>(
-                        value: _filterProgram,
-                        isDense: true,
-                        decoration: InputDecoration(
-                          hintText: 'Program',
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        items: [
-                          const DropdownMenuItem(
-                            value: null,
-                            child: Text('Semua Program'),
-                          ),
-                          ..._programs.map(
-                            (p) => DropdownMenuItem(
-                              value: p['id']?.toString(),
-                              child: Text(p['nama'] ?? ''),
-                            ),
-                          ),
-                        ],
-                        onChanged: (v) {
-                          setState(() => _filterProgram = v);
-                          _load();
-                        },
-                      ),
-                    ),
-                  ],
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+          child: Row(
+            children: [
+              const Text('Nilai at-Ta\'wid',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+              const Spacer(),
+              if (_items.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.picture_as_pdf),
+                  tooltip: 'Export Semua ke PDF',
+                  onPressed: () => DaurohPdfExport.exportBatch(
+                    _items,
+                    title: 'Laporan Penilaian at-Ta\'wid',
+                  ),
                 ),
-              ],
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: 'Input Nilai Baru',
+                onPressed: () => _openDialog(),
+              ),
+            ],
+          ),
+        ),
+        // Filters
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            border: Border(
+              bottom: BorderSide(color: theme.dividerColor.withValues(alpha: 0.3)),
             ),
           ),
-
-          // List
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(_error!,
-                                style: TextStyle(color: theme.colorScheme.error)),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: _load,
-                              child: const Text('Coba Lagi'),
-                            ),
-                          ],
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Cari nama santri...',
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        suffixIcon: _searchCtrl.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  _searchCtrl.clear();
+                                  _load();
+                                },
+                              )
+                            : null,
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      )
-                    : _items.isEmpty
-                        ? const Center(child: Text('Tidak ada data nilai'))
-                        : RefreshIndicator(
-                            onRefresh: _load,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(12),
-                              itemCount: _items.length,
-                              itemBuilder: (ctx, i) =>
-                                  _buildCard(_items[i]),
-                            ),
+                      ),
+                      onSubmitted: (_) => _load(),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 160,
+                    child: DropdownButtonFormField<String>(
+                      value: _filterStatus,
+                      isDense: true,
+                      decoration: InputDecoration(
+                        hintText: 'Status',
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text('Semua Status'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'mengulang',
+                          child: Text('Mengulang'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'melanjutkan',
+                          child: Text('Melanjutkan'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'selesai',
+                          child: Text('Selesai'),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        setState(() => _filterStatus = v);
+                        _load();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 180,
+                    child: DropdownButtonFormField<String>(
+                      value: _filterProgram,
+                      isDense: true,
+                      decoration: InputDecoration(
+                        hintText: 'Program',
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('Semua Program'),
+                        ),
+                        ..._programs.map(
+                          (p) => DropdownMenuItem(
+                            value: p['id']?.toString(),
+                            child: Text(p['nama'] ?? ''),
                           ),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        setState(() => _filterProgram = v);
+                        _load();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+
+        // List
+        Expanded(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(_error!,
+                              style: TextStyle(color: theme.colorScheme.error)),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: _load,
+                            child: const Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : _items.isEmpty
+                      ? const Center(child: Text('Tidak ada data nilai'))
+                      : RefreshIndicator(
+                          onRefresh: _load,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(12),
+                            itemCount: _items.length,
+                            itemBuilder: (ctx, i) =>
+                                _buildCard(_items[i]),
+                          ),
+                        ),
+        ),
+      ],
     );
   }
 

@@ -40,7 +40,9 @@ class _AbsensiPageState extends State<AbsensiPage> with SingleTickerProviderStat
       final res = await ApiClient.get('/referensi');
       final data = res['data'] as Map<String, dynamic>;
       _kelas = data['kelas'] as List<dynamic>? ?? [];
-    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data kelas');
+    }
   }
 
   @override
@@ -73,31 +75,48 @@ class _AbsensiPageState extends State<AbsensiPage> with SingleTickerProviderStat
         _data = (res['items'] as List<dynamic>).cast<Map<String, dynamic>>();
         _totalPages = res['pagination']?['total_pages'] ?? 1;
       }
-    } catch (_) { _data = []; _rekap = null; }
+    } catch (e) {
+      _data = [];
+      _rekap = null;
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data absensi');
+    }
     if (mounted) setState(() => _loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Absensi'), automaticallyImplyLeading: false,
-        bottom: TabBar(controller: _tabCtrl, onTap: (i) { _page = 1; _load(); }, isScrollable: true,
-          tabs: const [
-            Tab(text: 'Asatidz', icon: Icon(Icons.person_outlined, size: 18)),
-            Tab(text: 'Santri', icon: Icon(Icons.people_outlined, size: 18)),
-            Tab(text: 'Rekap', icon: Icon(Icons.summarize_outlined, size: 18)),
-            Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
-            Tab(text: 'Audit', icon: Icon(Icons.history, size: 18)),
-          ],
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Absensi',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
         ),
-      ),
-      body: IndexedStack(index: _tabCtrl.index, children: [
-        _buildMonitoringTab(true),
-        _buildMonitoringTab(false),
-        _buildRekapTab(),
-        const _AnalisisAbsensiTab(),
-        const _AuditAbsensiTab(),
-      ]),
+        Material(
+          color: Colors.white,
+          child: TabBar(controller: _tabCtrl, onTap: (i) { _page = 1; _load(); }, isScrollable: true,
+            tabs: const [
+              Tab(text: 'Asatidz', icon: Icon(Icons.person_outlined, size: 18)),
+              Tab(text: 'Santri', icon: Icon(Icons.people_outlined, size: 18)),
+              Tab(text: 'Rekap', icon: Icon(Icons.summarize_outlined, size: 18)),
+              Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
+              Tab(text: 'Audit', icon: Icon(Icons.history, size: 18)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: IndexedStack(index: _tabCtrl.index, children: [
+            _buildMonitoringTab(true),
+            _buildMonitoringTab(false),
+            _buildRekapTab(),
+            const _AnalisisAbsensiTab(),
+            const _AuditAbsensiTab(),
+          ]),
+        ),
+      ],
     );
   }
 
@@ -422,7 +441,9 @@ class _AnalisisAbsensiTabState extends State<_AnalisisAbsensiTab> {
     try {
       final res = await AdminService.getReferensi();
       setState(() => _kelasList = (res['kelas'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? []);
-    } catch (_) { debugPrint('[absensi_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat referensi kelas');
+    }
   }
 
   Future<void> _loadAnalisis() async {
@@ -433,7 +454,10 @@ class _AnalisisAbsensiTabState extends State<_AnalisisAbsensiTab> {
         tanggalSelesai: _tglSelesaiCtrl.text.isEmpty ? null : _tglSelesaiCtrl.text,
         kelasId: _kelasId,
       );
-    } catch (_) { _analisis = null; }
+    } catch (e) {
+      _analisis = null;
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat analisis absensi');
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -642,7 +666,10 @@ class _AuditAbsensiTabState extends State<_AuditAbsensiTab> {
       final res = await AdminService.getAuditAbsensi(page: _page);
       _items = (res['items'] as List<dynamic>).cast<Map<String, dynamic>>();
       _totalPages = res['pagination']?['total_pages'] ?? 1;
-    } catch (_) { _items = []; }
+    } catch (e) {
+      _items = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat riwayat audit');
+    }
     if (mounted) setState(() => _loading = false);
   }
 

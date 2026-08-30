@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class RaporPageKS extends StatefulWidget {
@@ -24,7 +25,7 @@ class _RaporPageKSState extends State<RaporPageKS> {
       final data = await KepalaSekolahService.getRapor();
       if (!mounted) return;
       _data = data;
-    } catch (_) { debugPrint('[rapor_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data rapor'); }
     if (mounted) setState(() => _loading = false);
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class BKPageKS extends StatefulWidget {
@@ -24,7 +25,7 @@ class _BKPageKSState extends State<BKPageKS> {
       final data = await KepalaSekolahService.getBK();
       if (!mounted) return;
       _data = data;
-    } catch (_) { debugPrint('[bk_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data monitoring'); }
     if (mounted) setState(() => _loading = false);
   }
 

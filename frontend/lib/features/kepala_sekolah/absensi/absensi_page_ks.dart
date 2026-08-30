@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../services/kepala_sekolah_service.dart';
 
 class AbsensiPageKS extends StatefulWidget {
@@ -123,7 +124,7 @@ class _TabGuruState extends State<_TabGuru> {
       _items = data['items'] as List<dynamic>? ?? [];
       final pag = data['pagination'] as Map<String, dynamic>? ?? {};
       _totalPages = pag['total_pages'] as int? ?? 1;
-    } catch (_) { debugPrint('[absensi_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data absensi asatidz'); }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -293,7 +294,7 @@ class _TabSiswaState extends State<_TabSiswa> {
       final res = await KepalaSekolahService.getReferensi();
       if (!mounted) return;
       setState(() => _kelas = res['kelas'] as List<dynamic>? ?? []);
-    } catch (_) { debugPrint('[absensi_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat daftar kelas'); }
   }
 
   Future<void> _load() async {
@@ -306,7 +307,7 @@ class _TabSiswaState extends State<_TabSiswa> {
       _items = data['items'] as List<dynamic>? ?? [];
       final pag = data['pagination'] as Map<String, dynamic>? ?? {};
       _totalPages = pag['total_pages'] as int? ?? 1;
-    } catch (_) { debugPrint('[absensi_page_ks.dart] error caught'); }
+    } catch (e) { if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data absensi santri'); }
     if (mounted) setState(() => _loading = false);
   }
 

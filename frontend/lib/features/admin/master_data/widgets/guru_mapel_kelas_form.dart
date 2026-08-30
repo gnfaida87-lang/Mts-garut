@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../admin/services/admin_service.dart';
 import '../../../../shared/widgets/common_widgets.dart';
+import '../../../../shared/widgets/app_utils.dart';
 import 'form_fields.dart';
 
 class GuruMapelKelasForm extends StatefulWidget {
@@ -43,20 +44,23 @@ class _GuruMapelKelasFormState extends State<GuruMapelKelasForm> {
     try {
       final guruRes = await AdminService.list('guru', page: 1, perPage: 100);
       _guruList = (guruRes['items'] as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _guruList = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat daftar guru');
     }
     try {
       final mapelRes = await AdminService.list('mata-pelajaran', page: 1, perPage: 100);
       _mapelList = (mapelRes['items'] as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _mapelList = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat daftar mata pelajaran');
     }
     try {
       final kelasRes = await AdminService.list('kelas', page: 1, perPage: 100);
       _kelasList = (kelasRes['items'] as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _kelasList = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat daftar kelas');
     }
     if (mounted) setState(() => _isLoading = false);
   }

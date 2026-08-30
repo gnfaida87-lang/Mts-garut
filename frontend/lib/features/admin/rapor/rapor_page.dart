@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/admin_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/app_utils.dart';
 import '../../../shared/widgets/common_widgets.dart';
 
 class RaporPage extends StatefulWidget {
@@ -36,7 +37,10 @@ class _RaporPageState extends State<RaporPage> with SingleTickerProviderStateMix
         _data = (res['items'] as List<dynamic>).cast<Map<String, dynamic>>();
         _totalPages = res['pagination']?['total_pages'] ?? 1;
       }
-    } catch (_) { _data = []; }
+    } catch (e) {
+      _data = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat data rapor');
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -52,23 +56,36 @@ class _RaporPageState extends State<RaporPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Rapor'), automaticallyImplyLeading: false,
-        bottom: TabBar(controller: _tabCtrl, onTap: (i) { _page = 1; _load(); }, isScrollable: true,
-          tabs: const [
-            Tab(text: 'Monitoring', icon: Icon(Icons.visibility_outlined, size: 18)),
-            Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
-            Tab(text: 'Audit', icon: Icon(Icons.history, size: 18)),
-            Tab(text: 'Arsip', icon: Icon(Icons.archive_outlined, size: 18)),
-          ],
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Rapor',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
         ),
-      ),
-      body: IndexedStack(index: _tabCtrl.index, children: [
-        _buildMonitoringTab(),
-        const _AnalisisTab(),
-        const _AuditTab(),
-        _buildArsipTab(),
-      ]),
+        Material(
+          color: Colors.white,
+          child: TabBar(controller: _tabCtrl, onTap: (i) { _page = 1; _load(); }, isScrollable: true,
+            tabs: const [
+              Tab(text: 'Monitoring', icon: Icon(Icons.visibility_outlined, size: 18)),
+              Tab(text: 'Analisis', icon: Icon(Icons.analytics_outlined, size: 18)),
+              Tab(text: 'Audit', icon: Icon(Icons.history, size: 18)),
+              Tab(text: 'Arsip', icon: Icon(Icons.archive_outlined, size: 18)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: IndexedStack(index: _tabCtrl.index, children: [
+            _buildMonitoringTab(),
+            const _AnalisisTab(),
+            const _AuditTab(),
+            _buildArsipTab(),
+          ]),
+        ),
+      ],
     );
   }
 
@@ -236,7 +253,9 @@ class _AnalisisTabState extends State<_AnalisisTab> {
         _semesterList = (res['semester'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
         _kelasList = (res['kelas'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
       });
-    } catch (_) { debugPrint('[rapor_page.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat referensi kelas');
+    }
   }
 
   Future<void> _loadAnalisis() async {
@@ -244,7 +263,10 @@ class _AnalisisTabState extends State<_AnalisisTab> {
     setState(() => _loading = true);
     try {
       _analisis = await AdminService.getAnalisisRapor(semesterId: _semesterId!, kelasId: _kelasId);
-    } catch (_) { _analisis = null; }
+    } catch (e) {
+      _analisis = null;
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat analisis rapor');
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -435,7 +457,10 @@ class _AuditTabState extends State<_AuditTab> {
       final res = await AdminService.getAuditRapor(page: _page);
       _items = (res['items'] as List<dynamic>).cast<Map<String, dynamic>>();
       _totalPages = res['pagination']?['total_pages'] ?? 1;
-    } catch (_) { _items = []; }
+    } catch (e) {
+      _items = [];
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat riwayat audit');
+    }
     if (mounted) setState(() => _loading = false);
   }
 

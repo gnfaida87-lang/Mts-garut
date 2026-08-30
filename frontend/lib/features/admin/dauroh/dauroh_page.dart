@@ -32,18 +32,26 @@ class _DaurohPageState extends State<DaurohPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Modul at-Ta\'wid'),
-        automaticallyImplyLeading: false,
-      ),
-      body: Row(
-        children: [
-          _buildSidebar(),
-          const VerticalDivider(width: 1),
-          Expanded(child: _buildContent()),
-        ],
-      ),
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Modul at-Ta\'wid',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
+        ),
+        Expanded(
+          child: Row(
+            children: [
+              _buildSidebar(),
+              const VerticalDivider(width: 1),
+              Expanded(child: _buildContent()),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

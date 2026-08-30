@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../features/admin/services/admin_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/widgets/app_utils.dart';
 import '../../../../shared/widgets/common_widgets.dart';
 import 'form_fields.dart';
 
@@ -60,7 +61,9 @@ class _MataPelajaranFormState extends State<MataPelajaranForm> {
       final r = await ApiClient.get('/admin/mapel-kelas/$mapelId/kelas');
       final ids = (r['data'] as List).cast<int>();
       _selectedKelasIds = ids.toSet();
-    } catch (_) { debugPrint('[mata_pelajaran_form.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat kelas terpilih');
+    }
   }
 
   @override

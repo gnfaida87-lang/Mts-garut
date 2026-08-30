@@ -9,33 +9,40 @@ class QrAbsensiPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code Absensi'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            // Header info
-            _buildInfoCard(),
-            const SizedBox(height: 24),
-
-            // QR Code
-            _buildQrCode(),
-            const SizedBox(height: 24),
-
-            // Instructions
-            _buildInstructions(),
-            const SizedBox(height: 24),
-
-            // Print button
-            _buildPrintButton(context),
-          ],
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('QR Code Absensi',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+          ),
         ),
-      ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                // Header info
+                _buildInfoCard(),
+                const SizedBox(height: 24),
+
+                // QR Code
+                _buildQrCode(),
+                const SizedBox(height: 24),
+
+                // Instructions
+                _buildInstructions(),
+                const SizedBox(height: 24),
+
+                // Print button
+                _buildPrintButton(context),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

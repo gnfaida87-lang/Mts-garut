@@ -47,47 +47,55 @@ class _JadwalDaurohPageState extends State<JadwalDaurohPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Jadwal Mengajar'),
-        automaticallyImplyLeading: false,
-        actions: [
-          _buildHariFilter(),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
-                      const SizedBox(height: 12),
-                      Text(_error!, style: const TextStyle(color: AppTheme.error)),
-                      const SizedBox(height: 12),
-                      FilledButton.icon(
-                        onPressed: _load,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Coba Lagi'),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+          child: Row(
+            children: [
+              const Text('Jadwal Mengajar',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+              const Spacer(),
+              _buildHariFilter(),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+              : _error != null
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+                          const SizedBox(height: 12),
+                          Text(_error!, style: const TextStyle(color: AppTheme.error)),
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            onPressed: _load,
+                            icon: const Icon(Icons.refresh, size: 18),
+                            label: const Text('Coba Lagi'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              : _data.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.calendar_month_outlined,
-                      message: 'Belum ada jadwal mengajar',
                     )
-                  : RefreshIndicator(
-                      color: AppTheme.primary,
-                      onRefresh: _load,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _data.length,
-                        itemBuilder: (_, i) => _buildJadwalCard(_data[i]),
-                      ),
-                    ),
+                  : _data.isEmpty
+                      ? const EmptyState(
+                          icon: Icons.calendar_month_outlined,
+                          message: 'Belum ada jadwal mengajar',
+                        )
+                      : RefreshIndicator(
+                          color: AppTheme.primary,
+                          onRefresh: _load,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _data.length,
+                            itemBuilder: (_, i) => _buildJadwalCard(_data[i]),
+                          ),
+                        ),
+        ),
+      ],
     );
   }
 

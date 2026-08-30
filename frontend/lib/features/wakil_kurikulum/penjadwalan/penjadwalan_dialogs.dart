@@ -110,7 +110,9 @@ class _KelolaKegiatanDialogState extends State<_KelolaKegiatanDialog> {
     try {
       final list = await WakilKurikulumService.getKegiatanTetap();
       if (mounted) setState(() => _items = list.cast<Map<String, dynamic>>());
-    } catch (_) { debugPrint('[penjadwalan_dialogs.dart] error caught'); }
+    } catch (e) {
+      if (mounted) AppUtils.handleError(context, e, message: 'Gagal memuat kegiatan tetap');
+    }
   }
 
   Future<void> _tambah() async {

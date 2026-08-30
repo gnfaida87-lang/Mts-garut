@@ -85,19 +85,25 @@ default:
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Idarat al-Madfu\'at'),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => _load(refresh: true),
-            tooltip: 'Refresh',
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Row(
+            children: [
+              const Text('Idarat al-Madfu\'at',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.grey800)),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () => _load(refresh: true),
+                tooltip: 'Refresh',
+              ),
+            ],
           ),
-        ],
-      ),
-      body: _buildBody(),
+        ),
+        Expanded(child: _buildBody()),
+      ],
     );
   }
 
