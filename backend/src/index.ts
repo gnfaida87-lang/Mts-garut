@@ -68,12 +68,12 @@ export default {
 
       // Auth routes (no auth required)
       if (path === '/api/auth/login' && request.method === 'POST') {
-        return handleLogin(request, env);
+        return handleLogin(request, env, origin);
       }
 
       // Login Siswa (no auth required)
       if (path === '/api/auth/login-siswa' && request.method === 'POST') {
-        return handleLoginSiswa(request, env);
+        return handleLoginSiswa(request, env, origin);
       }
 
       // Public pengaturan (GET only, for login page)
@@ -104,7 +104,7 @@ export default {
 
       // Refresh token (NO auth required - uses refresh_token from body)
       if (path === '/api/auth/refresh' && request.method === 'POST') {
-        return handleRefresh(request, env);
+        return handleRefresh(request, env, origin);
       }
 
       // API v1 routes (Sistem 2 integration - uses X-API-Key, not JWT)
@@ -122,7 +122,7 @@ export default {
       }
 
       if (path === '/api/auth/me' && request.method === 'GET') {
-        return handleMe(user, env);
+        return handleMe(user, env, origin);
       }
 
       // Logout endpoint (requires auth)
@@ -374,7 +374,7 @@ export default {
   },
 };
 
-async function handleLogin(request: Request, env: Env): Promise<Response> {
+async function handleLogin(request: Request, env: Env, origin?: string): Promise<Response> {
   let body: { username?: string; credential?: string; password?: string };
   try {
     body = await request.json();
@@ -503,7 +503,7 @@ async function handleLogin(request: Request, env: Env): Promise<Response> {
     return success({ token, refresh_token: refreshToken, user: userData }, undefined, origin);
 }
 
-async function handleLoginSiswa(request: Request, env: Env): Promise<Response> {
+async function handleLoginSiswa(request: Request, env: Env, origin?: string): Promise<Response> {
   let body: { nis?: string; password?: string };
   try {
     body = await request.json();
@@ -582,7 +582,7 @@ async function handleLoginSiswa(request: Request, env: Env): Promise<Response> {
     } }, undefined, origin);
 }
 
-async function handleMe(user: { sub: number; username: string; role: string; guru_id: number | null; siswa_id: number | null }, env: Env): Promise<Response> {
+async function handleMe(user: { sub: number; username: string; role: string; guru_id: number | null; siswa_id: number | null }, env: Env, origin?: string): Promise<Response> {
   let nama: string | null = null;
 
   if (user.role === 'siswa' && user.siswa_id) {
@@ -603,7 +603,7 @@ async function handleMe(user: { sub: number; username: string; role: string; gur
     }, undefined, origin);
 }
 
-async function handleRefresh(request: Request, env: Env): Promise<Response> {
+async function handleRefresh(request: Request, env: Env, origin?: string): Promise<Response> {
   let body: { refresh_token?: string; username?: string; token?: string };
   try {
     body = await request.json();
