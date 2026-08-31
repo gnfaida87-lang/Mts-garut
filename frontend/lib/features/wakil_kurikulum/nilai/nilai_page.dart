@@ -361,9 +361,13 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
         status: _filterStatus,
         search: _searchQuery.isEmpty ? null : _searchQuery,
       );
-      _monitoring = (result['data'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-      _monitoringStats = result['stats'] as Map<String, dynamic>?;
-      _monitoringPagination = result['pagination'] as Map<String, dynamic>?;
+      _monitoring = List<Map<String, dynamic>>.from(
+        (result['data'] as List<dynamic>? ?? []).whereType<Map<String, dynamic>>(),
+      );
+      final statsRaw = result['stats'];
+      _monitoringStats = (statsRaw is Map) ? Map<String, dynamic>.from(statsRaw) : null;
+      final pagRaw = result['pagination'];
+      _monitoringPagination = (pagRaw is Map) ? Map<String, dynamic>.from(pagRaw) : null;
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -395,6 +399,29 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
   // ═══════════════════════════════════════════════════
   //  BUILD
   // ═══════════════════════════════════════════════════
+
+  static String _str(Map<String, dynamic> m, String key, {String fallback = '-'}) {
+    final v = m[key];
+    if (v == null) return fallback;
+    if (v is String) return v;
+    if (v is num) return v.toString();
+    return v.toString();
+  }
+
+  static int _int(Map<String, dynamic> m, String key, {int fallback = 0}) {
+    final v = m[key];
+    if (v == null) return fallback;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString()) ?? fallback;
+  }
+
+  static num _num(Map<String, dynamic> m, String key, {num fallback = 0}) {
+    final v = m[key];
+    if (v == null) return fallback;
+    if (v is num) return v;
+    return num.tryParse(v.toString()) ?? fallback;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -744,10 +771,10 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('Total', '${stats['total'] ?? 0}', AppTheme.primary),
-          _buildStatItem('Draft', '${stats['draft'] ?? 0}', AppTheme.orange),
-          _buildStatItem('Valid', '${stats['tervalidasi'] ?? 0}', AppTheme.primaryDark),
-          _buildStatItem('Rata2', '${stats['rata_rata'] ?? 0}', AppTheme.blue),
+          _buildStatItem('Total', '${_int(stats, 'total')}', AppTheme.primary),
+          _buildStatItem('Draft', '${_int(stats, 'draft')}', AppTheme.orange),
+          _buildStatItem('Valid', '${_int(stats, 'tervalidasi')}', AppTheme.primaryDark),
+          _buildStatItem('Rata2', '${_num(stats, 'rata_rata')}', AppTheme.blue),
         ],
       ),
     );
@@ -763,7 +790,7 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
   }
 
   Widget _buildMonitoringCard(Map<String, dynamic> n) {
-    final status = n['status_validasi'] ?? 'draft';
+    final status = _str(n, 'status_validasi', fallback: 'draft');
     final isDraft = status == 'draft';
 
     return Card(
@@ -780,11 +807,11 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
           ),
         ),
         title: Text(
-          '${n['siswa_nama'] ?? '-'}',
+          _str(n, 'siswa_nama'),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
-          '${n['mapel_nama'] ?? '-'} | ${n['jenis'] ?? '-'}',
+          '${_str(n, 'mapel_nama')} | ${_str(n, 'jenis')}',
           style: const TextStyle(color: AppTheme.grey500, fontSize: 12),
         ),
         trailing: Container(
@@ -796,7 +823,7 @@ class _NilaiPageWKState extends State<NilaiPageWK> with SingleTickerProviderStat
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '${n['nilai'] ?? '-'}',
+            _str(n, 'nilai'),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: isDraft ? AppTheme.orange : AppTheme.primary,

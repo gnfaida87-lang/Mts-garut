@@ -155,7 +155,12 @@ export async function handleNilaiWK(request: Request, env: Env, user: UserPayloa
         total,
         total_pages: totalPages,
       },
-      stats: statsResult || { total: 0, draft: 0, tervalidasi: 0, rata_rata: 0 },
+      stats: {
+        total: statsResult?.total ?? 0,
+        draft: statsResult?.draft ?? 0,
+        tervalidasi: statsResult?.tervalidasi ?? 0,
+        rata_rata: statsResult?.rata_rata ?? 0,
+      },
     });
   } catch (e) {
     return error('Gagal mengambil data monitoring nilai', 500);
