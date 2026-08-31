@@ -48,17 +48,27 @@ export function cors(origin?: string): Response {
 }
 
 export function resolveCorsOrigin(requestOrigin: string | null, env: Env): string {
-  const allowedOriginsRaw = env.CORS_ORIGIN || '*';
+  // CORS_ORIGIN bisa berisi "null" (string), kosong, atau baris baru dari konfigurasi
+  // Cloudflare/dashboard. Perlakukan semua itu sebagai "tidak dikonfigurasi" → izinkan semua (*)
+  const raw = (env.CORS_ORIGIN || '').trim();
+  const allowedOriginsRaw = raw === '' || raw.toLowerCase() === 'null' || raw === '*' ? '*' : raw;
   if (allowedOriginsRaw === '*') return '*';
 
-  const allowedOrigins = allowedOriginsRaw.split(',').map((o: string) => o.trim());
+  // Buang entry kosong dan literal "null" dari daftar agar ACAO tidak pernah menjadi "null"
+  const allowedOrigins = allowedOriginsRaw
+    .split(',')
+    .map((o: string) => o.trim())
+    .filter((o: string) => o !== '' && o.toLowerCase() !== 'null');
+
+  // Tidak ada origin valid terkonfigurasi → izinkan semua
+  if (allowedOrigins.length === 0) return '*';
 
   // Origin tidak dikirim (same-origin / non-browser) → pakai origin pertama yang diizinkan
-  if (!requestOrigin) return allowedOrigins[0] || '*';
+  if (!requestOrigin) return allowedOrigins[0];
 
   // Origin: null (string "null") dari webview/iframe/sandbox → jangan echo,
   // kembalikan origin pertama yang diizinkan agar ACAO tidak menjadi "null".
-  if (requestOrigin.toLowerCase() === 'null') return allowedOrigins[0] || '*';
+  if (requestOrigin.toLowerCase() === 'null') return allowedOrigins[0];
 
   // Cocokkan origin request dengan daftar yang diizinkan
   const matched = allowedOrigins.find((o: string) => o === requestOrigin);
@@ -66,5 +76,5 @@ export function resolveCorsOrigin(requestOrigin: string | null, env: Env): strin
 
   // Origin tidak dikenal → jangan echo origin tersebut (celah CORS).
   // Kembalikan origin pertama yang diizinkan (browser akan menolak bila beda).
-  return allowedOrigins[0] || '*';
+  return allowedOrigins[0];
 }
