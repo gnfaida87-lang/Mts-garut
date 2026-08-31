@@ -1,5 +1,5 @@
 import { Env, UserPayload } from '../../types';
-import { success, created, notFound, badRequest } from '../../utils/response';
+import { success, created, notFound, badRequest, error } from '../../utils/response';
 
 export async function handleNilaiWK(request: Request, env: Env, user: UserPayload, pathParts: string[], url: URL): Promise<Response> {
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
@@ -80,6 +80,7 @@ export async function handleNilaiWK(request: Request, env: Env, user: UserPayloa
 
   // Monitoring nilai (with pagination & filters)
   if (subPath === 'monitoring-nilai' && request.method === 'GET') {
+    try {
     const page = parseInt(url.searchParams.get('page') || '1');
     const perPage = parseInt(url.searchParams.get('per_page') || '20');
     const kelasId = url.searchParams.get('kelas_id');
@@ -156,21 +157,28 @@ export async function handleNilaiWK(request: Request, env: Env, user: UserPayloa
       },
       stats: statsResult || { total: 0, draft: 0, tervalidasi: 0, rata_rata: 0 },
     });
+  } catch (e) {
+    return error('Gagal mengambil data monitoring nilai', 500);
+  }
   }
 
   // Status pengumpulan nilai per guru
   if (subPath === 'status-pengumpulan' && request.method === 'GET') {
-    const rows = await env.DB.prepare(
-      `SELECT g.id as guru_id, g.nama as guru_nama,
-              COUNT(DISTINCT n.id) as total_input,
-              COUNT(DISTINCT CASE WHEN n.status_validasi = 'draft' THEN n.id END) as draft,
-              COUNT(DISTINCT CASE WHEN n.status_validasi = 'tervalidasi' THEN n.id END) as tervalidasi
-       FROM guru g
-       LEFT JOIN nilai n ON g.id = n.diinput_oleh
-       WHERE g.status_aktif = 1
-       GROUP BY g.id ORDER BY g.nip ASC`
-    ).all();
-    return success(rows.results);
+    try {
+      const rows = await env.DB.prepare(
+        `SELECT g.id as guru_id, g.nama as guru_nama,
+                COUNT(DISTINCT n.id) as total_input,
+                COUNT(DISTINCT CASE WHEN n.status_validasi = 'draft' THEN n.id END) as draft,
+                COUNT(DISTINCT CASE WHEN n.status_validasi = 'tervalidasi' THEN n.id END) as tervalidasi
+         FROM guru g
+         LEFT JOIN nilai n ON g.id = n.diinput_oleh
+         WHERE g.status_aktif = 1
+         GROUP BY g.id ORDER BY g.nip ASC`
+      ).all();
+      return success(rows.results);
+    } catch (e) {
+      return error('Gagal mengambil data status pengumpulan', 500);
+    }
   }
 
   return badRequest('Endpoint tidak dikenal');

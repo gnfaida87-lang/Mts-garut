@@ -4,7 +4,7 @@ import { generalRateLimit, bruteForceCheck, bruteForceRecordFailure, bruteForceR
 import { validateApiKey } from './middleware/api_key';
 import { createSession, validateSession, revokeSession, hashToken } from './middleware/session';
 import { Env, Role, UserPayload } from './types';
-import { json, success, error, unauthorized, cors, setCorsOrigin, resolveCorsOrigin } from './utils/response';
+import { json, success, error, unauthorized, cors, resolveCorsOrigin } from './utils/response';
 import { handleAdminMasterData, handleMapelKelas, handleGuruMapelAmpu, handleGuruKelasAmpu, handleGuruMapelKelas, handleGuruMapelKelasAll, handleGuruMapelKelasRow, handleGuruByMapelKelas, handleWaliKelasList, handleGuruBKList, handleSiswaTemplate, handleSiswaPreview, handleSiswaBulk, handleMapelTemplate, handleMapelPreview, handleMapelBulk, handleGuruTemplate, handleGuruPreview, handleGuruBulk, handleWaliKelasAssign } from './routes/admin/master_data';
 import { handleAdminUsers, handleHakAkses } from './routes/admin/users';
 import { handleAdminApiKeys } from './routes/admin/api_keys';
@@ -48,9 +48,9 @@ import { handlePublicDisplay } from './routes/public/display';
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const requestOrigin = request.headers.get('Origin');
-    setCorsOrigin(resolveCorsOrigin(requestOrigin, env));
+    const origin = resolveCorsOrigin(requestOrigin, env);
 
-    if (request.method === 'OPTIONS') return cors();
+    if (request.method === 'OPTIONS') return cors(origin);
 
     const url = new URL(request.url);
     const path = url.pathname;
@@ -364,10 +364,10 @@ export default {
         return handleReferensi(env);
       }
 
-      return error('Not Found', 404);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Internal Server Error';
-      return error(msg, 500);
+       return error('Not Found', 404);
+     } catch (err) {
+       const msg = err instanceof Error ? err.message : 'Internal Server Error';
+       return error(msg, 500, undefined, origin);
     } finally {
       // CORS headers sudah di-handle oleh error()/success()/json()
     }
@@ -500,7 +500,7 @@ async function handleLogin(request: Request, env: Env): Promise<Response> {
     userData.kelas_nama = siswaInfo.kelas_nama;
   }
 
-  return success({ token, refresh_token: refreshToken, user: userData });
+    return success({ token, refresh_token: refreshToken, user: userData }, undefined, origin);
 }
 
 async function handleLoginSiswa(request: Request, env: Env): Promise<Response> {
@@ -570,20 +570,16 @@ async function handleLoginSiswa(request: Request, env: Env): Promise<Response> {
     "INSERT INTO log_aktivitas (user_id, aksi, modul, detail, ip_address) VALUES (?, 'login', 'auth', ?, ?)"
   ).bind(result.id, `Login siswa ${result.siswa_nama} (NIS: ${nis})`, ip).run();
 
-  return success({
-    token,
-    refresh_token: refreshToken,
-    user: {
-      id: result.id,
-      username: result.username,
-      role: 'siswa',
-      siswa_id: result.siswa_id,
-      nama: result.siswa_nama,
-      nis: result.nis,
-      kelas_id: result.kelas_id,
-      kelas_nama: result.kelas_nama,
-    },
-  });
+    return success({ token, refresh_token: refreshToken, user: {
+        id: result.id,
+        username: result.username,
+        role: 'siswa',
+        siswa_id: result.siswa_id,
+        nama: result.siswa_nama,
+        nis: result.nis,
+        kelas_id: result.kelas_id,
+        kelas_nama: result.kelas_nama,
+    } }, undefined, origin);
 }
 
 async function handleMe(user: { sub: number; username: string; role: string; guru_id: number | null; siswa_id: number | null }, env: Env): Promise<Response> {
@@ -597,14 +593,14 @@ async function handleMe(user: { sub: number; username: string; role: string; gur
     nama = guru?.nama ?? null;
   }
 
-  return success({
-    id: user.sub,
-    username: user.username,
-    role: user.role,
-    guru_id: user.guru_id,
-    siswa_id: user.siswa_id,
-    nama,
-  });
+    return success({
+      id: user.sub,
+      username: user.username,
+      role: user.role,
+      guru_id: user.guru_id,
+      siswa_id: user.siswa_id,
+      nama,
+    }, undefined, origin);
 }
 
 async function handleRefresh(request: Request, env: Env): Promise<Response> {
@@ -655,11 +651,11 @@ async function handleRefresh(request: Request, env: Env): Promise<Response> {
     "INSERT INTO log_aktivitas (user_id, aksi, modul, detail, ip_address) VALUES (?, 'refresh_token', 'auth', ?, ?)"
   ).bind(user.id, `Token refresh untuk user ${user.username}`, ip).run();
 
-  return success({
-    token: newToken,
-    refresh_token: newRefreshToken,
-    user: { id: user.id, username: user.username, role: user.role, guru_id: user.guru_id, siswa_id: user.siswa_id ?? null },
-  });
+    return success({
+      token: newToken,
+      refresh_token: newRefreshToken,
+      user: { id: user.id, username: user.username, role: user.role, guru_id: user.guru_id, siswa_id: user.siswa_id ?? null },
+    }, undefined, origin);
 }
 
 async function handleLogout(request: Request, env: Env, user: UserPayload): Promise<Response> {

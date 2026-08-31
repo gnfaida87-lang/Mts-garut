@@ -1,6 +1,6 @@
 import { Env, UserPayload } from '../../types';
 import { CrudConfig, list, getById, create, update, remove, success, notFound } from '../../utils/crud';
-import { json, badRequest, corsHeaders, error } from '../../utils/response';
+import { json, badRequest, error } from '../../utils/response';
 import bcrypt from 'bcryptjs';
 import * as XLSX from 'xlsx';
 

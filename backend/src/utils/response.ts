@@ -1,56 +1,50 @@
 import { Env } from '../types';
 
-let _allowedOrigin = '*';
-
-export function setCorsOrigin(origin: string) {
-  _allowedOrigin = origin;
-}
-
-export function corsHeaders(): Record<string, string> {
+export function corsHeaders(origin: string): Record<string, string> {
   return {
-    'Access-Control-Allow-Origin': _allowedOrigin,
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 }
 
-export function json(data: unknown, status = 200): Response {
+export function json(data: unknown, status = 200, origin?: string): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', ...corsHeaders() },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin ?? '*') },
   });
 }
 
-export function success(data: unknown, message?: string): Response {
-  return json({ success: true, data, message });
+export function success(data: unknown, message?: string, origin?: string): Response {
+  return json({ success: true, data, message }, 200, origin);
 }
 
-export function created(data: unknown): Response {
-  return json({ success: true, data }, 201);
+export function created(data: unknown, origin?: string): Response {
+  return json({ success: true, data }, 201, origin);
 }
 
-export function error(message: string, status: number, code?: string): Response {
-  return json({ success: false, error: { code: code || 'ERROR', message } }, status);
+export function error(message: string, status: number, code?: string, origin?: string): Response {
+  return json({ success: false, error: { code: code || 'ERROR', message } }, status, origin);
 }
 
-export function notFound(entity = 'Data'): Response {
-  return error(`${entity} tidak ditemukan`, 404, 'NOT_FOUND');
+export function notFound(entity = 'Data', origin?: string): Response {
+  return error(`${entity} tidak ditemukan`, 404, 'NOT_FOUND', origin);
 }
 
-export function badRequest(message: string): Response {
-  return error(message, 400, 'BAD_REQUEST');
+export function badRequest(message: string, origin?: string): Response {
+  return error(message, 400, 'BAD_REQUEST', origin);
 }
 
-export function unauthorized(): Response {
-  return error('Unauthorized', 401, 'UNAUTHORIZED');
+export function unauthorized(origin?: string): Response {
+  return error('Unauthorized', 401, 'UNAUTHORIZED', origin);
 }
 
-export function forbidden(): Response {
-  return error('Forbidden: insufficient role', 403, 'FORBIDDEN');
+export function forbidden(origin?: string): Response {
+  return error('Forbidden: insufficient role', 403, 'FORBIDDEN', origin);
 }
 
-export function cors(): Response {
-  return new Response(null, { status: 204, headers: corsHeaders() });
+export function cors(origin?: string): Response {
+  return new Response(null, { status: 204, headers: corsHeaders(origin ?? '*') });
 }
 
 export function resolveCorsOrigin(requestOrigin: string | null, env: Env): string {
@@ -63,6 +57,5 @@ export function resolveCorsOrigin(requestOrigin: string | null, env: Env): strin
   const matched = allowedOrigins.find((o: string) => o === requestOrigin);
   if (matched) return matched;
 
-  // Fallback: return the requesting origin so local/dev origins still work
   return requestOrigin ?? allowedOrigins[0] ?? '*';
 }

@@ -75,7 +75,7 @@ function apiKeyRateLimitResponse(message: string, retryAfter: number): Response 
       headers: {
         'Content-Type': 'application/json',
         'Retry-After': String(retryAfter),
-        ...corsHeaders(),
+        ...corsHeaders('*'),
       },
     },
   );
@@ -95,7 +95,7 @@ export async function validateApiKey(
       valid: false,
       error: new Response(
         JSON.stringify({ success: false, error: { code: 'MISSING_API_KEY', message: 'Header X-API-Key wajib diisi' } }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders() } },
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders('*') } },
       ),
     };
   }
@@ -127,7 +127,7 @@ export async function validateApiKey(
       valid: false,
       error: new Response(
         JSON.stringify({ success: false, error: { code: 'INVALID_API_KEY', message: 'API Key tidak valid atau tidak aktif' } }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders() } },
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders('*') } },
       ),
     };
   }
@@ -224,7 +224,7 @@ export function requirePermission(required: 'read' | 'write' | 'readwrite') {
               message: `Permission '${required}' required. Current: '${payload.permissions}'`,
             },
           }),
-          { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders() } },
+          { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders('*') } },
         ),
       };
     }

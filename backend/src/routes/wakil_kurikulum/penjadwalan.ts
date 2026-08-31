@@ -1,5 +1,5 @@
 import { Env, UserPayload } from '../../types';
-import { success, created, notFound, badRequest } from '../../utils/response';
+import { success, created, notFound, badRequest, error } from '../../utils/response';
 
 const JP_SLOTS: { kode: string; mulai: string; selesai: string; tipe: string }[] = [
   { kode: 'JP1', mulai: '07:00', selesai: '07:40', tipe: 'pelajaran' },
@@ -554,24 +554,29 @@ export async function handlePenjadwalan(request: Request, env: Env, user: UserPa
 
   // Jadwal per kelas
   if (subPath === 'jadwal-per-kelas' && request.method === 'GET') {
-    const kelasId = url.searchParams.get('kelas_id');
-    const semesterId = url.searchParams.get('semester_id');
-    if (!kelasId || !semesterId) return badRequest('kelas_id dan semester_id diperlukan');
+    try {
+      const kelasId = url.searchParams.get('kelas_id');
+      const semesterId = url.searchParams.get('semester_id');
+      if (!kelasId || !semesterId) return badRequest('kelas_id dan semester_id diperlukan');
 
-    const rows = await env.DB.prepare(
-      `SELECT jp.*, COALESCE(mp.nama, jp.nama_kegiatan) as mapel_nama, mp.kode as mapel_kode, g.nama as guru_nama, r.nama as ruangan_nama, k.nama as kelas_nama
-       FROM jadwal_pelajaran jp
-       LEFT JOIN mata_pelajaran mp ON jp.mata_pelajaran_id = mp.id
-       LEFT JOIN guru g ON jp.guru_id = g.id
-       LEFT JOIN ruangan r ON jp.ruangan_id = r.id
-       LEFT JOIN kelas k ON jp.kelas_id = k.id
-       WHERE jp.kelas_id = ? AND jp.semester_id = ?
-       ORDER BY CASE jp.hari
-         WHEN 'Sabtu' THEN 1 WHEN 'Minggu' THEN 2 WHEN 'Senin' THEN 3
-         WHEN 'Selasa' THEN 4 WHEN 'Rabu' THEN 5 WHEN 'Kamis' THEN 6
-         ELSE 7 END, jp.jam_mulai`
-    ).bind(parseInt(kelasId), parseInt(semesterId)).all();
-    return success(rows.results);
+      const rows = await env.DB.prepare(
+        `SELECT jp.*, COALESCE(mp.nama, jp.nama_kegiatan) as mapel_nama, mp.kode as mapel_kode, g.nama as guru_nama, r.nama as ruangan_nama, k.nama as kelas_nama
+         FROM jadwal_pelajaran jp
+         LEFT JOIN mata_pelajaran mp ON jp.mata_pelajaran_id = mp.id
+         LEFT JOIN guru g ON jp.guru_id = g.id
+         LEFT JOIN ruangan r ON jp.ruangan_id = r.id
+         LEFT JOIN kelas k ON jp.kelas_id = k.id
+         WHERE jp.kelas_id = ? AND jp.semester_id = ?
+         ORDER BY CASE jp.hari
+           WHEN 'Sabtu' THEN 1 WHEN 'Minggu' THEN 2 WHEN 'Senin' THEN 3
+           WHEN 'Selasa' THEN 4 WHEN 'Rabu' THEN 5 WHEN 'Kamis' THEN 6
+           ELSE 7 END, jp.jam_mulai`
+      ).bind(parseInt(kelasId), parseInt(semesterId)).all();
+      return success(rows.results);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengambil jadwal per kelas';
+      return error(msg, 500, 'JADWAL_PER_KELAS_ERROR');
+    }
   }
 
   // Jadwal CRUD

@@ -106,7 +106,7 @@ function rateLimitResponse(message: string, retryAfter: number, code = 'RATE_LIM
       headers: {
         'Content-Type': 'application/json',
         'Retry-After': String(retryAfter),
-        ...corsHeaders(),
+        ...corsHeaders('*'),
       },
     },
   );
