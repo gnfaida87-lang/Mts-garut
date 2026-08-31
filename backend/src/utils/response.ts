@@ -52,10 +52,19 @@ export function resolveCorsOrigin(requestOrigin: string | null, env: Env): strin
   if (allowedOriginsRaw === '*') return '*';
 
   const allowedOrigins = allowedOriginsRaw.split(',').map((o: string) => o.trim());
+
+  // Origin tidak dikirim (same-origin / non-browser) → pakai origin pertama yang diizinkan
   if (!requestOrigin) return allowedOrigins[0] || '*';
 
+  // Origin: null (string "null") dari webview/iframe/sandbox → jangan echo,
+  // kembalikan origin pertama yang diizinkan agar ACAO tidak menjadi "null".
+  if (requestOrigin.toLowerCase() === 'null') return allowedOrigins[0] || '*';
+
+  // Cocokkan origin request dengan daftar yang diizinkan
   const matched = allowedOrigins.find((o: string) => o === requestOrigin);
   if (matched) return matched;
 
-  return requestOrigin ?? allowedOrigins[0] ?? '*';
+  // Origin tidak dikenal → jangan echo origin tersebut (celah CORS).
+  // Kembalikan origin pertama yang diizinkan (browser akan menolak bila beda).
+  return allowedOrigins[0] || '*';
 }
