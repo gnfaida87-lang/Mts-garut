@@ -529,7 +529,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
   }
 
   Widget _buildKegiatanItem(Map<String, dynamic> kegiatan) {
-    return LongPressDraggable<Map<String, dynamic>>(
+    return Draggable<Map<String, dynamic>>(
       data: {
         'tipe': 'kegiatan',
         'nama': kegiatan['nama'],
@@ -586,7 +586,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
     final namaMapel = guruMapel['mapel_nama']?.toString() ?? guruMapel['nama']?.toString() ?? '-';
     final namaGuru = guruMapel['guru_nama']?.toString() ?? guruMapel['nip']?.toString() ?? '-';
 
-    return LongPressDraggable<Map<String, dynamic>>(
+    return Draggable<Map<String, dynamic>>(
       data: {
         'tipe': 'mapel',
         'mata_pelajaran_id': guruMapel['mata_pelajaran_id'] ?? guruMapel['id'],
@@ -890,7 +890,7 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       ],
     );
 
-    return LongPressDraggable<Map<String, dynamic>>(
+    return Draggable<Map<String, dynamic>>(
       data: {
         ...j,
         'tipe': isKegiatan ? 'kegiatan' : 'mapel',
