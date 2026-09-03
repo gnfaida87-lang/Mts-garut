@@ -25,8 +25,8 @@
 --                                          ada nama_kegiatan/is_istirahat
 --   SELECT COUNT(*) FROM jadwal_pelajaran; -- jumlah baris harus sama
 -- ============================================================
-
-BEGIN;
+-- Catatan: D1 tidak mengizinkan BEGIN TRANSACTION/COMMIT via --file.
+-- Seluruh statement dieksekusi sebagai satu batch atomik oleh D1.
 
 -- 1. Buat tabel baru dengan skema yang benar
 CREATE TABLE IF NOT EXISTS jadwal_pelajaran_new (
@@ -75,5 +75,3 @@ CREATE INDEX IF NOT EXISTS idx_jadwal_gabungan ON jadwal_pelajaran(gabungan_id);
 DELETE FROM sqlite_sequence WHERE name = 'jadwal_pelajaran';
 INSERT INTO sqlite_sequence (name, seq)
 SELECT 'jadwal_pelajaran', COALESCE(MAX(id), 0) FROM jadwal_pelajaran;
-
-COMMIT;
