@@ -1276,7 +1276,11 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
     }
 
     try {
-      final cek = await WakilKurikulumService.cekBentrok(body);
+      final excludeId = existingId is int ? existingId : int.tryParse('$existingId');
+      final cek = await WakilKurikulumService.cekBentrok({
+        ...body,
+        if (excludeId != null) 'exclude_id': excludeId,
+      });
       if (cek['bentrok'] == true) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1287,8 +1291,8 @@ class _PenjadwalanPageState extends State<PenjadwalanPage> with SingleTickerProv
       }
 
       // Sudah ada di jadwal â†’ pindah (update), bukan duplikat
-      if (existingId != null && existingId is int) {
-        await WakilKurikulumService.updateJadwal(existingId, body);
+      if (excludeId != null) {
+        await WakilKurikulumService.updateJadwal(excludeId, body);
       } else {
         await WakilKurikulumService.createJadwal(body);
       }
