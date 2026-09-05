@@ -340,20 +340,16 @@ export async function handlePenjadwalan(request: Request, env: Env, user: UserPa
          FROM kelas_gabungan kg
          ORDER BY kg.id`
       ).all(),
-      // Tingkat per (guru, mapel): prioritas guru_mapel_kelas (spesifik) +
-      // fallback guru_kelas × mapel_kelas. Dipakai untuk filter "Daftar Mapel" per tingkat.
+      // Tingkat per (guru, mapel) dari guru_mapel_kelas (sumber otoritatif
+      // penugasan dari Master Data Asatidz). Dipakai untuk filter
+      // "Daftar Mapel" per tingkat. Fallback guru_kelas × mapel_kelas sengaja
+      // dibuang karena cross-product-nya menimbulkan tingkat palsu (guru_kelas
+      // tidak menyimpan relasi mapel, sehingga mapel ikut tampil di kelas yang
+      // sebenarnya tidak diampu).
       env.DB.prepare(
-        `SELECT guru_id, mata_pelajaran_id, tingkat_id FROM (
-           SELECT DISTINCT gmk.guru_id, gmk.mata_pelajaran_id, k.tingkat_id
-           FROM guru_mapel_kelas gmk
-           JOIN kelas k ON k.id = gmk.kelas_id
-           UNION
-           SELECT DISTINCT gm.guru_id, gm.mata_pelajaran_id, k.tingkat_id
-           FROM guru_mapel gm
-           JOIN guru_kelas gk ON gk.guru_id = gm.guru_id
-           JOIN kelas k ON k.id = gk.kelas_id
-           JOIN mapel_kelas mk ON mk.kelas_id = k.id AND mk.mata_pelajaran_id = gm.mata_pelajaran_id
-         )`
+        `SELECT DISTINCT gmk.guru_id, gmk.mata_pelajaran_id, k.tingkat_id
+         FROM guru_mapel_kelas gmk
+         JOIN kelas k ON k.id = gmk.kelas_id`
       ).all<{ guru_id: number; mata_pelajaran_id: number; tingkat_id: number }>(),
     ]);
 
