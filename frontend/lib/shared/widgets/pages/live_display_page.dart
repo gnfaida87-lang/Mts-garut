@@ -5,7 +5,7 @@ import '../../../core/logging/app_logger.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_theme.dart';
 
-/// Papan Absensi Asatidz Live - untuk monitor/TV di pintu masuk.
+/// Papan Absensi Live (asatidz + musyrifah at-Ta'wid) untuk monitor/TV.
 ///
 /// Halaman publik (tanpa login): menampilkan daftar hadir live dalam
 /// bentuk tabel (spreadsheet). Data diperbarui otomatis secara berkala.
@@ -21,38 +21,59 @@ class _LiveDisplayItem {
   final String jamMasuk;
   final String? jamKeluar;
 
+  /// true = musyrifah at-Ta'wid, false = asatidz.
+  /// Dipakai sebagai penanda warna (titik) di depan nama.
+  final bool musyrifah;
+
   const _LiveDisplayItem({
     required this.nama,
     required this.jamMasuk,
     this.jamKeluar,
+    this.musyrifah = false,
   });
 
-  factory _LiveDisplayItem.fromJson(Map<String, dynamic> json) {
+  factory _LiveDisplayItem.fromJson(
+    Map<String, dynamic> json, {
+    bool musyrifah = false,
+  }) {
     return _LiveDisplayItem(
       nama: json['nama']?.toString() ?? '-',
       jamMasuk: json['jam_masuk']?.toString() ?? '',
       jamKeluar: json['jam_keluar']?.toString(),
+      musyrifah: musyrifah,
     );
   }
 
-  String get signature => '$nama|$jamMasuk';
+  String get signature => '${musyrifah ? 'M' : 'A'}|$nama|$jamMasuk';
 }
 
 class _LiveDisplayStats {
-  final int totalAsatidz;
+  final int total;
   final int hadir;
   final int sudahKeluar;
   final int belumHadir;
 
   const _LiveDisplayStats({
-    required this.totalAsatidz,
+    required this.total,
     required this.hadir,
     required this.sudahKeluar,
     required this.belumHadir,
   });
 
+  factory _LiveDisplayStats.fromJson(
+    Map<String, dynamic> json, {
+    required String totalKey,
+  }) {
+    return _LiveDisplayStats(
+      total: (json[totalKey] as num?)?.toInt() ?? 0,
+      hadir: (json['hadir'] as num?)?.toInt() ?? 0,
+      sudahKeluar: (json['sudah_keluar'] as num?)?.toInt() ?? 0,
+      belumHadir: (json['belum_hadir'] as num?)?.toInt() ?? 0,
+    );
+  }
+
   static const empty = _LiveDisplayStats(
-    totalAsatidz: 0,
+    total: 0,
     hadir: 0,
     sudahKeluar: 0,
     belumHadir: 0,
@@ -70,6 +91,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
   DateTime _nowWib = DateTime.now().toUtc().add(const Duration(hours: 7));
   List<_LiveDisplayItem> _items = const [];
   _LiveDisplayStats _stats = _LiveDisplayStats.empty;
+  _LiveDisplayStats _statsMusyrifah = _LiveDisplayStats.empty;
   bool _loading = true;
   bool _offline = false;
   DateTime? _lastSuccessAt;
@@ -106,22 +128,27 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
       final body = await ApiClient.get('/public/absensi-hari-ini');
       if (!mounted) return;
       final data = body['data'] as Map<String, dynamic>? ?? {};
-      final itemsRaw = (data['items'] as List? ?? [])
-          .cast<Map<String, dynamic>>()
-          .map(_LiveDisplayItem.fromJson)
-          .toList();
+      final itemsRaw = [
+        ...(data['items'] as List? ?? [])
+            .cast<Map<String, dynamic>>()
+            .map(_LiveDisplayItem.fromJson),
+        ...(data['items_musyrifah'] as List? ?? [])
+            .cast<Map<String, dynamic>>()
+            .map((json) => _LiveDisplayItem.fromJson(json, musyrifah: true)),
+      ]..sort((a, b) => b.jamMasuk.compareTo(a.jamMasuk));
       final statRaw = data['statistik'] as Map<String, dynamic>? ?? {};
+      final statMusyrifahRaw =
+          data['statistik_musyrifah'] as Map<String, dynamic>? ?? {};
 
       final newSignature =
           itemsRaw.isNotEmpty ? itemsRaw.first.signature : null;
 
       setState(() {
         _items = itemsRaw;
-        _stats = _LiveDisplayStats(
-          totalAsatidz: (statRaw['total_asatidz'] as num?)?.toInt() ?? 0,
-          hadir: (statRaw['hadir'] as num?)?.toInt() ?? 0,
-          sudahKeluar: (statRaw['sudah_keluar'] as num?)?.toInt() ?? 0,
-          belumHadir: (statRaw['belum_hadir'] as num?)?.toInt() ?? 0,
+        _stats = _LiveDisplayStats.fromJson(statRaw, totalKey: 'total_asatidz');
+        _statsMusyrifah = _LiveDisplayStats.fromJson(
+          statMusyrifahRaw,
+          totalKey: 'total_musyrifah',
         );
         _loading = false;
         _offline = false;
@@ -242,7 +269,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Papan Absensi Asatidz - Live',
+                  'Papan Absensi Asatidz & Musyrifah - Live',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 13,
@@ -345,15 +372,57 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
   }
 
   Widget _buildStatsRow() {
+    return Column(
+      children: [
+        _statsGroup('ASATIDZ', _stats, AppTheme.primary, Icons.school),
+        const SizedBox(height: 8),
+        _statsGroup(
+          "MUSYRIFAH AT-TA'WID",
+          _statsMusyrifah,
+          AppTheme.orange,
+          Icons.menu_book,
+        ),
+      ],
+    );
+  }
+
+  Widget _statsGroup(
+    String label,
+    _LiveDisplayStats stats,
+    Color color,
+    IconData icon,
+  ) {
     return Row(
       children: [
-        _statCard('Hadir', _stats.hadir, AppTheme.primary, Icons.check_circle),
-        const SizedBox(width: 10),
+        SizedBox(
+          width: 120,
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.4,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        _statCard('Hadir', stats.hadir, color, Icons.check_circle),
+        const SizedBox(width: 8),
         _statCard(
-            'Sudah Keluar', _stats.sudahKeluar, AppTheme.orange, Icons.logout),
-        const SizedBox(width: 10),
+            'Sudah Keluar', stats.sudahKeluar, AppTheme.orange, Icons.logout),
+        const SizedBox(width: 8),
         _statCard(
-            'Belum Hadir', _stats.belumHadir, AppTheme.grey500, Icons.schedule),
+            'Belum Hadir', stats.belumHadir, AppTheme.grey500, Icons.schedule),
       ],
     );
   }
@@ -399,7 +468,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
             Icon(Icons.how_to_reg, size: 48, color: AppTheme.grey300),
             SizedBox(height: 10),
             Text(
-              'Belum ada asatidz yang absen hari ini',
+              'Belum ada yang absen hari ini',
               style: TextStyle(fontSize: 15, color: AppTheme.grey500),
             ),
           ],
@@ -513,15 +582,33 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
           _sheetCell(
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                item.nama,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: isNewest ? FontWeight.bold : FontWeight.w600,
-                  color: AppTheme.grey800,
-                ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: item.musyrifah
+                          ? AppTheme.orange
+                          : AppTheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      item.nama,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight:
+                            isNewest ? FontWeight.bold : FontWeight.w600,
+                        color: AppTheme.grey800,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             flex: _sheetFlex[1],
