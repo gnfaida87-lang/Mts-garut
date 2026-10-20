@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import '../../../config/env.dart';
 import '../../../core/logging/app_logger.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_theme.dart';
 
 /// Papan Absensi Asatidz Live - untuk monitor/TV di pintu masuk.
 ///
-/// Halaman publik (tanpa login): menampilkan QR absensi di kiri dan
-/// daftar hadir live di kanan. Data diperbarui otomatis tiap 5 detik.
+/// Halaman publik (tanpa login): menampilkan daftar hadir live dalam
+/// bentuk tabel (spreadsheet). Data diperbarui otomatis secara berkala.
 class LiveDisplayPage extends StatefulWidget {
   const LiveDisplayPage({super.key});
 
@@ -67,6 +65,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
 
   Timer? _pollTimer;
   Timer? _clockTimer;
+  final ScrollController _listScrollCtrl = ScrollController();
 
   DateTime _nowWib = DateTime.now().toUtc().add(const Duration(hours: 7));
   List<_LiveDisplayItem> _items = const [];
@@ -98,6 +97,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
     _pollTimer?.cancel();
     _clockTimer?.cancel();
     _welcomeTimer?.cancel();
+    _listScrollCtrl.dispose();
     super.dispose();
   }
 
@@ -181,9 +181,6 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isWide = size.width >= 900;
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -195,25 +192,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: isWide
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(flex: 4, child: _buildQrPanel()),
-                              const SizedBox(width: 16),
-                              Expanded(flex: 6, child: _buildListPanel()),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              SizedBox(
-                                height: size.height * 0.44,
-                                child: _buildQrPanel(),
-                              ),
-                              const SizedBox(height: 12),
-                              Expanded(child: _buildListPanel()),
-                            ],
-                          ),
+                    child: _buildListPanel(),
                   ),
                 ),
               ],
@@ -310,67 +289,6 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
     );
   }
 
-  Widget _buildQrPanel() {
-    final size = MediaQuery.of(context).size;
-    final qrSize = (size.width >= 900 ? size.width * 0.26 : size.width * 0.55)
-        .clamp(180.0, 320.0);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: _panelDecoration(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _statusDot(),
-              const SizedBox(width: 8),
-              Text(
-                _offline ? 'KONEKSI TERPUTUS' : 'SCAN UNTUK ABSENSI',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: _offline ? AppTheme.error : AppTheme.grey800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.grey200),
-            ),
-            child: QrImageView(
-              data: Env.qrAbsensiToken,
-              version: QrVersions.auto,
-              size: qrSize,
-              backgroundColor: Colors.white,
-              eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.square,
-                color: AppTheme.grey900,
-              ),
-              dataModuleStyle: const QrDataModuleStyle(
-                dataModuleShape: QrDataModuleShape.square,
-                color: AppTheme.grey900,
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'Buka aplikasi, tap Scan,\narahkan kamera ke QR ini',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppTheme.grey600, height: 1.4),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _statusDot() {
     return Container(
       width: 10,
@@ -402,16 +320,25 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                   ),
                 ),
               ),
-              Text(
-                _updatedText,
-                style: const TextStyle(fontSize: 11, color: AppTheme.grey400),
+              Row(
+                children: [
+                  _statusDot(),
+                  const SizedBox(width: 8),
+                  Text(
+                    _offline ? 'Koneksi terputus' : _updatedText,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: _offline ? AppTheme.error : AppTheme.grey400,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           const SizedBox(height: 12),
           _buildStatsRow(),
-          const SizedBox(height: 12),
-          Expanded(child: _buildListBody()),
+          const SizedBox(height: 14),
+          Expanded(child: _buildSpreadsheet()),
         ],
       ),
     );
@@ -458,7 +385,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
     );
   }
 
-  Widget _buildListBody() {
+  Widget _buildSpreadsheet() {
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(color: AppTheme.primary),
@@ -479,79 +406,200 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
         ),
       );
     }
-    return ListView.separated(
-      itemCount: _items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, index) => _buildListItem(_items[index], index),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppTheme.grey300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _sheetHeader(),
+          Expanded(
+            child: Scrollbar(
+              controller: _listScrollCtrl,
+              thumbVisibility: _items.length > 8,
+              child: ListView.builder(
+                controller: _listScrollCtrl,
+                itemCount: _items.length,
+                itemBuilder: (context, index) =>
+                    _sheetRow(_items[index], index),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildListItem(_LiveDisplayItem item, int index) {
-    final sudahKeluar = item.jamKeluar != null;
+  static const List<int> _sheetFlex = [1, 6, 2, 2, 2];
+
+  static const TextStyle _sheetHeaderStyle = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    letterSpacing: 0.8,
+  );
+
+  Widget _sheetHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      height: 46,
+      color: AppTheme.primary,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _sheetCell(
+            const Text('NO', style: _sheetHeaderStyle),
+            flex: _sheetFlex[0],
+            header: true,
+          ),
+          _sheetCell(
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('NAMA', style: _sheetHeaderStyle),
+            ),
+            flex: _sheetFlex[1],
+            header: true,
+          ),
+          _sheetCell(
+            const Text('JAM MASUK', style: _sheetHeaderStyle),
+            flex: _sheetFlex[2],
+            header: true,
+          ),
+          _sheetCell(
+            const Text('JAM KELUAR', style: _sheetHeaderStyle),
+            flex: _sheetFlex[3],
+            header: true,
+          ),
+          _sheetCell(
+            const Text('STATUS', style: _sheetHeaderStyle),
+            flex: _sheetFlex[4],
+            header: true,
+            last: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sheetRow(_LiveDisplayItem item, int index) {
+    final sudahKeluar = item.jamKeluar != null;
+    final isNewest = index == 0;
+    return Container(
+      height: 50,
       decoration: BoxDecoration(
-        color: index == 0 ? AppTheme.primaryLight : AppTheme.grey50,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color:
-              index == 0 ? AppTheme.primary.withValues(alpha: 0.35) : AppTheme.grey200,
+        color: isNewest
+            ? AppTheme.primaryLight
+            : (index.isEven ? Colors.white : AppTheme.grey50),
+        border: const Border(
+          bottom: BorderSide(color: AppTheme.grey200),
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: sudahKeluar
-                  ? AppTheme.orange.withValues(alpha: 0.15)
-                  : AppTheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              sudahKeluar ? Icons.logout : Icons.check,
-              size: 20,
-              color: sudahKeluar ? AppTheme.orange : Colors.white,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              item.nama,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight:
-                    index == 0 ? FontWeight.bold : FontWeight.w600,
-                color: AppTheme.grey800,
+          _sheetCell(
+            Text(
+              '${index + 1}',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.grey500,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
+            flex: _sheetFlex[0],
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _shortTime(item.jamMasuk),
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryDark,
+          _sheetCell(
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                item.nama,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isNewest ? FontWeight.bold : FontWeight.w600,
+                  color: AppTheme.grey800,
                 ),
               ),
-              if (sudahKeluar)
-                Text(
-                  'keluar ${_shortTime(item.jamKeluar!)}',
-                  style: const TextStyle(fontSize: 11, color: AppTheme.orange),
-                )
-              else
-                const Text('masuk',
-                    style:
-                        TextStyle(fontSize: 11, color: AppTheme.grey400)),
-            ],
+            ),
+            flex: _sheetFlex[1],
+          ),
+          _sheetCell(
+            Text(
+              _shortTime(item.jamMasuk),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryDark,
+              ),
+            ),
+            flex: _sheetFlex[2],
+          ),
+          _sheetCell(
+            Text(
+              sudahKeluar ? _shortTime(item.jamKeluar!) : '-',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: sudahKeluar ? FontWeight.w700 : FontWeight.w400,
+                color: sudahKeluar ? AppTheme.orange : AppTheme.grey400,
+              ),
+            ),
+            flex: _sheetFlex[3],
+          ),
+          _sheetCell(
+            _statusChip(sudahKeluar),
+            flex: _sheetFlex[4],
+            last: true,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _sheetCell(
+    Widget child, {
+    required int flex,
+    bool last = false,
+    bool header = false,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: last
+            ? null
+            : BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    color: header ? Colors.white24 : AppTheme.grey200,
+                  ),
+                ),
+              ),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _statusChip(bool sudahKeluar) {
+    final color = sudahKeluar ? AppTheme.orange : AppTheme.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        sudahKeluar ? 'KELUAR' : 'HADIR',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.6,
+          color: color,
+        ),
       ),
     );
   }
