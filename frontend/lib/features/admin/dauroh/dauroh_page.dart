@@ -4,6 +4,7 @@ import 'program/program_list_page.dart';
 import 'musyrifah/musyrifah_list_page.dart';
 import 'jadwal/jadwal_list_page.dart';
 import 'qr/qr_dauroh_page.dart';
+import 'pengaturan/waktu_absensi_musyrifah_page.dart';
 import 'monitoring/absensi_monitoring_page.dart';
 import 'monitoring/nilai_monitoring_page.dart';
 
@@ -12,6 +13,7 @@ enum DaurohTab {
   musyrifah(label: 'Musyrifah', icon: Icons.people_outline),
   jadwal(label: 'Atur Jadwal', icon: Icons.calendar_month_outlined),
   qr(label: 'QR Code', icon: Icons.qr_code),
+  waktuAbsensi(label: 'Waktu Absensi', icon: Icons.schedule_outlined),
   monitoringAbsensi(label: 'Monitoring Absensi', icon: Icons.checklist_outlined),
   monitoringNilai(label: 'Monitoring Nilai', icon: Icons.grading_outlined);
 
@@ -128,6 +130,8 @@ class _DaurohPageState extends State<DaurohPage> {
         return const JadwalListPage();
       case DaurohTab.qr:
         return const QrDaurohPage();
+      case DaurohTab.waktuAbsensi:
+        return const WaktuAbsensiMusyrifahPage();
       case DaurohTab.monitoringAbsensi:
         return const AbsensiMonitoringPage();
       case DaurohTab.monitoringNilai:

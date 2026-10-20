@@ -5,6 +5,7 @@ import { validateApiKey } from './middleware/api_key';
 import { createSession, validateSession, revokeSession, hashToken } from './middleware/session';
 import { Env, Role, UserPayload } from './types';
 import { json, success, error, unauthorized, cors, resolveCorsOrigin } from './utils/response';
+import { getWaktuAbsensiGuru } from './utils/absensi_waktu';
 import { handleAdminMasterData, handleMapelKelas, handleGuruMapelAmpu, handleGuruKelasAmpu, handleGuruMapelKelas, handleGuruMapelKelasAll, handleGuruMapelKelasRow, handleGuruByMapelKelas, handleWaliKelasList, handleGuruBKList, handleSiswaTemplate, handleSiswaPreview, handleSiswaBulk, handleMapelTemplate, handleMapelPreview, handleMapelBulk, handleGuruTemplate, handleGuruPreview, handleGuruBulk, handleWaliKelasAssign } from './routes/admin/master_data';
 import { handleAdminUsers, handleHakAkses } from './routes/admin/users';
 import { handleAdminApiKeys } from './routes/admin/api_keys';
@@ -119,6 +120,15 @@ export default {
       // QR Scan Absensi (shared untuk guru, WK, KS)
       if (path === '/api/absensi/scan' && request.method === 'POST') {
         return handleScanAbsensi(request, env, user);
+      }
+
+      // Pengaturan waktu absensi (read-only untuk guru/WK/KS, ditampilkan di halaman scan)
+      if (path === '/api/absensi/pengaturan-waktu' && request.method === 'GET') {
+        const allowedRoles = ['guru_mapel_wali_kelas', 'wakil_kurikulum', 'kepala_sekolah'];
+        if (!allowedRoles.includes(user.role)) {
+          return error('Role Anda tidak memiliki akses absensi', 403);
+        }
+        return success(await getWaktuAbsensiGuru(env));
       }
 
       if (path === '/api/auth/me' && request.method === 'GET') {
@@ -779,8 +789,8 @@ async function handleDashboardWK(env: Env): Promise<Response> {
 
 // ═══════════════════════════════════════════════════════════════
 //  QR SCAN ABSENSI GURU (shared untuk guru, WK, KS)
-//  Window: masuk 06:30-10:00 WIB, keluar 11:00-15:00 WIB
-//  (dapat disesuaikan via env JAM_MASUK_*/JAM_KELUAR_*)
+//  Window jam masuk/keluar dibaca dari tabel `pengaturan` (diatur admin),
+//  fallback ke env JAM_MASUK_*/JAM_KELUAR_* lalu default.
 // ═══════════════════════════════════════════════════════════════
 const WIB_MS = 7 * 60 * 60 * 1000;
 
@@ -810,11 +820,12 @@ async function handleScanAbsensi(request: Request, env: Env, user: UserPayload):
   const today = wibNow.toISOString().split('T')[0];       // YYYY-MM-DD (WIB)
   const currentTime = wibNow.toISOString().slice(11, 19); // HH:MM:SS (WIB)
 
-  // Window jam absensi (default: masuk 06:30-10:00, keluar 11:00-15:00 WIB)
-  const masukMulai = env.JAM_MASUK_MULAI || '06:30:00';
-  const masukSelesai = env.JAM_MASUK_SELESAI || '10:00:00';
-  const keluarMulai = env.JAM_KELUAR_MULAI || '11:00:00';
-  const keluarSelesai = env.JAM_KELUAR_SELESAI || '15:00:00';
+  // Window jam absensi (diatur admin via tabel `pengaturan`, fallback env JAM_*)
+  const waktu = await getWaktuAbsensiGuru(env);
+  const masukMulai = waktu.jam_masuk_mulai;
+  const masukSelesai = waktu.jam_masuk_selesai;
+  const keluarMulai = waktu.jam_keluar_mulai;
+  const keluarSelesai = waktu.jam_keluar_selesai;
 
   const inJamMasuk = currentTime >= masukMulai && currentTime <= masukSelesai;
   const inJamKeluar = currentTime >= keluarMulai && currentTime <= keluarSelesai;

@@ -105,6 +105,16 @@ class AdminService {
     return res['data'] as Map<String, dynamic>;
   }
 
+  // ── Pengaturan Waktu Absensi Guru ──
+  static Future<Map<String, dynamic>> getPengaturanWaktuAbsensi() async {
+    final res = await ApiClient.get('/admin/absensi/pengaturan-waktu');
+    return res['data'] as Map<String, dynamic>;
+  }
+
+  static Future<void> updatePengaturanWaktuAbsensi(Map<String, dynamic> body) async {
+    await ApiClient.put('/admin/absensi/pengaturan-waktu', body: body);
+  }
+
   // ── Nilai ──
   static Future<Map<String, dynamic>> getNilai({int page = 1, int perPage = 20, String? kelasId, String? mapelId, String? jenis, String? statusValidasi, String? semesterId}) async {
     final params = <String, String>{'page': '$page', 'per_page': '$perPage'};

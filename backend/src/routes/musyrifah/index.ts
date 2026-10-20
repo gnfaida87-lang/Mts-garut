@@ -1,5 +1,6 @@
 import { Env, UserPayload } from '../../types';
 import { success, error, badRequest, notFound } from '../../utils/response';
+import { getWaktuAbsensiMusyrifah } from '../../utils/absensi_waktu';
 
 type Row = Record<string, unknown>;
 
@@ -262,6 +263,11 @@ async function handleAbsensiMusyrifah(
     return scanAbsensiMusyrifah(request, env, user);
   }
 
+  // GET /api/musyrifah/absensi/pengaturan-waktu - info jam absensi (untuk halaman scan)
+  if (method === 'GET' && pathParts[3] === 'pengaturan-waktu') {
+    return success(await getWaktuAbsensiMusyrifah(env));
+  }
+
   // GET /api/musyrifah/absensi - Riwayat absensi
   if (method === 'GET' && pathParts.length === 3) {
     return listAbsensiMusyrifah(env, user, url);
@@ -295,11 +301,12 @@ async function scanAbsensiMusyrifah(request: Request, env: Env, user: UserPayloa
   const currentTime = wibTime();
   const hariIni = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][wib.getUTCDay()];
 
-  // Window jam absensi musyrifah (default: masuk 06:30-07:00, keluar 08:00-09:00 WIB)
-  const masukMulai = env.DAUROH_JAM_MASUK_MULAI || '06:30:00';
-  const masukSelesai = env.DAUROH_JAM_MASUK_SELESAI || '07:00:00';
-  const keluarMulai = env.DAUROH_JAM_KELUAR_MULAI || '08:00:00';
-  const keluarSelesai = env.DAUROH_JAM_KELUAR_SELESAI || '09:00:00';
+  // Window jam absensi musyrifah (diatur admin via tabel `pengaturan`, fallback env DAUROH_JAM_*)
+  const waktu = await getWaktuAbsensiMusyrifah(env);
+  const masukMulai = waktu.jam_masuk_mulai;
+  const masukSelesai = waktu.jam_masuk_selesai;
+  const keluarMulai = waktu.jam_keluar_mulai;
+  const keluarSelesai = waktu.jam_keluar_selesai;
 
   const inJamMasuk = currentTime >= masukMulai && currentTime <= masukSelesai;
   const inJamKeluar = currentTime >= keluarMulai && currentTime <= keluarSelesai;

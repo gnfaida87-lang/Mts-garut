@@ -423,7 +423,17 @@ INSERT OR IGNORE INTO pengaturan (key, value) VALUES
     ('hero_title', 'MTs PERSIS GARUT'),
     ('hero_subtitle', 'Absensi, Jadwal, Nilai, dan Lainnya'),
     ('logo_url', ''),
-    ('background_url', '');
+    ('background_url', ''),
+    -- Pengaturan waktu absensi guru (dapat diubah admin via UI)
+    ('absensi_jam_masuk_mulai',    '06:30:00'),
+    ('absensi_jam_masuk_selesai',  '10:00:00'),
+    ('absensi_jam_keluar_mulai',   '11:00:00'),
+    ('absensi_jam_keluar_selesai', '15:00:00'),
+    -- Pengaturan waktu absensi musyrifah at-Ta'wid (dapat diubah admin via UI)
+    ('dauroh_jam_masuk_mulai',     '06:30:00'),
+    ('dauroh_jam_masuk_selesai',   '07:00:00'),
+    ('dauroh_jam_keluar_mulai',    '08:00:00'),
+    ('dauroh_jam_keluar_selesai',  '09:00:00');
 
 -- ============================================================
 -- 8. KENAIKAN KELAS & ALUMNI (Wakil Kurikulum)

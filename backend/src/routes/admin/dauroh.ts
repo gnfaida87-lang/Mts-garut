@@ -1,5 +1,12 @@
 import { Env, UserPayload } from '../../types';
 import { success, created, notFound, badRequest } from '../../utils/response';
+import {
+  WaktuAbsensiMusyrifah,
+  WAKTU_MUSYRIFAH_FIELD_KEYS,
+  getWaktuAbsensiMusyrifah,
+  normalizeJam,
+  validateWaktuAbsensi,
+} from '../../utils/absensi_waktu';
 import bcrypt from 'bcryptjs';
 
 type Row = Record<string, unknown>;
@@ -48,6 +55,17 @@ export async function handleAdminDauroh(
   // ─── QR CODE ────────────────────────────────────────────────
   if (subPath === 'qr') {
     return handleGetQR(env);
+  }
+
+  // ─── PENGATURAN WAKTU ABSENSI MUSYRIFAH ─────────────────────
+  if (subPath === 'pengaturan-waktu') {
+    if (request.method === 'GET') {
+      return success(await getWaktuAbsensiMusyrifah(env));
+    }
+    if (request.method === 'PUT') {
+      return handleUpdateWaktuMusyrifah(request, env, user, ip);
+    }
+    return badRequest('Method tidak didukung');
   }
 
   // ─── MONITORING ABSENSI ─────────────────────────────────────
@@ -753,6 +771,39 @@ async function handleGetQR(env: Env) {
     token,
     message: 'QR Code Dauroh - Token untuk absensi musyrifah',
   });
+}
+
+// ============================================================
+// PENGATURAN WAKTU ABSENSI MUSYRIFAH
+// ============================================================
+
+async function handleUpdateWaktuMusyrifah(request: Request, env: Env, user: UserPayload, ip: string) {
+  const body = await request.json().catch(() => null) as Record<string, unknown> | null;
+  if (!body) return badRequest('Body JSON tidak valid');
+
+  const waktu: WaktuAbsensiMusyrifah = {
+    jam_masuk_mulai: normalizeJam(body.jam_masuk_mulai as string),
+    jam_masuk_selesai: normalizeJam(body.jam_masuk_selesai as string),
+    jam_keluar_mulai: normalizeJam(body.jam_keluar_mulai as string),
+    jam_keluar_selesai: normalizeJam(body.jam_keluar_selesai as string),
+  };
+
+  const validationError = validateWaktuAbsensi(waktu);
+  if (validationError) return badRequest(validationError);
+
+  for (const field of Object.keys(WAKTU_MUSYRIFAH_FIELD_KEYS) as (keyof WaktuAbsensiMusyrifah)[]) {
+    await env.DB.prepare(
+      "INSERT INTO pengaturan (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at"
+    ).bind(WAKTU_MUSYRIFAH_FIELD_KEYS[field], waktu[field]).run();
+  }
+
+  await logAction(
+    env, user.sub, 'update', 'dauroh',
+    `Update jam absensi musyrifah: masuk ${waktu.jam_masuk_mulai.slice(0, 5)}-${waktu.jam_masuk_selesai.slice(0, 5)}, keluar ${waktu.jam_keluar_mulai.slice(0, 5)}-${waktu.jam_keluar_selesai.slice(0, 5)}`,
+    ip
+  );
+
+  return success({ message: 'Pengaturan waktu absensi musyrifah tersimpan', ...waktu });
 }
 
 // ============================================================

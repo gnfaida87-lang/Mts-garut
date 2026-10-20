@@ -278,6 +278,67 @@ describe('Admin Routes', () => {
       const res = await handleAdminAbsensi(req, db, adminUser, makeUrl('/api/admin/absensi/guru/1'));
       expect(res.status).toBe(400);
     });
+
+    it('should return pengaturan waktu absensi with defaults', async () => {
+      const db = makeDb();
+      db.all.mockResolvedValue({ results: [
+        { key: 'absensi_jam_masuk_mulai', value: '07:00:00' },
+        { key: 'absensi_jam_keluar_selesai', value: '16:00:00' },
+      ] });
+
+      const req = makeGet('/api/admin/absensi/pengaturan-waktu');
+      const res = await handleAdminAbsensi(req, db, adminUser, makeUrl('/api/admin/absensi/pengaturan-waktu'));
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.data.jam_masuk_mulai).toBe('07:00:00');
+      expect(body.data.jam_keluar_selesai).toBe('16:00:00');
+      // key yang tidak ada di mock memakai default
+      expect(body.data.jam_masuk_selesai).toBe('10:00:00');
+      expect(body.data.jam_keluar_mulai).toBe('11:00:00');
+    });
+
+    it('should save pengaturan waktu absensi via PUT', async () => {
+      const db = makeDb();
+
+      const req = makePut('/api/admin/absensi/pengaturan-waktu', {
+        jam_masuk_mulai: '07:00',
+        jam_masuk_selesai: '09:30',
+        jam_keluar_mulai: '12:00',
+        jam_keluar_selesai: '16:00',
+      });
+      const res = await handleAdminAbsensi(req, db, adminUser, makeUrl('/api/admin/absensi/pengaturan-waktu'));
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.data.jam_masuk_mulai).toBe('07:00:00');
+      expect(body.data.jam_keluar_selesai).toBe('16:00:00');
+      expect(db.run).toHaveBeenCalledTimes(5); // 4 key + 1 log aktivitas
+    });
+
+    it('should reject invalid time format in pengaturan waktu PUT', async () => {
+      const db = makeDb();
+
+      const req = makePut('/api/admin/absensi/pengaturan-waktu', {
+        jam_masuk_mulai: '25:99',
+        jam_masuk_selesai: '10:00',
+        jam_keluar_mulai: '11:00',
+        jam_keluar_selesai: '15:00',
+      });
+      const res = await handleAdminAbsensi(req, db, adminUser, makeUrl('/api/admin/absensi/pengaturan-waktu'));
+      expect(res.status).toBe(400);
+    });
+
+    it('should reject overlapping window in pengaturan waktu PUT', async () => {
+      const db = makeDb();
+
+      const req = makePut('/api/admin/absensi/pengaturan-waktu', {
+        jam_masuk_mulai: '06:30',
+        jam_masuk_selesai: '11:30',
+        jam_keluar_mulai: '11:00',
+        jam_keluar_selesai: '15:00',
+      });
+      const res = await handleAdminAbsensi(req, db, adminUser, makeUrl('/api/admin/absensi/pengaturan-waktu'));
+      expect(res.status).toBe(400);
+    });
   });
 
   describe('Dauroh Absensi Monitoring', () => {
@@ -324,6 +385,71 @@ describe('Admin Routes', () => {
       const pathParts = ['api', 'admin', 'dauroh', 'monitoring', 'absensi', '999'];
       const res = await handleAdminDauroh(req, db, adminUser, pathParts, makeUrl('/api/admin/dauroh/monitoring/absensi/999'));
       expect(res.status).toBe(404);
+    });
+
+    it('should return pengaturan waktu absensi musyrifah with defaults', async () => {
+      const db = makeDb();
+      db.all.mockResolvedValue({ results: [
+        { key: 'dauroh_jam_masuk_mulai', value: '07:00:00' },
+        { key: 'dauroh_jam_keluar_selesai', value: '10:00:00' },
+      ] });
+
+      const req = makeGet('/api/admin/dauroh/pengaturan-waktu');
+      const pathParts = ['api', 'admin', 'dauroh', 'pengaturan-waktu'];
+      const res = await handleAdminDauroh(req, db, adminUser, pathParts, makeUrl('/api/admin/dauroh/pengaturan-waktu'));
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.data.jam_masuk_mulai).toBe('07:00:00');
+      expect(body.data.jam_keluar_selesai).toBe('10:00:00');
+      // key yang tidak ada di mock memakai default
+      expect(body.data.jam_masuk_selesai).toBe('07:00:00');
+      expect(body.data.jam_keluar_mulai).toBe('08:00:00');
+    });
+
+    it('should save pengaturan waktu absensi musyrifah via PUT', async () => {
+      const db = makeDb();
+
+      const req = makePut('/api/admin/dauroh/pengaturan-waktu', {
+        jam_masuk_mulai: '07:00',
+        jam_masuk_selesai: '07:30',
+        jam_keluar_mulai: '09:00',
+        jam_keluar_selesai: '10:00',
+      });
+      const pathParts = ['api', 'admin', 'dauroh', 'pengaturan-waktu'];
+      const res = await handleAdminDauroh(req, db, adminUser, pathParts, makeUrl('/api/admin/dauroh/pengaturan-waktu'));
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.data.jam_masuk_mulai).toBe('07:00:00');
+      expect(body.data.jam_keluar_selesai).toBe('10:00:00');
+      expect(db.run).toHaveBeenCalledTimes(5); // 4 key + 1 log aktivitas
+    });
+
+    it('should reject invalid time format in pengaturan waktu musyrifah PUT', async () => {
+      const db = makeDb();
+
+      const req = makePut('/api/admin/dauroh/pengaturan-waktu', {
+        jam_masuk_mulai: '25:99',
+        jam_masuk_selesai: '07:00',
+        jam_keluar_mulai: '08:00',
+        jam_keluar_selesai: '09:00',
+      });
+      const pathParts = ['api', 'admin', 'dauroh', 'pengaturan-waktu'];
+      const res = await handleAdminDauroh(req, db, adminUser, pathParts, makeUrl('/api/admin/dauroh/pengaturan-waktu'));
+      expect(res.status).toBe(400);
+    });
+
+    it('should reject overlapping window in pengaturan waktu musyrifah PUT', async () => {
+      const db = makeDb();
+
+      const req = makePut('/api/admin/dauroh/pengaturan-waktu', {
+        jam_masuk_mulai: '06:30',
+        jam_masuk_selesai: '09:30',
+        jam_keluar_mulai: '08:00',
+        jam_keluar_selesai: '10:00',
+      });
+      const pathParts = ['api', 'admin', 'dauroh', 'pengaturan-waktu'];
+      const res = await handleAdminDauroh(req, db, adminUser, pathParts, makeUrl('/api/admin/dauroh/pengaturan-waktu'));
+      expect(res.status).toBe(400);
     });
   });
 

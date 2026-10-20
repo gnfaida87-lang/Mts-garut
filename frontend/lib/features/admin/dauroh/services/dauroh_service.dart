@@ -124,6 +124,16 @@ class DaurohService {
     return res['data'] as Map<String, dynamic>;
   }
 
+  // ── Pengaturan Waktu Absensi Musyrifah ──
+  static Future<Map<String, dynamic>> getPengaturanWaktuAbsensi() async {
+    final res = await ApiClient.get('/admin/dauroh/pengaturan-waktu');
+    return res['data'] as Map<String, dynamic>;
+  }
+
+  static Future<void> updatePengaturanWaktuAbsensi(Map<String, dynamic> body) async {
+    await ApiClient.put('/admin/dauroh/pengaturan-waktu', body: body);
+  }
+
   // ═══════════════════════════════════════════════════════════════
   //  MONITORING
   // ═══════════════════════════════════════════════════════════════

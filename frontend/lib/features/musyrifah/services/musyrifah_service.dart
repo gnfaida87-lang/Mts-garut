@@ -33,6 +33,12 @@ class MusyrifahService {
     return res['data'] as Map<String, dynamic>;
   }
 
+  /// Jam masuk/keluar absensi at-Ta'wid (untuk info di halaman scan).
+  static Future<Map<String, dynamic>> getPengaturanWaktuAbsensi() async {
+    final res = await ApiClient.get('/musyrifah/absensi/pengaturan-waktu');
+    return res['data'] as Map<String, dynamic>;
+  }
+
   static Future<Map<String, dynamic>> listAbsensi({
     int page = 1,
     int perPage = 20,

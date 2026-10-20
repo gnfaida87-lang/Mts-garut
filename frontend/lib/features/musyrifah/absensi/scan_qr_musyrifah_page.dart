@@ -20,12 +20,23 @@ class _ScanQrMusyrifahPageState extends State<ScanQrMusyrifahPage> {
   String? _resultMessage;
   bool? _isSuccess;
   DateTime? _lastScanTime;
+  Map<String, dynamic>? _waktu;
 
   @override
   void initState() {
     super.initState();
     _initCamera();
+    _loadWaktu();
   }
+
+  Future<void> _loadWaktu() async {
+    try {
+      final waktu = await MusyrifahService.getPengaturanWaktuAbsensi();
+      if (mounted) setState(() => _waktu = waktu);
+    } catch (_) {}
+  }
+
+  String _fmtJam(String? t) => (t != null && t.length >= 5) ? t.substring(0, 5) : '-';
 
   void _initCamera() {
     _cameraController = MobileScannerController(
@@ -325,6 +336,22 @@ class _ScanQrMusyrifahPageState extends State<ScanQrMusyrifahPage> {
               'QR Code berlaku untuk absensi harian',
               style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
             ),
+            if (_waktu != null) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Jam masuk ${_fmtJam(_waktu!['jam_masuk_mulai']?.toString())}–${_fmtJam(_waktu!['jam_masuk_selesai']?.toString())}'
+                  '  •  Jam keluar ${_fmtJam(_waktu!['jam_keluar_mulai']?.toString())}–${_fmtJam(_waktu!['jam_keluar_selesai']?.toString())}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
           ],
         ),
       ),

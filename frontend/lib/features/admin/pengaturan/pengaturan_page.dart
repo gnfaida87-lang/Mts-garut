@@ -13,6 +13,7 @@ part 'pengaturan_hak_akses_tab.dart';
 part 'pengaturan_log_tab.dart';
 part 'pengaturan_backup_restore_tab.dart';
 part 'pengaturan_profil_tab.dart';
+part 'pengaturan_waktu_absensi_tab.dart';
 part 'pengaturan_api_keys_tab.dart';
 
 class PengaturanPage extends StatefulWidget {
@@ -28,7 +29,7 @@ class _PengaturanPageState extends State<PengaturanPage> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: 7, vsync: this);
+    _tabCtrl = TabController(length: 8, vsync: this);
   }
 
   @override
@@ -62,6 +63,7 @@ class _PengaturanPageState extends State<PengaturanPage> with SingleTickerProvid
               Tab(icon: Icon(Icons.restore_outlined, size: 18), text: 'Restore'),
               Tab(icon: Icon(Icons.school_outlined, size: 18), text: 'Profil'),
               Tab(icon: Icon(Icons.login_outlined, size: 18), text: 'Tampilan'),
+              Tab(icon: Icon(Icons.schedule_outlined, size: 18), text: 'Absensi'),
               Tab(icon: Icon(Icons.key_outlined, size: 18), text: 'API Keys'),
             ],
           ),
@@ -74,6 +76,7 @@ class _PengaturanPageState extends State<PengaturanPage> with SingleTickerProvid
             _RestoreTab(),
             _ProfilTab(),
             _TampilanLoginTab(),
+            _WaktuAbsensiTab(),
             _ApiKeysTab(),
           ]),
         ),

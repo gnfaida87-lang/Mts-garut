@@ -1,5 +1,12 @@
 import { Env, UserPayload } from '../../types';
 import { success, badRequest, notFound } from '../../utils/response';
+import {
+  WaktuAbsensiGuru,
+  WAKTU_GURU_FIELD_KEYS,
+  getWaktuAbsensiGuru,
+  normalizeJam,
+  validateWaktuAbsensi,
+} from '../../utils/absensi_waktu';
 
 function buildStatusMap(results: { status: string; count: number }[]): Record<string, number> {
   const map: Record<string, number> = {};
@@ -230,18 +237,56 @@ export async function handleAdminAbsensi(request: Request, env: Env, user: UserP
     const offset = (page - 1) * perPage;
 
     const total = (await env.DB.prepare(
-      "SELECT COUNT(*) as total FROM log_aktivitas WHERE modul = 'absensi'"
+      "SELECT COUNT(*) as total FROM log_aktivitas WHERE modul IN ('absensi', 'absensi_guru')"
     ).first<{ total: number }>())?.total || 0;
 
     const rows = await env.DB.prepare(
       `SELECT la.*, u.username
        FROM log_aktivitas la
        LEFT JOIN users u ON la.user_id = u.id
-       WHERE la.modul = 'absensi'
+       WHERE la.modul IN ('absensi', 'absensi_guru')
        ORDER BY la.created_at DESC LIMIT ? OFFSET ?`
     ).bind(perPage, offset).all();
 
     return success({ items: rows.results, pagination: { page, per_page: perPage, total, total_pages: Math.ceil(total / perPage) } });
+  }
+
+  // GET/PUT /api/admin/absensi/pengaturan-waktu - pengaturan jam masuk & keluar absensi guru
+  if (subPath === '/pengaturan-waktu' && request.method === 'GET') {
+    const waktu = await getWaktuAbsensiGuru(env);
+    return success(waktu);
+  }
+
+  if (subPath === '/pengaturan-waktu' && request.method === 'PUT') {
+    const body = await request.json().catch(() => null) as Record<string, unknown> | null;
+    if (!body) return badRequest('Body JSON tidak valid');
+
+    const waktu: WaktuAbsensiGuru = {
+      jam_masuk_mulai: normalizeJam(body.jam_masuk_mulai as string),
+      jam_masuk_selesai: normalizeJam(body.jam_masuk_selesai as string),
+      jam_keluar_mulai: normalizeJam(body.jam_keluar_mulai as string),
+      jam_keluar_selesai: normalizeJam(body.jam_keluar_selesai as string),
+    };
+
+    const validationError = validateWaktuAbsensi(waktu);
+    if (validationError) return badRequest(validationError);
+
+    for (const field of Object.keys(WAKTU_GURU_FIELD_KEYS) as (keyof WaktuAbsensiGuru)[]) {
+      await env.DB.prepare(
+        "INSERT INTO pengaturan (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at"
+      ).bind(WAKTU_GURU_FIELD_KEYS[field], waktu[field]).run();
+    }
+
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    await env.DB.prepare(
+      "INSERT INTO log_aktivitas (user_id, aksi, modul, detail, ip_address) VALUES (?, 'update', 'absensi', ?, ?)"
+    ).bind(
+      user.sub,
+      `Update jam absensi guru: masuk ${waktu.jam_masuk_mulai.slice(0, 5)}-${waktu.jam_masuk_selesai.slice(0, 5)}, keluar ${waktu.jam_keluar_mulai.slice(0, 5)}-${waktu.jam_keluar_selesai.slice(0, 5)}`,
+      ip
+    ).run();
+
+    return success({ message: 'Pengaturan waktu absensi tersimpan', ...waktu });
   }
 
   return badRequest('Endpoint tidak dikenal');
