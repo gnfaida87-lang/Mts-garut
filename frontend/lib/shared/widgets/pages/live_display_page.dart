@@ -208,6 +208,12 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Di monitor POTRAIT (tegak) lebar layar sempit, jadi ruang tepi
+    // dipadatkan supaya daftar hadir terlihat lebih luas.
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+    final margin = isPortrait ? 10.0 : 16.0;
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -218,7 +224,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 _buildHeader(),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(margin),
                     child: _buildListPanel(),
                   ),
                 ),
@@ -328,8 +334,12 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
   }
 
   Widget _buildListPanel() {
+    // Portrait: isi panel dipadatkan (16 vs 20) supaya tabel dapat ruang
+    // lebih banyak secara horizontal.
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isPortrait ? 14 : 20),
       decoration: _panelDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,6 +349,8 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
               const Expanded(
                 child: Text(
                   'DAFTAR HADIR HARI INI',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -347,12 +359,16 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   _statusDot(),
                   const SizedBox(width: 8),
                   Text(
                     _offline ? 'Koneksi terputus' : _updatedText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 11,
                       color: _offline ? AppTheme.error : AppTheme.grey400,
@@ -362,9 +378,9 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _buildStatsRow(),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Expanded(child: _buildSpreadsheet()),
         ],
       ),
@@ -373,84 +389,72 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
 
   Widget _buildStatsRow() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _statsGroup('ASATIDZ', _stats, AppTheme.primary, Icons.school),
-        const SizedBox(height: 8),
-        _statsGroup(
-          "MUSYRIFAH AT-TA'WID",
+        // Baris 1: ringkasan Asatidz (tanpa kotak/kartu)
+        _statsLine(
+          'Asatidz',
+          _stats,
+          AppTheme.primary,
+        ),
+        const SizedBox(height: 6),
+        // Baris 2: ringkasan Musyrifah at-Ta'wid
+        _statsLine(
+          "Musyrifah at-Ta'wid",
           _statsMusyrifah,
           AppTheme.orange,
-          Icons.menu_book,
         ),
       ],
     );
   }
 
-  Widget _statsGroup(
-    String label,
-    _LiveDisplayStats stats,
-    Color color,
-    IconData icon,
-  ) {
-    return Row(
+  /// Satu baris ringkasan angka, contoh:
+  ///   ● Asatidz — Hadir 12 · Sudah Keluar 5 · Belum Hadir 3
+  ///
+  /// Tanpa kotak, supaya ruang daftar hadir terlihat lebih luas.
+  /// Bila layar sempit (mode portrait), teks otomatis turun ke baris
+  /// berikutnya sehingga tidak terpotong.
+  Widget _statsLine(String label, _LiveDisplayStats stats, Color color) {
+    final valueStyle = TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.bold,
+      color: color,
+    );
+    const labelStyle = TextStyle(
+      fontSize: 12,
+      color: AppTheme.grey600,
+    );
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        SizedBox(
-          width: 120,
-          child: Row(
-            children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.4,
-                    color: color,
-                  ),
-                ),
-              ),
-            ],
+        // Titik penanda: warnanya sama dengan titik di depan nama
+        // pada tabel, jadi pembaca tahu ini ringkasan kategori mana.
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: color,
           ),
         ),
-        _statCard('Hadir', stats.hadir, color, Icons.check_circle),
-        const SizedBox(width: 8),
-        _statCard(
-            'Sudah Keluar', stats.sudahKeluar, AppTheme.orange, Icons.logout),
-        const SizedBox(width: 8),
-        _statCard(
-            'Belum Hadir', stats.belumHadir, AppTheme.grey500, Icons.schedule),
+        const Text('—', style: labelStyle),
+        const Text('Hadir ', style: labelStyle),
+        Text('${stats.hadir}', style: valueStyle),
+        const Text('·', style: labelStyle),
+        const Text('Sudah Keluar ', style: labelStyle),
+        Text('${stats.sudahKeluar}', style: valueStyle),
+        const Text('·', style: labelStyle),
+        const Text('Belum Hadir ', style: labelStyle),
+        Text('${stats.belumHadir}', style: valueStyle),
       ],
-    );
-  }
-
-  Widget _statCard(String label, int value, Color color, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.25)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(height: 4),
-            Text('$value',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: color)),
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 11, color: AppTheme.grey600)),
-          ],
-        ),
-      ),
     );
   }
 
@@ -502,7 +506,17 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
     );
   }
 
+  /// Lebar kolom tabel (relatif): NO · NAMA · JAM MASUK · JAM KELUAR · STATUS
   static const List<int> _sheetFlex = [1, 6, 2, 2, 2];
+
+  /// Lebar kolom versi POTRAIT: nama dibuat lebih luas, sedangkan nomor dan
+  /// status dipersempit, karena layar tegak lebih sempit.
+  static const List<int> _sheetFlexPortrait = [1, 10, 3, 3, 3];
+
+  List<int> get _flex =>
+      MediaQuery.of(context).orientation == Orientation.portrait
+          ? _sheetFlexPortrait
+          : _sheetFlex;
 
   static const TextStyle _sheetHeaderStyle = TextStyle(
     fontSize: 13,
@@ -520,7 +534,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
         children: [
           _sheetCell(
             const Text('NO', style: _sheetHeaderStyle),
-            flex: _sheetFlex[0],
+            flex: _flex[0],
             header: true,
           ),
           _sheetCell(
@@ -528,22 +542,22 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
               alignment: Alignment.centerLeft,
               child: Text('NAMA', style: _sheetHeaderStyle),
             ),
-            flex: _sheetFlex[1],
+            flex: _flex[1],
             header: true,
           ),
           _sheetCell(
             const Text('JAM MASUK', style: _sheetHeaderStyle),
-            flex: _sheetFlex[2],
+            flex: _flex[2],
             header: true,
           ),
           _sheetCell(
             const Text('JAM KELUAR', style: _sheetHeaderStyle),
-            flex: _sheetFlex[3],
+            flex: _flex[3],
             header: true,
           ),
           _sheetCell(
             const Text('STATUS', style: _sheetHeaderStyle),
-            flex: _sheetFlex[4],
+            flex: _flex[4],
             header: true,
             last: true,
           ),
@@ -577,7 +591,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 color: AppTheme.grey500,
               ),
             ),
-            flex: _sheetFlex[0],
+            flex: _flex[0],
           ),
           _sheetCell(
             Align(
@@ -611,7 +625,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 ],
               ),
             ),
-            flex: _sheetFlex[1],
+            flex: _flex[1],
           ),
           _sheetCell(
             Text(
@@ -622,7 +636,7 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 color: AppTheme.primaryDark,
               ),
             ),
-            flex: _sheetFlex[2],
+            flex: _flex[2],
           ),
           _sheetCell(
             Text(
@@ -633,11 +647,11 @@ class _LiveDisplayPageState extends State<LiveDisplayPage> {
                 color: sudahKeluar ? AppTheme.orange : AppTheme.grey400,
               ),
             ),
-            flex: _sheetFlex[3],
+            flex: _flex[3],
           ),
           _sheetCell(
             _statusChip(sudahKeluar),
-            flex: _sheetFlex[4],
+            flex: _flex[4],
             last: true,
           ),
         ],
